@@ -1,0 +1,8 @@
+# Matlab files
+*.slprj
+*.asv
+
+# Python
+*.pyc
+*.pyd
+*.pyo
