@@ -1,6 +1,7 @@
 # Matlab files
-*.slprj
+*.DS_Store
 *.asv
+*.m~
 
 # Python
 *.pyc
