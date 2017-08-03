@@ -2,8 +2,7 @@
 %   Husky-Sat1, ADCS Subsystem
 %   T. Reynolds: 5.22.17
 
-%% 
-function sunsensor = init_sunsensor_sim( )
+function sunsensor = init_sun_sensor( )
 
 
 sunsensor.sample_time_s = (1/100);  % [Hz]

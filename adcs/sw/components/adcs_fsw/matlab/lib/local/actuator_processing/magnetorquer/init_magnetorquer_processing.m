@@ -1,4 +1,4 @@
-function magnetorquer     = init_magnetorquer_fsw( )
+function magnetorquer     = init_magnetorquer_processing( )
 % ----------------------------------------------------------------------- %
 % Magnetorquer FSW Init File
 %   UW HuskySat-1, ADCS Team

@@ -1,15 +1,15 @@
-function [output] = init_function_template(input)
+function actuators = init_actuators( )
 % ----------------------------------------------------------------------- %
 % UW HuskySat-1, ADCS Team
 %
-% >>FUNCTION DESCRIPTION<< EXAMPLE TEMPLATE USED FOR ALL INIT FILES IN FSW
+% Initialize all parameters for the reaction wheel assembly model in SIM.
 %
-%   Last Edited: >>NAME<<   >>DATE<<
+%   Last Edited: T. Reynolds, 8.3.17
 % ----------------------------------------------------------------------- %
 
-% Header
-output.ic.one   = 0;
-
+% Initial conditions
+actuators.magnetorquer = init_magnetorquer_assembly();
+actuators.reaction_wheel    = init_reaction_wheel_assembly();
 
 
 end

@@ -1,15 +1,13 @@
-function pd_controller = init_pd_controller( )
+function TA_controller = init_two_axis_control( )
 % ----------------------------------------------------------------------- %
 % UW HuskySat-1, ADCS Team
-%   Load the parameters for the PD reorientation controller. Any block used
-%   in the controller should be initialized here. 
-% Last Edited: T. Reynolds 6.23.17
+%   Load the parameters for the two axis controller.
+% Last Edited: T. Reynolds 8.3.17
 % ----------------------------------------------------------------------- %
 
 % Initial Conditions
+TA_controller.ic.example    = 0;
 
-% PD Controller gains
-pd_controller.p_gain = -1;
-pd_controller.d_gain = -1;
+% Control Parameters
 
 

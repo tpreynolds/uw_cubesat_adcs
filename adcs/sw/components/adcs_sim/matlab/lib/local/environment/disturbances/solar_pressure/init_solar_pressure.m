@@ -1,7 +1,10 @@
 function sol_p = init_solar_pressure
-
+% HuskySat-1, ADCS Team
+%
 % Initializes the solar radiation pressure torque library
 %   Ref: dR-D-F, Spacecraft Dynamics & Control, 2013, pp 228-229.
+%
+% Last Update: T. Reynolds, 8.3.17
 
 sol_p.force_coeff = 4.5e-6; % N/m^2
 

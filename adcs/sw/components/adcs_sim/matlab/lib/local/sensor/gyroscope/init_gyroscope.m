@@ -1,9 +1,8 @@
-%% Sim Sun Sensor Model Init File
+%% Sim Gyroscope Model Init File
 %   Husky-Sat1, ADCS Subsystem
-%   T. Reynolds: 5.22.17
+%   T. Reynolds: 8.3.17
 
-%% 
-function gyro = init_gyro_sim( )
+function gyro = init_gyroscope( )
 
 
 gyro.sample_time_s  = (1/100);      % [Hz]

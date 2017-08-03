@@ -1,4 +1,4 @@
-function ekf = init_ekf_estimator(sim_params)
+function ekf = init_extended_kalman_filter(sim_params)
 
 % ----------------------------------------------------------------------- %
 % Loads the parameters of the EKF estimator using predefined fsw_params.

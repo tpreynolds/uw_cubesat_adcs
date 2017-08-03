@@ -1,9 +1,10 @@
 %% Init Sim Magnetorquer Model
 %   HuskySat-1, ADCS Subsystem
-%   T. Reynolds - 5.27.17
+% Initializes each of the magnetorquer models for use in SIM.
+%   Last Update: T. Reynolds - 8.3.17
 
 %%
-function magnetorquer     = init_magnetorquer_sim
+function magnetorquer     = init_magnetorquer
 
 % Start with Sim Params
 magnetorquer.ic.current    = 0;

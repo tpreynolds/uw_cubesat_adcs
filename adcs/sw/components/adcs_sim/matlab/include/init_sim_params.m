@@ -33,24 +33,19 @@ sim_params.dynamics = init_dynamics;
 
 % ----- Sensors ----- %
 % Magnetometer
-sim_params.sensors.magnetometer = init_magnetometer;
-sim_params.sensors.gyro         = init_gyro_sim;
-sim_params.sensors.photodiodes  = init_photodiodes;
-sim_params.sensors.sunsensor    = init_sunsensor_sim;
-sim_params.sensors.gps          = init_gps;
+sim_params.sensors  = init_sensors();
 % -----
 
 % ----- Actuators ----- %
-sim_params.actuators.magnetorquer = init_magnetorquer_sim;
-sim_params.actuators.reaction_wheel  = init_reaction_wheel;
+sim_params.actuators    = init_actuators();
 % -----
 
 % ----- Environment ----- %
-sim_params.environment.sol_p = init_solar_pressure;
+sim_params.environment  = init_environment();
 % -----
 
 % SGP4 - Orbit Propagator
-sim_params.environment.sgp4 = init_sgp4;
+fsw_params.environment.sgp4 = sim_params.environment.sgp4;
 % -----
 
 

@@ -8,8 +8,11 @@ function sensors = init_sensors( )
 % ----------------------------------------------------------------------- %
 
 % Header
-sensors.ic.one   = 0;
-
+sensors.gps     = init_gps();
+sensors.gyro    = init_gyroscope();
+sensors.magnetometer    = init_magnetometer();
+sensors.photodiodes     = init_photodiodes();
+sensors.sun_sensor      = init_sun_sensor();
 
 
 end

@@ -1,4 +1,4 @@
-function environment = init_environment_fsw( )
+function environment = init_env_estimation( )
 % ----------------------------------------------------------------------- %
 % UW HuskySat-1, ADCS Team
 %

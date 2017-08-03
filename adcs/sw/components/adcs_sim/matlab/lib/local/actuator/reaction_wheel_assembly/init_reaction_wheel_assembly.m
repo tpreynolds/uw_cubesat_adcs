@@ -1,7 +1,7 @@
-function reaction_wheel = init_reaction_wheel
+function reaction_wheel = init_reaction_wheel_assembly
 % UW HuskySat-1, ADCS Team
-% Initiates the brushed DC motor model
-%   T. Reynolds - 6.23.17
+% Initiates the brushed DC motor model. PID gains from MATLAB tuning tool.
+%   T. Reynolds - 8.3.17
 
 
 % Initial conditions

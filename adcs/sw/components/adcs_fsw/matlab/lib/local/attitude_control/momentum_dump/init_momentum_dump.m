@@ -1,15 +1,14 @@
-function pd_controller = init_pd_controller( )
+function p_dump = init_momentum_dump( )
 % ----------------------------------------------------------------------- %
 % UW HuskySat-1, ADCS Team
-%   Load the parameters for the PD reorientation controller. Any block used
-%   in the controller should be initialized here. 
-% Last Edited: T. Reynolds 6.23.17
+%   Load the parameters for the momentum (p) unloading controller here. 
+% Last Edited: T. Reynolds 8.3.17
 % ----------------------------------------------------------------------- %
 
 % Initial Conditions
 
+
 % PD Controller gains
-pd_controller.p_gain = -1;
-pd_controller.d_gain = -1;
+p_dump.gain     = 1;
 
 
