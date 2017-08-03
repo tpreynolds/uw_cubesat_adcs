@@ -13,7 +13,7 @@ clear variables; close all; clc
 addpath(genpath(pwd))
 
 % Load bus stub definitions
-load('DubSat_bus_definitions.mat')
+load('bus_definitions.mat')
 
 % Load parameters for both flight software and simulation
 fsw_params = init_fsw_params();
@@ -26,7 +26,7 @@ load_system(mdl);
 set_param(mdl,'StopTime', run_time);
 
 % Simulation
-sim(mdl);
+%sim(mdl);
 
 
 

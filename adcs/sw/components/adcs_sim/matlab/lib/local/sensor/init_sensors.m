@@ -1,14 +1,14 @@
-function [output] = init_function_template(input)
+function sensors = init_sensors( )
 % ----------------------------------------------------------------------- %
 % UW HuskySat-1, ADCS Team
 %
-% >>FUNCTION DESCRIPTION<< EXAMPLE TEMPLATE USED FOR ALL INIT FILES IN FSW
+% Initializes all sensor parameters for the sim
 %
-%   Last Edited: >>NAME<<   >>DATE<<
+%   Last Edited: T. Reynolds, 8.3.17
 % ----------------------------------------------------------------------- %
 
 % Header
-output.ic.one   = 0;
+sensors.ic.one   = 0;
 
 
 
