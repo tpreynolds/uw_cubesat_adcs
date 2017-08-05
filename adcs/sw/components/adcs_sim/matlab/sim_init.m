@@ -1,7 +1,7 @@
 % ----------------------------------------------------------------------- %
 % UW HuskySat-1, ADCS Team
 %
-% Initializes all simulation parameters for 'MainSimulation.slx'. This is
+% Initializes all simulation parameters for 'adcs_sim_main.slx'. This is
 % the first (and only) file that needs to be called/run to do a full
 % simulation. Make sure you cd is the same folder where sim_init is found
 % before you run this.
