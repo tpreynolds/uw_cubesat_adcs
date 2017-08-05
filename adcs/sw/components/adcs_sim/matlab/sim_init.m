@@ -21,7 +21,7 @@ load('bus_definitions.mat')
 
 % Load parameters for both flight software and simulation
 fsw_params = init_fsw_params();
-sim_params = init_sim_params(fsw_params);
+[sim_params,fsw_params] = init_sim_params(fsw_params);
 
 % Load sim
 run_time    = '10';

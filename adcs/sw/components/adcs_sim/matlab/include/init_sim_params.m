@@ -1,4 +1,4 @@
-function sim_params = init_sim_params(fsw_params)
+function [sim_params,fsw_params] = init_sim_params(fsw_params)
 
 % ----------------------------------------------------------------------- %
 % UW HuskySat-1, ADCS Team
@@ -44,8 +44,12 @@ sim_params.actuators    = init_actuators();
 sim_params.environment  = init_environment();
 % -----
 
-% SGP4 - Orbit Propagator
-fsw_params.environment.sgp4 = sim_params.environment.sgp4;
+% ----- SGP4 - Orbit Propagator ----- %
+fsw_params.bus.orbit_tle = sim_params.environment.sgp4.orbit_tle;
+% -----
+
+% ----- Estimation ----- %
+fsw_params.estimation   = init_extended_kalman_filter(sim_params);
 % -----
 
 

@@ -18,6 +18,7 @@ function fsw_params = init_fsw_params()
 
 % ----- Spacecraft Parameters ----- %
 fsw_params.bus.inertia = [];
+fsw_params.bus.quat_commanded   = [0 0 0 1]';
 % --------------------------------- %
 
 % ----- Parameters ----- %
@@ -41,6 +42,6 @@ fsw_params.environment  = init_environment();
 % ----------------------- %
 
 % ----- Estimation ----- %
-% Included in FSW
+
 % ---------------------- %
 
