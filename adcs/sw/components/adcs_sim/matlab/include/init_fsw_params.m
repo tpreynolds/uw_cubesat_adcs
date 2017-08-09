@@ -18,11 +18,16 @@ function fsw_params = init_fsw_params()
 
 % ----- Spacecraft Parameters ----- %
 fsw_params.bus.inertia = [];
-fsw_params.bus.quat_commanded   = [0 0 0 1]';
+fsw_params.bus.quat_commanded   = [1 0 0 0]';
+fsw_params.bus.RW_RPM_thresh    = 20e3; % RPM
+fsw_params.bus.omega_radps_thresh     = 0.12; % [rad/s]
 % --------------------------------- %
 
 % ----- Parameters ----- %
 fsw_params.sample_time_s = 1/10; % Sample at 10Hz
+fsw_params.convert.KM2M             = 1e3; % convert km to m
+fsw_params.convert.M2KM             = 1e-3;  % convert m to km
+fsw_params.convert.NT2T     = 1e-9;  % convert nano-Tesla to Tesla
 % -------------------------- %
 
 % ----- Sensors ----- %
@@ -38,7 +43,8 @@ fsw_params.environment  = init_environment();
 % ----------------------- %
 
 % ----- Controllers ----- %
-% Included in FSW
+fsw_params.control.pd_controller    = init_pd_controller();
+fsw_params.control.p_dump   = init_momentum_dump();
 % ----------------------- %
 
 % ----- Estimation ----- %

@@ -10,5 +10,5 @@ magnetometer.err_y = 2.65772e-7; % Based on MAG3110 noise from Jeff
 magnetometer.err_z = 3.20028e-7; % Based on MAG3110 noise from Jeff
 magnetometer.deg_err    = 1.2074e-6; % Computed from noise above
 magnetometer.noise = 1; % Toggle noise on/off
-magnetometer.resolution = 100;
+magnetometer.resolution = 1e-8;
 magnetometer.valid_pct  = 70;

@@ -1,4 +1,4 @@
-function [sim_params,fsw_params] = init_sim_params(fsw_params)
+ function [sim_params,fsw_params] = init_sim_params(fsw_params)
 
 % ----------------------------------------------------------------------- %
 % UW HuskySat-1, ADCS Team
