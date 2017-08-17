@@ -35,7 +35,7 @@ fsw_params.bus.orbit_tle = sgp4.orbit_tle;
 % convert Oct 1, 2018 19:00:00 to GPS time
 sim_params.sensors.gps.start_sec    = 154800;
 sim_params.sensors.gps.start_week   = 2021;
-t_end   = 4*24*3600;
+t_end   = 3600;
 % -----
 
 % Simulation parameters
@@ -99,7 +99,7 @@ fsw_params.bus.orbit_tle = sgp4.orbit_tle;
 % convert Oct 1, 2018 19:00:00 to GPS time
 sim_params.sensors.gps.start_sec    = 154800;
 sim_params.sensors.gps.start_week   = 2021;
-t_end2  = 7*24*3600;
+t_end2  = 3600;
 % -----
 
 % Simulation parameters
