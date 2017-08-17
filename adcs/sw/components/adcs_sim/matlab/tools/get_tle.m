@@ -21,7 +21,8 @@ MNA         = str2double(TLE(44:51));           % Mean Anomaly at Epoch [deg]
 MNM         = str2double(TLE(53:63));           % Mean Motion [revs/day]
 
 epoch_year          = 2000 + y;
-jd_begin_of_year    = 365.25*(epoch_year - 1) + (floor((epoch_year - 1)/400) - floor((epoch_year - 1)/100) + floor((epoch_year - 1)/4)) + floor(30.6001*(14)) + 1720996.5;
+% compute JD for Jan 1, epoch_year, 00:00:00 UT1
+jd_begin_of_year    = 367*epoch_year - floor((7/4)*(epoch_year + floor(10/12))) + floor(275/9) + 1721013.5;
 jd_epoch_days       = day_dec + jd_begin_of_year;
 
 B_star      = B_star*10^(B_star_ex); 

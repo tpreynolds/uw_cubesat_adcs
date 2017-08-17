@@ -32,6 +32,7 @@ fsw_params.convert.NT2T     = 1e-9;  % convert nano-Tesla to Tesla
 
 % ----- Sensors ----- %
 fsw_params.sensors  = init_sensors();
+fsw_params.sensor_processing    = init_sensor_processing();
 % -------------------- %
 
 % ----- Actuators ----- %
