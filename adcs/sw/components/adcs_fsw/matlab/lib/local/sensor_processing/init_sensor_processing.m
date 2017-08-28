@@ -22,5 +22,10 @@ sensor_processing.sunsensor.bias     = [0 0 0]';
 sensor_processing.sunsensor.process_matrix   = eye(3);
 % ---------------------- %
 
+% ----- GPS Sensor ----- %
+sensor_processing.gps.ic.time = [0 0]';
+sensor_processing.gps.sample_time_s     = 1;
+% ---------------------- %
+
 end
 
