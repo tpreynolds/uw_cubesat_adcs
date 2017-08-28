@@ -38,7 +38,10 @@ magnetorquer.mu_x     = 100;
 magnetorquer.mu_y     = 100;
 magnetorquer.mu_z     = 1;
 
-magnetorquer.max_dipole = 0.25;
+magnetorquer.actuation_time_pct     = 50;
+magnetorquer.max_dipole = 0.15;
+magnetorquer.dv_2_m   = magnetorquer.max_dipole/255;
+magnetorquer.m_2_dv   = 1/magnetorquer.dv_2_m;
 magnetorquer.tol        = 1e-3;
 magnetorquer.max_power     = 200;  % mW
 magnetorquer.max_current   = 50;   % mA

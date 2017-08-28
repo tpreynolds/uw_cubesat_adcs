@@ -16,6 +16,7 @@ reaction_wheel.resistance   = 20.8;     % Ohms
 reaction_wheel.inductance   = 0.071e-3; % Henry
 reaction_wheel.load_torque  = 0; %0.326e-3; % Nm (nominal torque)
 reaction_wheel.inertia      = 0.0179*(1/10); % kg/m^2
+reaction_wheel.inertia_matrix   = diag([reaction_wheel.inertia,reaction_wheel.inertia,reaction_wheel.inertia]);
 reaction_wheel.damping      = 1e-2;     % Nms - WAG
 reaction_wheel.torque_cnst  = 2.34e-3;  % Nm/A
 reaction_wheel.delay        = 6.81e-3;  % s
