@@ -1,8 +1,10 @@
 clear variables; close all; clc;
 set(0,'defaulttextinterpreter','latex');
-cd ~; cd uw_cubesat_adcs/adcs/sw/components/adcs_fsw/matlab/
+cd ~; cd uw_cubesat_adcs_2/adcs/sw/components/adcs_sim/matlab/
 addpath(genpath(pwd))
-cd ~; cd uw_cubesat_adcs/adcs/sw/components/adcs_bdot/matlab/
+cd ~; cd uw_cubesat_adcs_2/adcs/sw/components/adcs_fsw/matlab/
+addpath(genpath(pwd))
+cd ~; cd uw_cubesat_adcs_2/adcs/sw/components/adcs_bdot/matlab/
 addpath(genpath(pwd))
 
 
