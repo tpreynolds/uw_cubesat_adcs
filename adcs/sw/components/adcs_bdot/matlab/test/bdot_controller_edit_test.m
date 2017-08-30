@@ -1,11 +1,10 @@
 clear variables; close all; clc;
 set(0,'defaulttextinterpreter','latex');
-path(pathdef)
-cd ~; cd uw_cubesat_adcs_sourcetree/adcs/sw/components/adcs_sim/matlab/
+cd ~; cd uw_cubesat_adcs/adcs/sw/components/adcs_sim/matlab/
 addpath(genpath(pwd))
-cd ~; cd uw_cubesat_adcs_sourcetree/adcs/sw/components/adcs_fsw/matlab/
+cd ~; cd uw_cubesat_adcs/adcs/sw/components/adcs_fsw/matlab/
 addpath(genpath(pwd))
-cd ~; cd uw_cubesat_adcs_sourcetree/adcs/sw/components/adcs_bdot/matlab/
+cd ~; cd uw_cubesat_adcs/adcs/sw/components/adcs_bdot/matlab/
 addpath(genpath(pwd))
 
 
@@ -33,13 +32,16 @@ sim_params = init_sim_params(fsw_params);
 % Load libraries used in this test
 fsw_params.bdot  = init_bdot_controller(fsw_params);
 
+
+
 % ----- Overrides ----- %
 sim_params.environment.avg_b = [1.59212e-5 -6.1454e-6 4.0276e-5]; % T
+fsw_params.bdot.gain    = diag([-0.21/2e-6, -0.21/2e-6, -0.17/3e-6]); 
 % --------------------- %
 
 % Simulation parameters
-run_time    = '10000';
-mdl         = 'bdot_simple_sim';
+run_time    = '7000';
+mdl         = 'bdot_simple_sim_edits';
 load_system(mdl);
 set_param(mdl, 'StopTime', run_time);
 sim(mdl);
@@ -67,8 +69,8 @@ subplot(3,1,3)
 plot(cmd_dipole_Am2_time,cmd_dipole_Am2(:,3),'k')
 xlabel('Time [s]','FontSize',12)
 if save_all == 1
-    SaveFigurePretty(gcf,strcat(figdir,'cmd_dipole_Am2_test1_png'));
-    saveas(gcf, strcat(figdir, 'cmd_dipole_Am2_test1'),'fig');
+    SaveFigurePretty(gcf,strcat(figdir,'cmd_dipole_Am2_edit1_png'));
+    saveas(gcf, strcat(figdir, 'cmd_dipole_Am2_edit1'),'fig');
 end
 
 figure(2)
@@ -81,8 +83,8 @@ subplot(3,1,3)
 plot(body_rates_radps_time,body_rates_radps(:,3),'k','LineWidth',1)
 xlabel('Time [s]','FontSize',12)
 if save_all == 1
-    SaveFigurePretty(gcf,strcat(figdir,'body_rates_radps_test1_png'));
-    saveas(gcf, strcat(figdir, 'body_rates_radps_test1'),'fig');
+    SaveFigurePretty(gcf,strcat(figdir,'body_rates_radps_edit1_png'));
+    saveas(gcf, strcat(figdir, 'body_rates_radps_edit1'),'fig');
 end
 
 figure(3)
@@ -93,8 +95,8 @@ plot(bdot_Tps_time,bdot_Tps(:,3),'k')
 ylabel('$\dot{B}$ [T/s]','FontSize',12)
 xlabel('Time [s]','FontSize',12)
 if save_all == 1
-    SaveFigurePretty(gcf,strcat(figdir,'bdot_Tps_test1_png'));
-    saveas(gcf, strcat(figdir, 'bdot_Tps_test1'),'fig');
+    SaveFigurePretty(gcf,strcat(figdir,'bdot_Tps_edit1_png'));
+    saveas(gcf, strcat(figdir, 'bdot_Tps_edit1'),'fig');
 end
 
 
@@ -131,8 +133,8 @@ fsw_params.bdot  = init_bdot_controller(fsw_params);
 sim_params.environment.avg_b = [1.59212e-5 -6.1454e-6 4.0276e-5]; % T
 
 % Change gain
-fsw_params.bdot.gain_matrix    =  1.5*fsw_params.bdot.gain_matrix;
-% ----- End Overrides ----- %
+fsw_params.actuators.magnetorquer.max_dipole = 0.25;
+fsw_params.bdot.gain    =  - fsw_params.actuators.magnetorquer.max_dipole/5e-6; % The original value
 
 % Change cut-off frequency
 fsw_params.bdot.cutoff_freq = 2*pi*0.1; % [rad/s]
@@ -147,7 +149,7 @@ fsw_params.bdot.filter_den     = fsw_params.bdot.filter_den(2);
 
 % Simulation parameters
 run_time    = '10000';
-mdl         = 'bdot_simple_sim';
+mdl         = 'bdot_simple_sim_edits';
 load_system(mdl);
 set_param(mdl, 'StopTime', run_time);
 sim(mdl);
@@ -172,8 +174,8 @@ subplot(3,1,3)
 plot(cmd_dipole_Am2_time,cmd_dipole_Am2(:,3),'k')
 xlabel('Time [s]','FontSize',12)
 if save_all == 1
-    SaveFigurePretty(gcf,strcat(figdir,'cmd_dipole_Am2_test2_png'));
-    saveas(gcf, strcat(figdir, 'cmd_dipole_Am2_test2'),'fig');
+    SaveFigurePretty(gcf,strcat(figdir,'cmd_dipole_Am2_edit2_png'));
+    saveas(gcf, strcat(figdir, 'cmd_dipole_Am2_edit2'),'fig');
 end
 
 figure(2)
@@ -186,8 +188,8 @@ subplot(3,1,3)
 plot(body_rates_radps_time,body_rates_radps(:,3),'k')
 xlabel('Time [s]','FontSize',12)
 if save_all == 1
-    SaveFigurePretty(gcf,strcat(figdir,'body_rates_radps_test2_png'));
-    saveas(gcf, strcat(figdir, 'body_rates_radps_test2'),'fig');
+    SaveFigurePretty(gcf,strcat(figdir,'body_rates_radps_edit2_png'));
+    saveas(gcf, strcat(figdir, 'body_rates_radps_edit2'),'fig');
 end
 
 figure(3)
@@ -198,8 +200,8 @@ plot(bdot_Tps_time,bdot_Tps(:,3),'k')
 ylabel('$\dot{B}$ [T/s]','FontSize',12)
 xlabel('Time [s]','FontSize',12)
 if save_all == 1
-    SaveFigurePretty(gcf,strcat(figdir,'bdot_Tps_test2_png'));
-    saveas(gcf, strcat(figdir, 'bdot_Tps_test2'),'fig');
+    SaveFigurePretty(gcf,strcat(figdir,'bdot_Tps_edit2_png'));
+    saveas(gcf, strcat(figdir, 'bdot_Tps_edit2'),'fig');
 end
 
 if save_all == 1

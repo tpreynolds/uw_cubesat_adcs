@@ -6,8 +6,10 @@
 %%
 function magnetorquer     = init_magnetorquer
 
-% Start with Sim Params
+% Initial conditions
 magnetorquer.ic.current    = 0;
+
+% Start with Sim Params for first order model
 magnetorquer.permeability  = pi*4e-7;
 magnetorquer.rel_perm  = 2500*magnetorquer.permeability;
 magnetorquer.radius    = 0.0035;   % m
@@ -38,10 +40,19 @@ magnetorquer.mu_x     = 100;
 magnetorquer.mu_y     = 100;
 magnetorquer.mu_z     = 1;
 
+% Max dipoles
+magnetorquer.max_dipole_x = 0.15;
+magnetorquer.max_dipole_y = 0.15;
+magnetorquer.max_dipole_z = 0.15;
+% Conversions
+magnetorquer.dv_2_m_X   = magnetorquer.max_dipole_x/255;
+magnetorquer.m_2_dv_X   = 1/magnetorquer.dv_2_m_X;
+magnetorquer.dv_2_m_Y   = magnetorquer.max_dipole_y/255;
+magnetorquer.m_2_dv_Y   = 1/magnetorquer.dv_2_m_Y;
+magnetorquer.dv_2_m_Z   = magnetorquer.max_dipole_z/255;
+magnetorquer.m_2_dv_Z   = 1/magnetorquer.dv_2_m_Z;
+% Other params
 magnetorquer.actuation_time_pct     = 50;
-magnetorquer.max_dipole = 0.15;
-magnetorquer.dv_2_m   = magnetorquer.max_dipole/255;
-magnetorquer.m_2_dv   = 1/magnetorquer.dv_2_m;
 magnetorquer.tol        = 1e-3;
 magnetorquer.max_power     = 200;  % mW
 magnetorquer.max_current   = 50;   % mA
