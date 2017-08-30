@@ -4,8 +4,8 @@
 % Test 2:
 %   Compare my SGP4 propagation to data obtained from QUAKESAT via STK
 
-% Last saved test: 
-%   T. Reynolds 8.14.17
+% UW HuskySat-1, ADCS Subsystem
+%  Last Update: T. Reynolds 8.30.17
 %% Load paths
 
 clear variables; close all; clc;
@@ -13,10 +13,11 @@ set(0,'defaulttextinterpreter','latex');
 
 % Start fresh
 clear variables; close all; clc
+cd ~; cd uw_cubesat_adcs_sourcetree/adcs/sw/components/adcs_sim/matlab/
 addpath(genpath(pwd))
-cd ~; cd uw_cubesat_adcs/adcs/sw/components/adcs_fsw/matlab/
+cd ~; cd uw_cubesat_adcs_sourcetree/adcs/sw/components/adcs_fsw/matlab/
 addpath(genpath(pwd))
-cd ~; cd uw_cubesat_adcs/adcs/sw/components/adcs_fsw/matlab/test/sgp4-test/
+cd ~; cd uw_cubesat_adcs_sourcetree/adcs/sw/components/adcs_fsw/matlab/test/sgp4-test/
 
 
 %% Test 1
@@ -35,7 +36,7 @@ fsw_params.bus.orbit_tle = sgp4.orbit_tle;
 % convert Oct 1, 2018 19:00:00 to GPS time
 sim_params.sensors.gps.start_sec    = 154800;
 sim_params.sensors.gps.start_week   = 2021;
-t_end   = 3600;
+t_end   = 4*86400;
 % -----
 
 % Simulation parameters
@@ -55,6 +56,13 @@ vel_time1 = logsout.getElement('vel_eci_kmps').Values.Time;
 
 JD_J2000_days1 = logsout.getElement('JD_ut1_J2000_days').Values.Data;
 JD_time1 = logsout.getElement('JD_ut1_J2000_days').Values.Time;
+
+% Extract pos/vel data from reference SGP4
+% pos_eci_kmK = logsout.getElement('pos_eci_km_K').Values.Data;
+% pos_timeK = logsout.getElement('pos_eci_km_K').Values.Time;
+% 
+% vel_eci_kmpsK = logsout.getElement('vel_eci_kmps_K').Values.Data;
+% vel_timeK = logsout.getElement('vel_eci_kmps_K').Values.Time;
 
 %   import STK data
 load('SWISSCUBE_data.mat')
@@ -77,9 +85,16 @@ vel_diff_end1    = norm(vel_eci_kmps1(t_end,:) - vel_true_kmps(t_end,:));
 pos_drift_per_dt1   = (pos_diff_end1 - pos_diff_init1)/t_end;
 vel_drift_per_dt1   = (vel_diff_end1 - vel_diff_init1)/t_end;
 
+% Compare reference beginning and end
+% pos_diff_initK   = norm(pos_eci_kmK(1,:) - pos_true_km(1,:));
+% vel_diff_initK   = norm(vel_eci_kmpsK(1,:) - vel_true_kmps(1,:));
+% 
+% pos_diff_endK    = norm(pos_eci_kmK(t_end,:) - pos_true_km(t_end,:));
+% vel_diff_endK    = norm(vel_eci_kmpsK(t_end,:) - vel_true_kmps(t_end,:));
+
 % ----- End Analysis ----- %
 
-save('workspace-test-SWISSCUBE.mat')
+%save('workspace-test-SWISSCUBE.mat')
 
 % Restart from scratch
 clear variables; close all; clc
@@ -99,7 +114,7 @@ fsw_params.bus.orbit_tle = sgp4.orbit_tle;
 % convert Oct 1, 2018 19:00:00 to GPS time
 sim_params.sensors.gps.start_sec    = 154800;
 sim_params.sensors.gps.start_week   = 2021;
-t_end2  = 3600;
+t_end2  = 86400;
 % -----
 
 % Simulation parameters
@@ -143,5 +158,5 @@ vel_drift_per_dt2   = (vel_diff_end2 - vel_diff_init2)/t_end2;
 
 % ----- End Analysis ----- %
 
-save('workspace-test-QUAKESAT.mat')
+%save('workspace-test-QUAKESAT.mat')
 
