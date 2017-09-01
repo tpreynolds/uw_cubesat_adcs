@@ -6,5 +6,6 @@ function dynamics = init_dynamics
 
 % Last Update: T. Reynolds, 8.3.17
 
+% Quaternion FIRST
 dynamics.ic.quat_init = [1 0 0 0]';
 dynamics.ic.rate_init = [-0.2 0.2 -0.2]';

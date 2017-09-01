@@ -12,9 +12,9 @@
 % Start fresh
 clear variables; close all; clc
 addpath(genpath(pwd))
-cd ~; cd uw_cubesat_adcs/adcs/sw/components/adcs_fsw/matlab/
+cd ~; cd uw_cubesat_adcs_sourcetree/adcs/sw/components/adcs_fsw/matlab/
 addpath(genpath(pwd))
-cd ~; cd uw_cubesat_adcs/adcs/sw/components/adcs_sim/matlab/
+cd ~; cd uw_cubesat_adcs_sourcetree/adcs/sw/components/adcs_sim/matlab/
 
 % Load bus stub definitions
 load('bus_definitions.mat')
@@ -24,7 +24,7 @@ fsw_params = init_fsw_params();
 [sim_params,fsw_params] = init_sim_params(fsw_params);
 
 % Load sim
-run_time    = '10';
+run_time    = '0.1';
 mdl         = 'adcs_sim_main';
 load_system(mdl);
 set_param(mdl,'StopTime', run_time);
@@ -32,5 +32,10 @@ set_param(mdl,'StopTime', run_time);
 % Simulation
 sim(mdl);
 
-
-
+states = logsout.getElement('states').Values;
+disturbances = logsout.getElement('disturbances').Values;
+orbit_data = logsout.getElement('orbit_data').Values;
+act_meas = logsout.getElement('act_meas').Values;
+control = logsout.getElement('control').Values;
+sens_meas = logsout.getElement('sens_meas').Values;
+commands    = logsout.getElement('commands').Values;
