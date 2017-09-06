@@ -21,7 +21,7 @@ fsw_params.bus.inertia = [];
 fsw_params.bus.quat_commanded   = [1 0 0 0]';
 fsw_params.bus.RW_RPM_thresh    = 16e3; % RPM
 fsw_params.bus.omega_radps_thresh     = 0.12; % [rad/s]
-fsw_params.bus.bstar    = 4.953e-04; % WAG based on Dove2
+fsw_params.bus.bstar    = 3.2923e-5; % taken from SWISSCUBE
 % --------------------------------- %
 
 % ----- Parameters ----- %

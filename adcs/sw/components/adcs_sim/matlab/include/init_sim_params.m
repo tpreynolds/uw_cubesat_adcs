@@ -9,7 +9,7 @@
 %   Takes in already defined fsw_params so that sim values can be defined
 %   using the fsw values
 
-% Last Edited: T.Reynolds 6.23.17
+% Last Edited: T.Reynolds 9.1.17
 % ----------------------------------------------------------------------- %
 
 % ----- Spacecraft Parameters ----- %
@@ -50,6 +50,10 @@ fsw_params.bus.orbit_tle = sim_params.environment.sgp4.orbit_tle;
 
 % ----- Estimation ----- %
 fsw_params.estimation   = init_extended_kalman_filter(sim_params);
+% -----
+
+% ----- Flight Software Overwrites ----- %
+%fsw_params.sensor_processing.gps.ic.time = [sim_params.environment.sgp4.gps_sec_init;sim_params.environment.sgp4.gps_week_init];  
 % -----
 
 

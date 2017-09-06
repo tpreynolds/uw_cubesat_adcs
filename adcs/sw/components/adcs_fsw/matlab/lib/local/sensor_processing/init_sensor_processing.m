@@ -24,6 +24,8 @@ sensor_processing.sunsensor.process_matrix   = eye(3);
 
 % ----- GPS Sensor ----- %
 sensor_processing.gps.ic.time = [0 0]';
+sensor_processing.gps.ic.pos    = zeros(3,1);
+sensor_processing.gps.ic.vel    = zeros(3,1);
 sensor_processing.gps.sample_time_s     = 1;
 % ---------------------- %
 
