@@ -9,7 +9,8 @@ function sgp4   = init_sgp4()
     DEG2RAD         = pi/180;
     REVpD2RADpM     = 2*pi/1440;
     
-    sgp4.tle_filename = 'SWISSCUBE.tle'; % the right TLE'; % Dove 2 TLE (SpaceTrack)
+    %sgp4.tle_filename = 'SWISSCUBE.tle';
+    sgp4.tle_filename = 'QUAKESAT.tle'; % the right TLE';
 
     [sgp4.orbit_tle,sgp4.JD_epoch_days] = get_tle(sgp4.tle_filename);
 
@@ -26,7 +27,13 @@ function sgp4   = init_sgp4()
     % Estimated from epoch_jd using online converters. just used for test
     % sim 
     % DON'T CHANGE THE TLE W/O CHANGING THE GPS START TIME
+    % SWISSCUBE and QUAKESAT have the same epoch
     sgp4.gps_sec_init   = 154800;
     sgp4.gps_week_init  = 2021; 
+    
+ 
+
+
+
 
 end

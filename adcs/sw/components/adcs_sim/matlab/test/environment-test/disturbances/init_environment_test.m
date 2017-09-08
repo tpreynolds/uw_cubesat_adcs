@@ -30,6 +30,8 @@ fsw_params = init_fsw_params();
 sgp4.tle_filename = 'SWISSCUBE.tle'; % the right TLE
 [sgp4.orbit_tle,sgp4.JD_epoch_days] = get_tle(sgp4.tle_filename);
 fsw_params.bus.orbit_tle = sgp4.orbit_tle;
+orb     = tle2orb(fsw_params.bus.orbit_tle);
+[reci,veci] = orb2eci(orb);
 % convert Oct 1, 2018 19:00:00 to GPS time
 sim_params.sensors.gps.start_sec    = 154800;
 sim_params.sensors.gps.start_week   = 2021;
@@ -40,34 +42,16 @@ sim_params.dynamics.ic.rate_init = [0.2; -0.2; 0.2];
 
 % Simulation parameters
 run_time    = num2str(t_end);
-mdl         = 'disturbances_test';
+mdl         = 'environment_test';
 load_system(mdl);
 set_param(mdl, 'StopTime', run_time);
 sim(mdl);
 
 % ----- Analyze Results ----- %
 %   extract pos/vel/time data from sim
-dt_aero = logsout.getElement('dt_aero').Values.Data;
-dt_aero_time = logsout.getElement('dt_aero').Values.Time;
-
-dt_grav = logsout.getElement('dt_grav').Values.Data;
-dt_grav_time = logsout.getElement('dt_grav').Values.Time;
-
-dt_solar = logsout.getElement('dt_solar').Values.Data;
-dt_solar_time = logsout.getElement('dt_solar').Values.Time;
-
-env_acc_eci = logsout.getElement('env_acc_eci').Values.Data;
-env_acc_eci_time = logsout.getElement('env_acc_eci').Values.Time;
-
-mag_vector_eci = logsout.getElement('mag_vector_eci').Values.Data;
-mag_vector_eci_time = logsout.getElement('mag_vector_eci').Values.Time;
-
-sun_vec_eci = logsout.getElement('sun_vec_eci').Values.Data;
-sun_vec_eci_time = logsout.getElement('sun_vec_eci').Values.Time;
-
-
-
-
+orbit_data = logsout.getElement('orbit_data').Values;
+states  = logsout.getElement('states').Values;
+disturbances = logsout.getElement('disturbances').Values;
 % ----- End Analysis ----- %
 
 %save('workspace-disturbances-test1.mat')
