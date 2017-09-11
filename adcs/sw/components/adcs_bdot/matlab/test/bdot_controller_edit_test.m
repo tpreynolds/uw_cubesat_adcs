@@ -36,11 +36,11 @@ fsw_params.bdot  = init_bdot_controller(fsw_params);
 
 % ----- Overrides ----- %
 sim_params.environment.avg_b = [1.59212e-5 -6.1454e-6 4.0276e-5]; % T
-fsw_params.bdot.gain    = diag([-0.21/2e-6, -0.21/2e-6, -0.17/3e-6]); 
+fsw_params.bdot.gain_matrix    = diag([-0.15/1.5e-6, -0.15/1.5e-6, -0.17/1.7e-6]); 
 % --------------------- %
 
 % Simulation parameters
-run_time    = '7000';
+run_time    = '15000';
 mdl         = 'bdot_simple_sim_edits';
 load_system(mdl);
 set_param(mdl, 'StopTime', run_time);
