@@ -6,7 +6,7 @@
 % simulation. Make sure you cd is the same folder where sim_init is found
 % before you run this.
 %
-%   Last Edited: T. Reynolds  9.8.17
+%   Last Edited: T. Reynolds  9.18.17
 % ----------------------------------------------------------------------- %
 
 % Start fresh
@@ -29,10 +29,10 @@ fsw_params.bdot     = init_bdot_controller(fsw_params);
 fsw_params.bus.quat_commanded = zeros(4,1);
 
 % Load sim
-run_time    = '7000';
+run_time    = '10000';
 mdl         = 'adcs_sim_main';
 load_system(mdl);
-set_param(mdl,'StopTime', run_time);
+set_param(mdl,'StopTime', run_time, 'Solver','ode23tb');
 
 % Simulation
 sim(mdl);

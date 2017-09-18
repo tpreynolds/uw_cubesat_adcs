@@ -21,10 +21,10 @@ bdot.ic.invalid_input   = [0 0 0]';
 % Library parameters
 
 % Make sure gains are negative
-bdot.gain_matrix = diag([- fsw_params.actuators.magnetorquer.max_dipole_x/2e-6,...
-                         - fsw_params.actuators.magnetorquer.max_dipole_y/2e-6,...
-                         - fsw_params.actuators.magnetorquer.max_dipole_z/3e-6]);
-
+bdot.gain_matrix = diag([- fsw_params.actuators.magnetorquer.max_dipole_x/1.5e-6,...
+                         - fsw_params.actuators.magnetorquer.max_dipole_y/1.5e-6,...
+                         - fsw_params.actuators.magnetorquer.max_dipole_z/1.7e-6]);
+                               
 % NOTE: 3e-6 is the cut off value of \dot{B} below which we no longer want to be
 % saturating the torque rods.
 
