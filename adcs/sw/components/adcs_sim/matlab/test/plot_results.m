@@ -2,7 +2,7 @@
 %   Last Updated: T. Reynolds 9.9.17
 
 % Plot Results from a run of sim_init.m
-
+close all
 
 % ----- Extract data ----- %
 states = logsout.getElement('states').Values;
@@ -68,9 +68,9 @@ subplot(2,2,4)
 plot(sc_vel_eci,'LineWidth',1)
 
 figure(2)
-subplot(1,2,1)
+subplot(2,1,1)
 plot(ctrl_dipole,'LineWidth',1)
-subplot(1,2,2)
+subplot(2,1,2)
 plot(ctrl_RW,'LineWidth',1)
 
 figure(3), hold on
