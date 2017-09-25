@@ -6,17 +6,14 @@
 % simulation. Make sure you cd is the same folder where sim_init is found
 % before you run this.
 %
-%   Last Edited: T. Reynolds  9.18.17
+%   Last Edited: T. Reynolds  9.23.17
 % ----------------------------------------------------------------------- %
 
 % Start fresh
 clear variables; close all; clc
 addpath(genpath(pwd))
-cd ~; cd uw_cubesat_adcs_sourcetree/adcs/sw/components/adcs_bdot/matlab/
-addpath(genpath(pwd))
-cd ~; cd uw_cubesat_adcs_sourcetree/adcs/sw/components/adcs_fsw/matlab/
-addpath(genpath(pwd))
-cd ~; cd uw_cubesat_adcs_sourcetree/adcs/sw/components/adcs_sim/matlab/
+addpath(genpath('../../adcs_fsw/matlab/'))
+addpath(genpath('../../adcs_bdot/matlab/'))
 
 % Load bus stub definitions
 load('bus_definitions.mat')
@@ -26,10 +23,10 @@ fsw_params = init_fsw_params();
 [sim_params,fsw_params] = init_sim_params(fsw_params);
 fsw_params.bdot     = init_bdot_controller(fsw_params);
 
-fsw_params.bus.quat_commanded = zeros(4,1);
+fsw_params.bus.quat_commanded = [1;0;0;0];
 
 % Load sim
-run_time    = '10000';
+run_time    = '100';
 mdl         = 'adcs_sim_main';
 load_system(mdl);
 set_param(mdl,'StopTime', run_time, 'Solver','ode23tb');

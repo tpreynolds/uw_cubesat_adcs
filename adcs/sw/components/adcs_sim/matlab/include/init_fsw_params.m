@@ -29,6 +29,7 @@ fsw_params.sample_time_s = 1/10; % Sample at 10Hz
 fsw_params.convert.KM2M             = 1e3; % convert km to m
 fsw_params.convert.M2KM             = 1e-3;  % convert m to km
 fsw_params.convert.NT2T     = 1e-9;  % convert nano-Tesla to Tesla
+fsw_params.convert.RPM_2_RADPS  = (pi/30); % convert RPM to rad/s
 % -------------------------- %
 
 % ----- Sensors ----- %

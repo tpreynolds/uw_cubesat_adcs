@@ -5,13 +5,14 @@ function bdot = init_bdot_controller( fsw_params )
 %   Any block added should be initialized and defined in here.
 
 % UW HuskySat-1, ADCS Subsystem
-% Last Edited: T.Reynolds 8.29.17
+% Last Edited: T.Reynolds 9.23.17
 
 % ----------------------------------------------------------------------- %
 
 % Initial conditions
 bdot.ic.RT_mt_on        = 0;
 bdot.ic.RT_b_meas_valid = 0;
+bdot.ic.RT_ppt_on       = 0;
 bdot.ic.RT_b_body_T     = [0 0 0]';
 bdot.ic.RT_dig_val      = [0 0 0]';
 bdot.ic.derivative      = 0;
