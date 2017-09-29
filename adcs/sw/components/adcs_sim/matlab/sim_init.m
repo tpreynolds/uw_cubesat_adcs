@@ -29,7 +29,7 @@ fsw_params.bus.quat_commanded = [1;0;0;0];
 run_time    = '100';
 mdl         = 'adcs_sim_main';
 load_system(mdl);
-set_param(mdl,'StopTime', run_time, 'Solver','ode23tb');
+set_param(mdl,'StopTime', run_time);
 
 % Simulation
 sim(mdl);

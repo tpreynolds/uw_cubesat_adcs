@@ -9,7 +9,7 @@
 %   Takes in already defined fsw_params so that sim values can be defined
 %   using the fsw values
 
-% Last Edited: T.Reynolds 9.1.17
+% Last Edited: T.Reynolds 9.29.17
 % ----------------------------------------------------------------------- %
 
 % ----- Spacecraft Parameters ----- %
@@ -24,7 +24,8 @@ sim_params.sc.center_of_mass = [0.03 0.01 -0.02]';     % [m] CoM location
 Ix = (sim_params.sc.mass/12)*(sim_params.sc.dy^2+sim_params.sc.dz^2);    % X-axis inertia
 Iy = (sim_params.sc.mass/12)*(sim_params.sc.dx^2+sim_params.sc.dz^2);    % Y-axis inertia
 Iz = (sim_params.sc.mass/12)*(sim_params.sc.dx^2+sim_params.sc.dy^2);    % Z-axis inertia
-sim_params.bus.inertia = diag([Ix Iy Iz]);
+sim_params.sc.inertia = diag([Ix Iy Iz]);
+fsw_params.bus.interia  = sim_params.sc.inertia;
 % -----
 
 % ----- Dynamics -----%
@@ -38,6 +39,7 @@ sim_params.sensors  = init_sensors();
 
 % ----- Actuators ----- %
 sim_params.actuators    = init_actuators();
+fsw_params.actuators.ppt    = init_ppt(fsw_params);
 % -----
 
 % ----- Environment ----- %
@@ -50,10 +52,6 @@ fsw_params.bus.orbit_tle = sim_params.environment.sgp4.orbit_tle;
 
 % ----- Estimation ----- %
 fsw_params.estimation   = init_extended_kalman_filter(sim_params);
-% -----
-
-% ----- Flight Software Overwrites ----- %
-%fsw_params.sensor_processing.gps.ic.time = [sim_params.environment.sgp4.gps_sec_init;sim_params.environment.sgp4.gps_week_init];  
 % -----
 
 
