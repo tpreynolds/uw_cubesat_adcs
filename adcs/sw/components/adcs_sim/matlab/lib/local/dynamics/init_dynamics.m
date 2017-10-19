@@ -10,4 +10,4 @@ function dynamics = init_dynamics
 temp    = randn(4,1);
 dynamics.ic.quat_init = temp./norm(temp);
 dynamics.ic.quat_init = [1 0 0 0]';
-dynamics.ic.rate_init = [0 0 0]';
+dynamics.ic.rate_init = [0.2 0.2 0.2]';
