@@ -31,7 +31,7 @@ fsw_params = init_fsw_params();
 % Overrides
 ts  = 80; % settling time [s]
 Mp  = 0.2;  % max pct overshoot
-Ivec    = diag(sim_params.bus.inertia);
+Ivec    = diag(sim_params.sc.inertia);
 Imax    = max(Ivec);
 
 kd      = 2*8.8*Imax/ts;          % derivative gain

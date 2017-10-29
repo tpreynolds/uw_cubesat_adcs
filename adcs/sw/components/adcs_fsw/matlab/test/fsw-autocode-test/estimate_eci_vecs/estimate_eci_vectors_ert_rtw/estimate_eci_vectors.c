@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'estimate_eci_vectors'.
  *
- * Model version                  : 1.158
+ * Model version                  : 1.177
  * Simulink Coder version         : 8.11 (R2016b) 25-Aug-2016
- * C/C++ source code generated on : Thu Oct 19 12:19:43 2017
+ * C/C++ source code generated on : Sat Oct 28 16:15:32 2017
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: Texas Instruments->MSP430
@@ -548,7 +548,7 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
   real_T rtb_sun_vector_eci_km[3];
   real_T rtb_Assignment[11];
   real_T rtb_Assignment1[11];
-  int32_T rtb_Sum1_iz;
+  int32_T rtb_Sum1_m;
   real_T rtb_TmpSignalConversionAtppnInp[13];
   real_T rtb_tc_old[169];
   real_T Assignment[169];
@@ -559,15 +559,15 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
   real_T b_1[9];
   real_T c_0[9];
   int16_T i;
-  real_T rtb_Sum1_o_idx_3;
-  real_T rtb_Sum1_o_idx_1;
-  real_T rtb_Sum1_o_idx_0;
-  real_T rtb_Sum1_o_idx_2;
+  real_T rtb_Sum1_j_idx_3;
+  real_T rtb_Sum1_j_idx_1;
+  real_T rtb_Sum1_j_idx_0;
+  real_T rtb_Sum1_j_idx_2;
   int16_T qY;
   int16_T qY_0;
   int16_T qY_1;
   int16_T qY_2;
-  int32_T rtb_Sum1_m;
+  int32_T rtb_Sum1_a;
 
   /* Update the flag to indicate when data transfers from
    *  Sample time: [0.1s, 0.0s] to Sample time: [1.0s, 0.0s]  */
@@ -585,7 +585,7 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
 
   /* MATLAB Function: '<S4>/MATLAB Function' */
   /*  Constants */
-  /* MATLAB Function 'estimate_eci_vectors/sun_vector_lib/MATLAB Function': '<S99>:1' */
+  /* MATLAB Function 'sun_vector_lib/MATLAB Function': '<S99>:1' */
   /* '<S99>:1:4' AU2KM  = 149597870.700; */
   /* '<S99>:1:5' DEG2RAD     = pi/180.0; */
   /*  ----- */
@@ -787,7 +787,7 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
   /*  ----------------------------------------------------------------------- % */
   /*  LOAD CONSTANTS */
   /*  ----------------------------------------------------------------------- % */
-  /* MATLAB Function 'estimate_eci_vectors/sgp4_lib_fsw/MATLAB Function': '<S98>:1' */
+  /* MATLAB Function 'sgp4_lib_fsw/MATLAB Function': '<S98>:1' */
   /*  SGP4 Orbit Propagator */
   /*  UW Husky-Sat1 - ADCS Subsystem team */
   /*    Author:     Taylor Reynolds */
@@ -1279,7 +1279,7 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
 
   /* End of MATLAB Function: '<S3>/MATLAB Function' */
   /*  Constants */
-  /* MATLAB Function 'estimate_eci_vectors/sun_vector_lib/MATLAB Function1': '<S100>:1' */
+  /* MATLAB Function 'sun_vector_lib/MATLAB Function1': '<S100>:1' */
   /* '<S100>:1:4' M2KM        = 1e-3; */
   /* '<S100>:1:5' ECCE2       = 0.006694385000; */
   /* '<S100>:1:6' RE          = 6378.137; */
@@ -1782,13 +1782,13 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
      *  Sum: '<S87>/Sum5'
      *  Sum: '<S87>/Sum6'
      */
-    rtDW.sqrt_i = sqrt((1.6549137866238722E+15 - 2.208307901990225E+13 * d_o) /
+    rtDW.sqrt_m = sqrt((1.6549137866238722E+15 - 2.208307901990225E+13 * d_o) /
                        (c * c) + (2.0 * b_s + r * r));
 
     /* Product: '<S82>/Product11' incorporates:
      *  Sum: '<S82>/Sum8'
      */
-    rtDW.Product11 = (r + b_c) / rtDW.sqrt_i;
+    rtDW.Product11 = (r + b_c) / rtDW.sqrt_m;
 
     /* Sum: '<S86>/Sum2' */
     c = 4.0680631590768993E+7 + b_s;
@@ -1808,14 +1808,14 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
     /* Product: '<S88>/Product12' incorporates:
      *  Product: '<S88>/Product1'
      */
-    rtDW.Product12 = 272331.60668193549 / (rtDW.sqrt_i * b_c) * b_o * xi;
+    rtDW.Product12 = 272331.60668193549 / (rtDW.sqrt_m * b_c) * b_o * xi;
 
     /* Sqrt: '<S89>/sqrt' incorporates:
      *  Constant: '<S89>/Constant'
      *  Product: '<S89>/Product5'
      *  Sum: '<S89>/Sum4'
      */
-    rtDW.sqrt_p = sqrt(1.0 - rtDW.Product4 * rtDW.Product4);
+    rtDW.sqrt_m1 = sqrt(1.0 - rtDW.Product4 * rtDW.Product4);
   }
 
   /* End of Outputs for SubSystem: '<S39>/Convert from geodetic to  spherical coordinates' */
@@ -1823,7 +1823,7 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
   /* Product: '<S39>/aor' incorporates:
    *  Constant: '<S39>/re'
    */
-  d_o = 6371.2 / rtDW.sqrt_i;
+  d_o = 6371.2 / rtDW.sqrt_m;
 
   /* Product: '<S39>/ar' */
   c_c = d_o * d_o;
@@ -1858,13 +1858,13 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
      */
     if (rtDW.ForIterator_IterationMarker[4] != 0) {
       /* InitializeConditions for UnitDelay: '<S50>/Unit Delay1' */
-      rtDW.UnitDelay1_DSTATE_h = 0.0;
+      rtDW.UnitDelay1_DSTATE_c = 0.0;
 
       /* InitializeConditions for UnitDelay: '<S50>/Unit Delay3' */
       rtDW.UnitDelay3_DSTATE = 0.0;
 
       /* InitializeConditions for UnitDelay: '<S50>/Unit Delay2' */
-      rtDW.UnitDelay2_DSTATE_i = 0.0;
+      rtDW.UnitDelay2_DSTATE_n = 0.0;
 
       /* InitializeConditions for UnitDelay: '<S50>/Unit Delay4' */
       rtDW.UnitDelay4_DSTATE = 0.0;
@@ -1916,7 +1916,7 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
          */
         if (rtDW.ForIterator_IterationMarker[5] < 2) {
           rtDW.ForIterator_IterationMarker[5L] = 2U;
-          memcpy(&Assignment[0], &rtDW.UnitDelay_DSTATE_m[0], 169U * sizeof
+          memcpy(&Assignment[0], &rtDW.UnitDelay_DSTATE_i[0], 169U * sizeof
                  (real_T));
         }
 
@@ -1933,7 +1933,7 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
          */
         for (i = 0; i < 169; i++) {
           if (lowAlt > 1) {
-            rtb_tc_old[i] = rtDW.UnitDelay_DSTATE_j[i];
+            rtb_tc_old[i] = rtDW.UnitDelay_DSTATE_m[i];
           } else {
             rtb_tc_old[i] = 0.0;
           }
@@ -1983,13 +1983,13 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
         /* End of If: '<S79>/If' */
         for (i = 0; i < 169; i++) {
           /* Sum: '<S52>/Sum2' */
-          rtDW.Sum2_b[i] = Assignment[i] + rtb_tc_old[i];
+          rtDW.Sum2_i[i] = Assignment[i] + rtb_tc_old[i];
 
           /* Update for UnitDelay: '<S52>/Unit Delay' */
-          rtDW.UnitDelay_DSTATE_m[i] = Assignment[i];
+          rtDW.UnitDelay_DSTATE_i[i] = Assignment[i];
 
           /* Update for UnitDelay: '<S79>/Unit Delay' */
-          rtDW.UnitDelay_DSTATE_j[i] = rtb_tc_old[i];
+          rtDW.UnitDelay_DSTATE_m[i] = rtb_tc_old[i];
         }
       }
 
@@ -2011,7 +2011,7 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
          *  Sum: '<S55>/Sum4'
          *  Sum: '<S61>/Sum'
          */
-        b_s = rtDW.Sum2_b[((lowAlt + 1) - 1) * 13] * rtDW.OutportBufferForcp13
+        b_s = rtDW.Sum2_i[((lowAlt + 1) - 1) * 13] * rtDW.OutportBufferForcp13
           [(qY_2 + 1) - 1];
 
         /* Gain: '<S61>/Gain2' incorporates:
@@ -2023,7 +2023,7 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
          *  Sum: '<S55>/Sum4'
          *  Sum: '<S61>/Sum'
          */
-        b_c = rtDW.Sum2_b[((lowAlt + 1) - 1) * 13] * rtDW.OutportBufferForsp13
+        b_c = rtDW.Sum2_i[((lowAlt + 1) - 1) * 13] * rtDW.OutportBufferForsp13
           [(qY_2 + 1) - 1];
 
         /* End of Outputs for SubSystem: '<S55>/If Action Subsystem' */
@@ -2043,8 +2043,8 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
          *  Sum: '<S55>/Sum4'
          *  Sum: '<S63>/Sum'
          */
-        b_s = rtDW.Sum2_b[(((lowAlt + 1) - 1) * 13 + (qY_2 + 1)) - 1] *
-          rtDW.OutportBufferForcp13[(qY_2 + 1) - 1] + rtDW.Sum2_b[(qY_2 - 1) *
+        b_s = rtDW.Sum2_i[(((lowAlt + 1) - 1) * 13 + (qY_2 + 1)) - 1] *
+          rtDW.OutportBufferForcp13[(qY_2 + 1) - 1] + rtDW.Sum2_i[(qY_2 - 1) *
           13 + lowAlt] * rtDW.OutportBufferForsp13[(qY_2 + 1) - 1];
 
         /* Sum: '<S62>/Sum1' incorporates:
@@ -2059,8 +2059,8 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
          *  Sum: '<S55>/Sum4'
          *  Sum: '<S63>/Sum'
          */
-        b_c = rtDW.Sum2_b[(((lowAlt + 1) - 1) * 13 + (qY_2 + 1)) - 1] *
-          rtDW.OutportBufferForsp13[(qY_2 + 1) - 1] - rtDW.Sum2_b[(qY_2 - 1) *
+        b_c = rtDW.Sum2_i[(((lowAlt + 1) - 1) * 13 + (qY_2 + 1)) - 1] *
+          rtDW.OutportBufferForsp13[(qY_2 + 1) - 1] - rtDW.Sum2_i[(qY_2 - 1) *
           13 + lowAlt] * rtDW.OutportBufferForcp13[(qY_2 + 1) - 1];
 
         /* End of Outputs for SubSystem: '<S55>/If Action Subsystem1' */
@@ -2082,25 +2082,25 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
           /* Gain: '<S69>/Gain' incorporates:
            *  Sum: '<S69>/Sum2'
            */
-          rtb_Sum1_iz = mul_s32_sat(13L, qY_2 - 1);
+          rtb_Sum1_m = mul_s32_sat(13L, qY_2 - 1);
 
           /* Selector: '<S65>/Selector' incorporates:
            *  Sum: '<S69>/Sum1'
            */
-          if (rtb_Sum1_iz > MAX_int32_T - lowAlt) {
+          if (rtb_Sum1_m > MAX_int32_T - lowAlt) {
+            rtb_Sum1_a = MAX_int32_T;
             rtb_Sum1_m = MAX_int32_T;
-            rtb_Sum1_iz = MAX_int32_T;
           } else {
-            rtb_Sum1_m = lowAlt + rtb_Sum1_iz;
-            rtb_Sum1_iz += lowAlt;
+            rtb_Sum1_a = lowAlt + rtb_Sum1_m;
+            rtb_Sum1_m += lowAlt;
           }
 
           /* Product: '<S65>/Product1' incorporates:
            *  Selector: '<S65>/Selector'
            *  UnitDelay: '<S51>/Unit Delay1'
            */
-          rtDW.Merge_a = rtDW.UnitDelay1_DSTATE_p[(int16_T)rtb_Sum1_m - 1] *
-            rtDW.sqrt_p;
+          rtDW.Merge_c = rtDW.UnitDelay1_DSTATE_i[(int16_T)rtb_Sum1_a - 1] *
+            rtDW.sqrt_m1;
 
           /* Sum: '<S65>/Sum' incorporates:
            *  Product: '<S65>/Product'
@@ -2110,8 +2110,8 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
            *  UnitDelay: '<S51>/Unit Delay'
            *  UnitDelay: '<S51>/Unit Delay1'
            */
-          rtDW.Merge1_e = rtDW.UnitDelay_DSTATE_l[((lowAlt - 1) * 13 + qY_2) - 1]
-            * rtDW.sqrt_p + rtDW.UnitDelay1_DSTATE_p[(int16_T)rtb_Sum1_iz - 1] *
+          rtDW.Merge1_c = rtDW.UnitDelay_DSTATE_c[((lowAlt - 1) * 13 + qY_2) - 1]
+            * rtDW.sqrt_m1 + rtDW.UnitDelay1_DSTATE_i[(int16_T)rtb_Sum1_m - 1] *
             rtDW.Product4;
 
           /* End of Outputs for SubSystem: '<S51>/If Action Subsystem' */
@@ -2123,29 +2123,29 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
            *  Gain: '<S71>/Gain'
            *  Sum: '<S71>/Sum1'
            */
-          rtb_Sum1_iz = mul_s32_sat(13L, 0L);
-          if (rtb_Sum1_iz > 2147483646L) {
-            rtb_Sum1_iz = MAX_int32_T;
+          rtb_Sum1_m = mul_s32_sat(13L, 0L);
+          if (rtb_Sum1_m > 2147483646L) {
+            rtb_Sum1_m = MAX_int32_T;
           } else {
-            rtb_Sum1_iz++;
+            rtb_Sum1_m++;
           }
 
           /* Product: '<S66>/Product3' incorporates:
            *  Selector: '<S66>/Selector'
            *  UnitDelay: '<S51>/Unit Delay1'
            */
-          rtDW.Merge_a = rtDW.UnitDelay1_DSTATE_p[(int16_T)rtb_Sum1_iz - 1] *
+          rtDW.Merge_c = rtDW.UnitDelay1_DSTATE_i[(int16_T)rtb_Sum1_m - 1] *
             rtDW.Product4;
 
           /* Selector: '<S66>/Selector' incorporates:
            *  Gain: '<S71>/Gain'
            *  Sum: '<S71>/Sum1'
            */
-          rtb_Sum1_iz = mul_s32_sat(13L, 0L);
-          if (rtb_Sum1_iz > 2147483646L) {
-            rtb_Sum1_iz = MAX_int32_T;
+          rtb_Sum1_m = mul_s32_sat(13L, 0L);
+          if (rtb_Sum1_m > 2147483646L) {
+            rtb_Sum1_m = MAX_int32_T;
           } else {
-            rtb_Sum1_iz++;
+            rtb_Sum1_m++;
           }
 
           /* Sum: '<S66>/Sum' incorporates:
@@ -2156,8 +2156,8 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
            *  UnitDelay: '<S51>/Unit Delay'
            *  UnitDelay: '<S51>/Unit Delay1'
            */
-          rtDW.Merge1_e = rtDW.Product4 * rtDW.UnitDelay_DSTATE_l[0] -
-            rtDW.UnitDelay1_DSTATE_p[(int16_T)rtb_Sum1_iz - 1] * rtDW.sqrt_p;
+          rtDW.Merge1_c = rtDW.Product4 * rtDW.UnitDelay_DSTATE_c[0] -
+            rtDW.UnitDelay1_DSTATE_i[(int16_T)rtb_Sum1_m - 1] * rtDW.sqrt_m1;
 
           /* End of Outputs for SubSystem: '<S51>/If Action Subsystem1' */
         } else {
@@ -2173,15 +2173,15 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
             qY_0 = qY_2 + 1;
 
             /* Gain: '<S73>/Gain' */
-            rtb_Sum1_iz = mul_s32_sat(13L, qY_2);
+            rtb_Sum1_m = mul_s32_sat(13L, qY_2);
 
             /* Selector: '<S67>/Selector' incorporates:
              *  Sum: '<S73>/Sum1'
              */
-            if (rtb_Sum1_iz > MAX_int32_T - lowAlt) {
-              rtb_Sum1_m = MAX_int32_T;
+            if (rtb_Sum1_m > MAX_int32_T - lowAlt) {
+              rtb_Sum1_a = MAX_int32_T;
             } else {
-              rtb_Sum1_m = lowAlt + rtb_Sum1_iz;
+              rtb_Sum1_a = lowAlt + rtb_Sum1_m;
             }
 
             /* Switch: '<S67>/Switch' incorporates:
@@ -2194,10 +2194,10 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
              *  UnitDelay: '<S51>/Unit Delay'
              */
             if ((lowAlt - 2 >= qY_2) > 0.5) {
-              rtb_Sum1_o_idx_3 = rtDW.UnitDelay_DSTATE_l[((lowAlt - 2) * 13 + i)
+              rtb_Sum1_j_idx_3 = rtDW.UnitDelay_DSTATE_c[((lowAlt - 2) * 13 + i)
                 - 1];
             } else {
-              rtb_Sum1_o_idx_3 = 0.0;
+              rtb_Sum1_j_idx_3 = 0.0;
             }
 
             /* End of Switch: '<S67>/Switch' */
@@ -2215,10 +2215,10 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
              *  UnitDelay: '<S51>/Unit Delay'
              *  UnitDelay: '<S51>/Unit Delay1'
              */
-            rtDW.Merge1_e = (rtDW.UnitDelay_DSTATE_l[((lowAlt - 1) * 13 + i) - 1]
-                             * rtDW.Product4 - rtDW.UnitDelay1_DSTATE_p[(int16_T)
-                             rtb_Sum1_m - 1] * rtDW.sqrt_p) - rtConstP.pooled5
-              [((qY_1 - 1) * 13 + qY_0) - 1] * rtb_Sum1_o_idx_3;
+            rtDW.Merge1_c = (rtDW.UnitDelay_DSTATE_c[((lowAlt - 1) * 13 + i) - 1]
+                             * rtDW.Product4 - rtDW.UnitDelay1_DSTATE_i[(int16_T)
+                             rtb_Sum1_a - 1] * rtDW.sqrt_m1) - rtConstP.pooled5
+              [((qY_1 - 1) * 13 + qY_0) - 1] * rtb_Sum1_j_idx_3;
 
             /* Switch: '<S67>/Switch1' incorporates:
              *  Constant: '<S67>/Constant1'
@@ -2234,16 +2234,16 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
                *  Sum: '<S73>/Sum2'
                */
               i = lowAlt - 1;
-              if (rtb_Sum1_iz > MAX_int32_T - i) {
-                rtb_Sum1_m = MAX_int32_T;
+              if (rtb_Sum1_m > MAX_int32_T - i) {
+                rtb_Sum1_a = MAX_int32_T;
               } else {
-                rtb_Sum1_m = i + rtb_Sum1_iz;
+                rtb_Sum1_a = i + rtb_Sum1_m;
               }
 
-              rtb_Sum1_o_idx_3 = rtDW.UnitDelay1_DSTATE_p[(int16_T)rtb_Sum1_m -
+              rtb_Sum1_j_idx_3 = rtDW.UnitDelay1_DSTATE_i[(int16_T)rtb_Sum1_a -
                 1];
             } else {
-              rtb_Sum1_o_idx_3 = 0.0;
+              rtb_Sum1_j_idx_3 = 0.0;
             }
 
             /* End of Switch: '<S67>/Switch1' */
@@ -2251,10 +2251,10 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
             /* Selector: '<S67>/Selector' incorporates:
              *  Sum: '<S73>/Sum1'
              */
-            if (rtb_Sum1_iz > MAX_int32_T - lowAlt) {
-              rtb_Sum1_iz = MAX_int32_T;
+            if (rtb_Sum1_m > MAX_int32_T - lowAlt) {
+              rtb_Sum1_m = MAX_int32_T;
             } else {
-              rtb_Sum1_iz += lowAlt;
+              rtb_Sum1_m += lowAlt;
             }
 
             /* Sum: '<S67>/Sum1' incorporates:
@@ -2266,9 +2266,9 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
              *  Sum: '<S74>/Sum'
              *  UnitDelay: '<S51>/Unit Delay1'
              */
-            rtDW.Merge_a = rtDW.UnitDelay1_DSTATE_p[(int16_T)rtb_Sum1_iz - 1] *
+            rtDW.Merge_c = rtDW.UnitDelay1_DSTATE_i[(int16_T)rtb_Sum1_m - 1] *
               rtDW.Product4 - rtConstP.pooled5[((qY_1 - 1) * 13 + qY_0) - 1] *
-              rtb_Sum1_o_idx_3;
+              rtb_Sum1_j_idx_3;
 
             /* End of Outputs for SubSystem: '<S51>/If Action Subsystem2' */
           }
@@ -2288,11 +2288,11 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
          */
         if (rtDW.ForIterator_IterationMarker[2] < 2) {
           rtDW.ForIterator_IterationMarker[2L] = 2U;
-          memcpy(&rtDW.Assignment_h[0], &rtDW.UnitDelay_DSTATE_l[0], 169U *
+          memcpy(&rtDW.Assignment_p[0], &rtDW.UnitDelay_DSTATE_c[0], 169U *
                  sizeof(real_T));
         }
 
-        rtDW.Assignment_h[(qY_1 + 13 * (i - 1)) - 1] = rtDW.Merge1_e;
+        rtDW.Assignment_p[(qY_1 + 13 * (i - 1)) - 1] = rtDW.Merge1_c;
 
         /* End of Assignment: '<S51>/Assignment' */
 
@@ -2305,21 +2305,21 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
          */
         if (rtDW.ForIterator_IterationMarker[3] < 2) {
           rtDW.ForIterator_IterationMarker[3L] = 2U;
-          memcpy(&rtDW.Assignment_snorm[0], &rtDW.UnitDelay1_DSTATE_p[0], 169U *
+          memcpy(&rtDW.Assignment_snorm[0], &rtDW.UnitDelay1_DSTATE_i[0], 169U *
                  sizeof(real_T));
         }
 
         rtDW.Assignment_snorm[(int16_T)((real_T)i + (real_T)mul_s32_sat(13L,
-          qY_1 - 1)) - 1] = rtDW.Merge_a;
+          qY_1 - 1)) - 1] = rtDW.Merge_c;
 
         /* End of Assignment: '<S51>/Assignment_snorm' */
 
         /* Update for UnitDelay: '<S51>/Unit Delay' */
-        memcpy(&rtDW.UnitDelay_DSTATE_l[0], &rtDW.Assignment_h[0], 169U * sizeof
+        memcpy(&rtDW.UnitDelay_DSTATE_c[0], &rtDW.Assignment_p[0], 169U * sizeof
                (real_T));
 
         /* Update for UnitDelay: '<S51>/Unit Delay1' */
-        memcpy(&rtDW.UnitDelay1_DSTATE_p[0], &rtDW.Assignment_snorm[0], 169U *
+        memcpy(&rtDW.UnitDelay1_DSTATE_i[0], &rtDW.Assignment_snorm[0], 169U *
                sizeof(real_T));
       }
 
@@ -2331,22 +2331,22 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
        *  Sum: '<S54>/Sum1'
        */
       i = 1 + lowAlt;
-      rtb_Sum1_iz = mul_s32_sat(13L, qY_2);
-      if (rtb_Sum1_iz > MAX_int32_T - i) {
-        rtb_Sum1_iz = MAX_int32_T;
+      rtb_Sum1_m = mul_s32_sat(13L, qY_2);
+      if (rtb_Sum1_m > MAX_int32_T - i) {
+        rtb_Sum1_m = MAX_int32_T;
       } else {
-        rtb_Sum1_iz += i;
+        rtb_Sum1_m += i;
       }
 
       /* Product: '<S50>/par' incorporates:
        *  Selector: '<S50>/snorm[n+m*13]'
        */
-      c_s = rtDW.Assignment_snorm[(int16_T)rtb_Sum1_iz - 1] * c;
+      c_s = rtDW.Assignment_snorm[(int16_T)rtb_Sum1_m - 1] * c;
 
       /* Outputs for Enabled SubSystem: '<S50>/Special case - North//South Geographic Pole' incorporates:
        *  EnablePort: '<S53>/Enable'
        */
-      if ((rtDW.sqrt_p == 0.0) && (1 == qY_2)) {
+      if ((rtDW.sqrt_m1 == 0.0) && (1 == qY_2)) {
         if (!rtDW.SpecialcaseNorthSouthGeographic) {
           rtDW.SpecialcaseNorthSouthGeographic = true;
         }
@@ -2364,11 +2364,11 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
            */
           if (rtDW.ForIterator_IterationMarker[0] < 2) {
             rtDW.ForIterator_IterationMarker[0L] = 2U;
-            memcpy(&rtDW.Assignment2_e[0], &rtDW.UnitDelay1_DSTATE_b[0], 13U *
+            memcpy(&rtDW.Assignment2_e[0], &rtDW.UnitDelay1_DSTATE_d[0], 13U *
                    sizeof(real_T));
           }
 
-          rtDW.Assignment2_e[1] = rtDW.UnitDelay1_DSTATE_b[0];
+          rtDW.Assignment2_e[1] = rtDW.UnitDelay1_DSTATE_d[0];
 
           /* End of Assignment: '<S57>/Assignment2' */
           /* End of Outputs for SubSystem: '<S53>/If Action Subsystem1' */
@@ -2381,7 +2381,7 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
              *  UnitDelay: '<S53>/Unit Delay1'
              */
             rtDW.ForIterator_IterationMarker[1L] = 2U;
-            memcpy(&rtDW.Assignment2_a[0], &rtDW.UnitDelay1_DSTATE_b[0], 13U *
+            memcpy(&rtDW.Assignment2_g[0], &rtDW.UnitDelay1_DSTATE_d[0], 13U *
                    sizeof(real_T));
           }
 
@@ -2394,9 +2394,9 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
            *  Sum: '<S58>/Sum1'
            *  UnitDelay: '<S53>/Unit Delay1'
            */
-          rtDW.Assignment2_a[lowAlt] = rtDW.UnitDelay1_DSTATE_b[lowAlt - 1] *
+          rtDW.Assignment2_g[lowAlt] = rtDW.UnitDelay1_DSTATE_d[lowAlt - 1] *
             rtDW.Product4 - rtConstP.pooled5[lowAlt * 13 + 1] *
-            rtDW.UnitDelay1_DSTATE_b[lowAlt - 2];
+            rtDW.UnitDelay1_DSTATE_d[lowAlt - 2];
 
           /* End of Outputs for SubSystem: '<S53>/If Action Subsystem2' */
         }
@@ -2406,9 +2406,9 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
         /* SignalConversion: '<S53>/TmpSignal ConversionAtpp[n]Inport1' incorporates:
          *  UnitDelay: '<S53>/Unit Delay1'
          */
-        rtb_TmpSignalConversionAtppnInp[0] = rtDW.UnitDelay1_DSTATE_b[0];
+        rtb_TmpSignalConversionAtppnInp[0] = rtDW.UnitDelay1_DSTATE_d[0];
         rtb_TmpSignalConversionAtppnInp[1] = rtDW.Assignment2_e[1];
-        memcpy(&rtb_TmpSignalConversionAtppnInp[2], &rtDW.Assignment2_a[2], 11U *
+        memcpy(&rtb_TmpSignalConversionAtppnInp[2], &rtDW.Assignment2_g[2], 11U *
                sizeof(real_T));
 
         /* Product: '<S53>/Product2' incorporates:
@@ -2417,7 +2417,7 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
         rtDW.Product2 = c * rtb_TmpSignalConversionAtppnInp[lowAlt] * b_c;
 
         /* Update for UnitDelay: '<S53>/Unit Delay1' */
-        memcpy(&rtDW.UnitDelay1_DSTATE_b[0], &rtb_TmpSignalConversionAtppnInp[0],
+        memcpy(&rtDW.UnitDelay1_DSTATE_d[0], &rtb_TmpSignalConversionAtppnInp[0],
                13U * sizeof(real_T));
       } else {
         if (rtDW.SpecialcaseNorthSouthGeographic) {
@@ -2440,7 +2440,7 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
        *  Sum: '<S49>/Sum1'
        *  UnitDelay: '<S50>/Unit Delay1'
        */
-      rtDW.Sum1 = rtDW.UnitDelay1_DSTATE_h - rtDW.Assignment_h[lowAlt * 13 +
+      rtDW.Sum1 = rtDW.UnitDelay1_DSTATE_c - rtDW.Assignment_p[lowAlt * 13 +
         qY_2] * b_s * c;
 
       /* Sum: '<S50>/Sum2' incorporates:
@@ -2459,7 +2459,7 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
        *  UnitDelay: '<S50>/Unit Delay2'
        */
       rtDW.Sum3 = rtConstP.fn_Value[lowAlt] * c_s * b_s +
-        rtDW.UnitDelay2_DSTATE_i;
+        rtDW.UnitDelay2_DSTATE_n;
 
       /* Sum: '<S50>/Sum5' incorporates:
        *  UnitDelay: '<S50>/Unit Delay4'
@@ -2467,13 +2467,13 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
       rtDW.Sum5 = rtDW.UnitDelay4_DSTATE + rtDW.Product2;
 
       /* Update for UnitDelay: '<S50>/Unit Delay1' */
-      rtDW.UnitDelay1_DSTATE_h = rtDW.Sum1;
+      rtDW.UnitDelay1_DSTATE_c = rtDW.Sum1;
 
       /* Update for UnitDelay: '<S50>/Unit Delay3' */
       rtDW.UnitDelay3_DSTATE = rtDW.Sum2;
 
       /* Update for UnitDelay: '<S50>/Unit Delay2' */
-      rtDW.UnitDelay2_DSTATE_i = rtDW.Sum3;
+      rtDW.UnitDelay2_DSTATE_n = rtDW.Sum3;
 
       /* Update for UnitDelay: '<S50>/Unit Delay4' */
       rtDW.UnitDelay4_DSTATE = rtDW.Sum5;
@@ -2484,16 +2484,16 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
     /* Sum: '<S41>/Sum1' incorporates:
      *  UnitDelay: '<S41>/Unit Delay2'
      */
-    rtb_Sum1_o_idx_0 = xi + rtDW.Sum1;
-    rtb_Sum1_o_idx_1 = b_o + rtDW.Sum2;
-    rtb_Sum1_o_idx_2 = eta + rtDW.Sum3;
-    rtb_Sum1_o_idx_3 = C_1 + rtDW.Sum5;
+    rtb_Sum1_j_idx_0 = xi + rtDW.Sum1;
+    rtb_Sum1_j_idx_1 = b_o + rtDW.Sum2;
+    rtb_Sum1_j_idx_2 = eta + rtDW.Sum3;
+    rtb_Sum1_j_idx_3 = C_1 + rtDW.Sum5;
 
     /* Update for UnitDelay: '<S41>/Unit Delay2' */
-    xi = rtb_Sum1_o_idx_0;
-    b_o = rtb_Sum1_o_idx_1;
-    eta = rtb_Sum1_o_idx_2;
-    C_1 = rtb_Sum1_o_idx_3;
+    xi = rtb_Sum1_j_idx_0;
+    b_o = rtb_Sum1_j_idx_1;
+    eta = rtb_Sum1_j_idx_2;
+    C_1 = rtb_Sum1_j_idx_3;
   }
 
   /* End of Outputs for SubSystem: '<S39>/Compute magnetic vector in spherical coordinates' */
@@ -2501,10 +2501,10 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
   /* Switch: '<S93>/Switch' incorporates:
    *  Product: '<S93>/Product'
    */
-  if (rtDW.sqrt_p != 0.0) {
-    d_o = rtb_Sum1_o_idx_1 / rtDW.sqrt_p;
+  if (rtDW.sqrt_m1 != 0.0) {
+    d_o = rtb_Sum1_j_idx_1 / rtDW.sqrt_m1;
   } else {
-    d_o = rtb_Sum1_o_idx_3;
+    d_o = rtb_Sum1_j_idx_3;
   }
 
   /* End of Switch: '<S93>/Switch' */
@@ -2513,7 +2513,7 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
    *  Product: '<S92>/Product1'
    *  Product: '<S92>/Product4'
    */
-  b_c = (0.0 - rtDW.Product11 * rtb_Sum1_o_idx_0) - rtb_Sum1_o_idx_2 *
+  b_c = (0.0 - rtDW.Product11 * rtb_Sum1_j_idx_0) - rtb_Sum1_j_idx_2 *
     rtDW.Product12;
 
   /* UnitConversion: '<S97>/Unit Conversion' incorporates:
@@ -2527,7 +2527,7 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
    *  Product: '<S94>/Product1'
    *  Product: '<S94>/Product4'
    */
-  c_c = rtDW.Product12 * rtb_Sum1_o_idx_0 - rtb_Sum1_o_idx_2 * rtDW.Product11;
+  c_c = rtDW.Product12 * rtb_Sum1_j_idx_0 - rtb_Sum1_j_idx_2 * rtDW.Product11;
 
   /* Sum: '<S95>/Sum' incorporates:
    *  Product: '<S95>/Product'
@@ -2577,9 +2577,9 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
   d_o *= sin(b_s);
 
   /* Gain: '<S2>/nT2T' */
-  rtb_Sum1_o_idx_3 = 1.0E-9 * b_c;
+  rtb_Sum1_j_idx_3 = 1.0E-9 * b_c;
   c_c *= 1.0E-9;
-  rtb_Sum1_o_idx_1 = 1.0E-9 * d_o;
+  rtb_Sum1_j_idx_1 = 1.0E-9 * d_o;
 
   /* Product: '<S2>/Matrix Multiply1' incorporates:
    *  Math: '<S2>/Math Function'
@@ -2587,8 +2587,8 @@ void estimate_eci_vectors_step0(void)  /* Sample time: [0.1s, 0.0s] */
    */
   for (lowAlt = 0; lowAlt < 3; lowAlt++) {
     rtb_sun_vector_eci_km_0[lowAlt] = rtb_VectorConcatenate[3 * lowAlt + 2] *
-      rtb_Sum1_o_idx_1 + (rtb_VectorConcatenate[3 * lowAlt + 1] * c_c +
-                          rtb_VectorConcatenate[3 * lowAlt] * rtb_Sum1_o_idx_3);
+      rtb_Sum1_j_idx_1 + (rtb_VectorConcatenate[3 * lowAlt + 1] * c_c +
+                          rtb_VectorConcatenate[3 * lowAlt] * rtb_Sum1_j_idx_3);
   }
 
   /* End of Product: '<S2>/Matrix Multiply1' */
@@ -2756,7 +2756,7 @@ void estimate_eci_vectors_initialize(void)
 
     /* SystemInitialize for Enabled SubSystem: '<S39>/Convert from geodetic to  spherical coordinates' */
     /* SystemInitialize for Outport: '<S42>/r' */
-    rtDW.sqrt_i = 6378.137;
+    rtDW.sqrt_m = 6378.137;
 
     /* SystemInitialize for Outport: '<S42>/ct' */
     rtDW.Product4 = 1.0;
@@ -2767,7 +2767,7 @@ void estimate_eci_vectors_initialize(void)
     /* SystemInitialize for Iterator SubSystem: '<S41>/For Iterator Subsystem' */
     /* SystemInitialize for Enabled SubSystem: '<S49>/Compute unnormalized associated  legendre polynomials and  derivatives via recursion relations' */
     /* InitializeConditions for UnitDelay: '<S51>/Unit Delay1' */
-    memcpy(&rtDW.UnitDelay1_DSTATE_p[0], &rtConstP.pooled8[0], 169U * sizeof
+    memcpy(&rtDW.UnitDelay1_DSTATE_i[0], &rtConstP.pooled8[0], 169U * sizeof
            (real_T));
 
     /* SystemInitialize for Outport: '<S51>/snorm[169]' */
@@ -2780,13 +2780,13 @@ void estimate_eci_vectors_initialize(void)
     /* SystemInitialize for IfAction SubSystem: '<S53>/If Action Subsystem1' */
     for (i = 0; i < 13; i++) {
       /* InitializeConditions for UnitDelay: '<S53>/Unit Delay1' */
-      rtDW.UnitDelay1_DSTATE_b[i] = 1.0;
+      rtDW.UnitDelay1_DSTATE_d[i] = 1.0;
 
       /* SystemInitialize for Outport: '<S57>/pp[13]' */
       rtDW.Assignment2_e[i] = 1.0;
 
       /* SystemInitialize for Outport: '<S58>/pp[13]' */
-      rtDW.Assignment2_a[i] = 1.0;
+      rtDW.Assignment2_g[i] = 1.0;
     }
 
     /* End of SystemInitialize for SubSystem: '<S53>/If Action Subsystem1' */

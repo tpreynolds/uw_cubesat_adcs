@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'estimate_eci_vectors'.
  *
- * Model version                  : 1.158
+ * Model version                  : 1.177
  * Simulink Coder version         : 8.11 (R2016b) 25-Aug-2016
- * C/C++ source code generated on : Thu Oct 19 12:19:43 2017
+ * C/C++ source code generated on : Sat Oct 28 16:15:32 2017
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: Texas Instruments->MSP430

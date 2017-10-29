@@ -2,7 +2,7 @@
 ## Makefile generated for Simulink model 'estimate_eci_vectors'. 
 ## 
 ## Makefile     : estimate_eci_vectors.mk
-## Generated on : Thu Oct 19 12:14:47 2017
+## Generated on : Sat Oct 28 16:15:46 2017
 ## MATLAB Coder version: 3.2 (R2016b)
 ## 
 ## Build Info:
@@ -29,7 +29,7 @@ MATLAB_ROOT               = /Applications/MATLAB_R2016b.app
 MATLAB_BIN                = /Applications/MATLAB_R2016b.app/bin
 MATLAB_ARCH_BIN           = /Applications/MATLAB_R2016b.app/bin/maci64
 MASTER_ANCHOR_DIR         = 
-START_DIR                 = /Users/taylorreynolds/uw_cubesat_adcs_sourcetree/adcs/sw/components/adcs_fsw/matlab/test/fsw-autocode-test/estimate_eci_vecs
+START_DIR                 = /Users/taylorreynolds/uw_cubesat_adcs_sourcetree/adcs/sw/components/adcs_sim/matlab
 ARCH                      = maci64
 SOLVER                    = 
 SOLVER_OBJ                = 
@@ -176,7 +176,7 @@ BUILD_TYPE = "Top-Level Standalone Executable"
 ## INCLUDE PATHS
 ###########################################################################
 
-INCLUDES_BUILDINFO = -I$(MATLAB_ROOT)/simulink/include/sf_runtime -I$(START_DIR)/estimate_eci_vectors_ert_rtw -I$(START_DIR) -I/Users/taylorreynolds/uw_cubesat_adcs_sourcetree/adcs/sw/components/adcs_sim/matlab/src -I$(MATLAB_ROOT)/extern/include -I$(MATLAB_ROOT)/simulink/include -I$(MATLAB_ROOT)/rtw/c/src -I$(MATLAB_ROOT)/rtw/c/src/ext_mode/common -I$(MATLAB_ROOT)/rtw/c/ert
+INCLUDES_BUILDINFO = -I$(MATLAB_ROOT)/simulink/include/sf_runtime -I$(START_DIR)/estimate_eci_vectors_ert_rtw -I$(START_DIR) -I$(START_DIR)/src -I$(MATLAB_ROOT)/extern/include -I$(MATLAB_ROOT)/simulink/include -I$(MATLAB_ROOT)/rtw/c/src -I$(MATLAB_ROOT)/rtw/c/src/ext_mode/common -I$(MATLAB_ROOT)/rtw/c/ert
 
 INCLUDES = $(INCLUDES_BUILDINFO)
 

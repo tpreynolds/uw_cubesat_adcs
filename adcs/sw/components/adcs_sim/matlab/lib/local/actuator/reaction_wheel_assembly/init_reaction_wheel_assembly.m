@@ -14,7 +14,7 @@ reaction_wheel.ic.rt1       = 0;
 reaction_wheel.ic.deriv1    = 0;
 
 % Response Characteristics
-reaction_wheel.natural_freq     = 100;
+reaction_wheel.natural_freq     = 10;
 reaction_wheel.damping          = 1;
 reaction_wheel.rate_limit       = 100;
 
