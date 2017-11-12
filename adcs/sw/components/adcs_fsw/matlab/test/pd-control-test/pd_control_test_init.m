@@ -31,12 +31,15 @@ fsw_params = init_fsw_params();
 % Overrides
 ts  = 80; % settling time [s]
 Mp  = 0.2;  % max pct overshoot
-Ivec    = diag(sim_params.sc.inertia);
-Imax    = max(Ivec);
 
-kd      = 2*8.8*Imax/ts;          % derivative gain
-lam     = (log(Mp))^2;
-kp      = 0.5*(pi^2 + lam)*kd^2/(4*lam*Imax);   % proportional gain
+J  = fsw_params.bus.inertia;
+
+% Choose damping ratio and natural frequency
+z   = 1; % Critically damped
+wn  = 0.01*2*pi; % Small natural frequency
+
+pd_controller.p_gain  = -wn^2.*J;
+pd_controller.d_gain  = -2*wn*z.*J;
 
 fsw_params.control.pd_controller.p_gain = -kp;
 fsw_params.control.pd_controller.d_gain = -kd;

@@ -47,7 +47,7 @@ fsw_params.environment  = init_environment();
 % ----------------------- %
 
 % ----- Controllers ----- %
-fsw_params.control.pd_controller    = init_pd_controller();
+fsw_params.control.pd_controller    = init_pd_controller(fsw_params);
 fsw_params.control.p_dump           = init_momentum_dump();
 % ----------------------- %
 

@@ -25,11 +25,11 @@ Ix = (sim_params.sc.mass/12)*(sim_params.sc.dy^2+sim_params.sc.dz^2);    % X-axi
 Iy = (sim_params.sc.mass/12)*(sim_params.sc.dx^2+sim_params.sc.dz^2);    % Y-axis inertia
 Iz = (sim_params.sc.mass/12)*(sim_params.sc.dx^2+sim_params.sc.dy^2);    % Z-axis inertia
 sim_params.sc.inertia = diag([Ix Iy Iz]);
-fsw_params.bus.interia  = sim_params.sc.inertia;
+fsw_params.bus.inertia  = sim_params.sc.inertia;
 % -----
 
 % ----- Dynamics -----%
-sim_params.dynamics = init_dynamics;
+sim_params.dynamics = init_dynamics(fsw_params);
 % -----
 
 % ----- Sensors ----- %
