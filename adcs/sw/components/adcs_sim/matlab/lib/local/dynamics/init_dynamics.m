@@ -1,4 +1,4 @@
-function dynamics = init_dynamics
+function dynamics = init_dynamics()
 % UW Husky-Sat 1, ADCS Team
 
 % Initializes the dynamics block used in SIM. Quaternions are scalar first

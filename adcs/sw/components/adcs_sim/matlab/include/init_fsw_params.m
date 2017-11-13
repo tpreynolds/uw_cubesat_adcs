@@ -18,9 +18,9 @@ function fsw_params = init_fsw_params()
 
 % ----- Spacecraft Parameters ----- %
 fsw_params.bus.inertia = [];
-fsw_params.bus.quat_commanded   = [1 0 0 0]';
-fsw_params.bus.RW_RPM_thresh    = 10e3; % RPM
-fsw_params.bus.omega_radps_thresh     = 0.12; % [rad/s]
+fsw_params.bus.quat_ID   = [1 0 0 0]';
+fsw_params.bus.RW_RPM_thresh    = [2e3 10e3]; % RPM
+fsw_params.bus.omega_radps_thresh     = [0.01 0.12]; % [rad/s]
 fsw_params.bus.bstar    = 3.2923e-5; % taken from SWISSCUBE
 fsw_params.bus.sync_pulse   = 2; % minor sync pulse for duty cycling PPT and info dump
 % --------------------------------- %
