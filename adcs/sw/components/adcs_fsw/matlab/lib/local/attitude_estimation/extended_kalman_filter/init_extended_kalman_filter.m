@@ -29,6 +29,9 @@ ekf.ic.error_cov = blkdiag((3*pi/180)^2*eye(3),(0.3*pi/180)^2*eye(3));
 ekf.sample_time_s = 1/10;
 dt = ekf.sample_time_s;
 
+% Upper bound on convergence time
+ekf.converge_time_s   = 60;
+
 % Constant matrices
 ekf.G   = blkdiag(-eye(3),eye(3));
 

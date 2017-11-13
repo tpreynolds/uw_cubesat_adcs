@@ -9,7 +9,7 @@
 %   Takes in already defined fsw_params so that sim values can be defined
 %   using the fsw values
 
-% Last Edited: T.Reynolds 9.29.17
+% Last Edited: T.Reynolds 11.11.17
 % ----------------------------------------------------------------------- %
 
 % ----- Spacecraft Parameters ----- %
@@ -26,6 +26,10 @@ Iy = (sim_params.sc.mass/12)*(sim_params.sc.dx^2+sim_params.sc.dz^2);    % Y-axi
 Iz = (sim_params.sc.mass/12)*(sim_params.sc.dx^2+sim_params.sc.dy^2);    % Z-axis inertia
 sim_params.sc.inertia = diag([Ix Iy Iz]);
 fsw_params.bus.inertia  = sim_params.sc.inertia;
+% -----
+
+% ----- CAN Signal Emulator ----- %
+sim_params.CAN  = init_CAN();
 % -----
 
 % ----- Dynamics -----%
