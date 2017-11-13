@@ -22,15 +22,11 @@ pd_controller.rps_2_rpm     = 60/(2*pi);
 J  = fsw_params.bus.inertia;
 
 % Choose damping ratio and natural frequency
-z   = 1; % Critically damped
-wn  = 0.01*2*pi; % Small natural frequency
+z   = 1;            % Critically damped
+wn  = 0.01*2*pi;    % Small natural frequency
 
 pd_controller.p_gain  = -wn^2.*J;
 pd_controller.d_gain  = -2*wn*z.*J;
-
-% PD Controller gains - TUNED IN TEST FILE
-% pd_controller.p_gain = -0.001114238870515;
-% pd_controller.d_gain = -0.008423250000000;
 
 end
 
