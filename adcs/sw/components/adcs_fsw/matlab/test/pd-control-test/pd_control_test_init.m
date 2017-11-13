@@ -29,26 +29,27 @@ fsw_params = init_fsw_params();
 [sim_params,fsw_params] = init_sim_params(fsw_params);
 
 % Overrides
-ts  = 80; % settling time [s]
-Mp  = 0.2;  % max pct overshoot
-
 J  = fsw_params.bus.inertia;
+sim_params.dynamics.ic.rate_init = zeros(3,1);
 
 % Choose damping ratio and natural frequency
 z   = 1; % Critically damped
-wn  = 0.01*2*pi; % Small natural frequency
+wn  = 0.02*2*pi; % Small natural frequency
 
-pd_controller.p_gain  = -wn^2.*J;
-pd_controller.d_gain  = -2*wn*z.*J;
+fsw_params.control.pd_controller.p_gain  = -wn^2.*J;
+fsw_params.control.pd_controller.d_gain  = -2*wn*z.*J;
 
-fsw_params.control.pd_controller.p_gain = -kp;
-fsw_params.control.pd_controller.d_gain = -kd;
+% fsw_params.control.pd_controller.p_gain = -kp;
+% fsw_params.control.pd_controller.d_gain = -kd;
 temp    = randn(4,1);
 sim_params.dynamics.ic.quat_init    = temp./norm(temp);
+sim_params.dynamics.ic.quat_init    = [0; 0; 0; 1];
 
-fsw_params.bus.quat_commanded   = [0.5 0.5 0.5 0.5]';
+eul_angle   = deg2rad(10);
+eul_axis    = [1; 0; 0];
+fsw_params.bus.quat_commanded   = [sin(eul_angle/2)*eul_axis; cos(eul_angle/2)];
 
-t_end   = 100;
+t_end   = 500;
 % -----
 
 % Simulation parameters
@@ -65,7 +66,7 @@ omega   = logsout.getElement('<body_rates>').Values.Data;
 cmdu       = logsout.getElement('cmd_torque').Values.Data;
 realu       = logsout.getElement('torque').Values.Data;
 real_time   = logsout.getElement('torque').Values.Time;
-cmdRPM     = logsout.getElement('cmd_rpm').Values.Data;
+cmdRPM     = squeeze(logsout.getElement('cmd_rpm').Values.Data);
 realRPM     = logsout.getElement('real_RPM').Values.Data;
 
 q_d     = fsw_params.bus.quat_commanded;
