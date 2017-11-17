@@ -60,22 +60,35 @@ t_end = str2double(run_time);
 figure(1)
 subplot(2,2,1)
 plot(sc_quat,'LineWidth',1)
+xlabel('Time [s]')
+title('Spacecraft Quaternion','Fontsize',15)
 subplot(2,2,2)
 plot(sc_omega,'LineWidth',1)
+xlabel('Time [s]')
+title('Angular Velocity','Fontsize',15)
 subplot(2,2,3)
 plot(sc_pos_eci,'LineWidth',1)
+xlabel('Time [s]')
+title('Inertial Position','Fontsize',15)
 subplot(2,2,4)
 plot(sc_vel_eci,'LineWidth',1)
+xlabel('Time [s]')
+title('Inertial Velocity','Fontsize',15)
 
 figure(2)
 subplot(2,1,1)
 plot(ctrl_dipole,'LineWidth',1)
+title('Commanded Magnetorquer Dipole','FontSize',15)
 subplot(2,1,2)
 plot(ctrl_RW,'LineWidth',1)
+title('Commanded Reaction Wheel RPM','FontSize',15)
 
 figure(3), hold on
 plot(sc_mode_plot,'LineWidth',1)
 plot(ctrl_status_plot,'LineWidth',1)
+legend('ADCS Mode','Control Mode')
+xlabel('Time [s]','FontSize',14)
+title('ADCS Mode and Control Mode','FontSize',15)
 
 REKM = 6378.135; % earth radius [km]
 figure(4), hold on

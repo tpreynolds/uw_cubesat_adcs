@@ -23,8 +23,6 @@ fsw_params = init_fsw_params();
 [sim_params,fsw_params] = init_sim_params(fsw_params);
 fsw_params.bdot     = init_bdot_controller(fsw_params);
 
-fsw_params.bus.quat_commanded = [0;0;0;0];
-
 % Load sim
 run_time    = '10';
 mdl         = 'adcs_sim_main';
