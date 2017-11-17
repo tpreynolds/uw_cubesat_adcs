@@ -19,14 +19,7 @@ sim_params.sc.dx = 0.11;                  % [m] X-axis length
 sim_params.sc.dy = 0.1;                   % [m] Y-axis length
 sim_params.sc.dz = 0.3;                   % [m] Z-axis length
 sim_params.sc.center_of_mass = [0.03 0.01 -0.02]';     % [m] CoM location 
-
-% Moments of inertia (cuboid approximation)
-Ix = (sim_params.sc.mass/12)*(sim_params.sc.dy^2+sim_params.sc.dz^2);    % X-axis inertia
-Iy = (sim_params.sc.mass/12)*(sim_params.sc.dx^2+sim_params.sc.dz^2);    % Y-axis inertia
-Iz = (sim_params.sc.mass/12)*(sim_params.sc.dx^2+sim_params.sc.dy^2);    % Z-axis inertia
-sim_params.sc.inertia = diag([Ix Iy Iz]);
-fsw_params.bus.inertia  = sim_params.sc.inertia;
-% -----
+sim_params.sc.inertia = fsw_params.bus.inertia;
 
 % ----- CAN Signal Emulator ----- %
 sim_params.CAN  = init_CAN();
