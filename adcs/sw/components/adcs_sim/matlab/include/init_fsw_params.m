@@ -27,12 +27,12 @@ fsw_params.sc.center_of_mass = [0.03 0.01 -0.02]';     % [m] CoM location
 Ix = (fsw_params.sc.mass/12)*(fsw_params.sc.dy^2+fsw_params.sc.dz^2);    % X-axis inertia
 Iy = (fsw_params.sc.mass/12)*(fsw_params.sc.dx^2+fsw_params.sc.dz^2);    % Y-axis inertia
 Iz = (fsw_params.sc.mass/12)*(fsw_params.sc.dx^2+fsw_params.sc.dy^2);    % Z-axis inertia
-fsw_params.sc.inertia   = diag([Ix Iy Iz]);
-fsw_params.bus.inertia  = fsw_params.sc.inertia;
-fsw_params.bus.quat_id   = [1 0 0 0]';
-fsw_params.bus.RW_RPM_thresh    = [2e3 10e3]; % RPM
-fsw_params.bus.omega_radps_thresh     = [0.001 0.12]; % [rad/s]
-fsw_params.bus.bstar    = 3.2923e-5; % taken from SWISSCUBE
+fsw_params.sc.inertia       = diag([Ix Iy Iz]);
+fsw_params.bus.inertia      = fsw_params.sc.inertia;
+fsw_params.bus.quat_id      = [1 0 0 0]';
+fsw_params.bus.RW_RPM_thresh        = [2e3 10e3]; % RPM
+fsw_params.bus.omega_radps_thresh   = [0.001 0.12]; % [rad/s]
+fsw_params.bus.bstar        = 3.2923e-5; % taken from SWISSCUBE
 fsw_params.bus.sync_pulse   = 2; % minor sync pulse for duty cycling PPT and info dump
 % --------------------------------- %
 
@@ -63,6 +63,6 @@ fsw_params.control.p_dump           = init_momentum_dump();
 % ----------------------- %
 
 % ----- Estimation ----- %
-
+% EKF initialized in sim_params.
 % ---------------------- %
 
