@@ -8,7 +8,7 @@ function CAN = init_CAN( )
 %   Last Edited: T. Reynolds, 11.11.17
 % ----------------------------------------------------------------------- %
 
-CAN.override     = 31;
+CAN.override     = 0;
 CAN.reboot       = 0;
 CAN.pointing     = 1;
 CAN.COM2_on      = 1;
