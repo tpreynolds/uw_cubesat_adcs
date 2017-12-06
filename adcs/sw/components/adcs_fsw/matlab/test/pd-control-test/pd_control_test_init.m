@@ -14,7 +14,7 @@ clear variables; close all; clc
 addpath(genpath('../../../matlab/')) % adds the fsw libs
 addpath(genpath('../../../../adcs_sim/matlab/')) % add the sim libs
 
-run_test    = 2;
+run_test    = 1;
 
 t_end   = 500;
 %% Test 1
@@ -41,12 +41,13 @@ fsw_params.control.pd_controller.d_gain  = -2*wn*z.*J;
 
 % fsw_params.control.pd_controller.p_gain = -kp;
 % fsw_params.control.pd_controller.d_gain = -kd;
-temp    = randn(4,1);
-sim_params.dynamics.ic.quat_init    = temp./norm(temp);
-%sim_params.dynamics.ic.quat_init    = [1; 0; 0; 0];
+%temp    = randn(4,1);
+%sim_params.dynamics.ic.quat_init    = temp./norm(temp);
+sim_params.dynamics.ic.quat_init    = [1; 0; 0; 0];
 
 eul_angle   = deg2rad(10);
 eul_axis    = [1; 0; 0];
+sim_params.dynamics.ic.quat_ini = [cos(eul_angle/2); sin(eul_angle/2)*eul_axis];
 fsw_params.bus.quat_commanded   = [cos(eul_angle/2); sin(eul_angle/2)*eul_axis];
 % -----
 
