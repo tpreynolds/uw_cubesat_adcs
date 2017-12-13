@@ -1,4 +1,4 @@
-function sensor_processing = init_sensor_processing( )
+function sensor_processing = init_sensor_processing( fsw_params )
 % ----------------------------------------------------------------------- %
 % UW HuskySat-1, ADCS Team
 %
@@ -26,7 +26,8 @@ sensor_processing.sunsensor.rate    = (1/10); % Hz - sensor read rate
 % ---------------------- %
 
 % ----- GPS Sensor ----- %
-sensor_processing.gps.ic.time = [0 0]';
+sensor_processing.gps.ic.time = [fsw_params.environment.sgp4.gps_sec_init ...
+                                 fsw_params.environment.sgp4.gps_week_init]';
 sensor_processing.gps.ic.pos    = zeros(3,1);
 sensor_processing.gps.ic.vel    = zeros(3,1);
 sensor_processing.gps.sample_time_s     = 1;
