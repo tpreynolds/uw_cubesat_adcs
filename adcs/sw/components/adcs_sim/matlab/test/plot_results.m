@@ -1,8 +1,9 @@
 % UW HuskySat-1, ADCS Subsystem
-%   Last Updated: T. Reynolds 9.9.17
+%   Last Updated: T. Reynolds 12.28.17
 
 % Plot Results from a run of sim_init.m
 close all
+set(0,'defaulttextinterpreter','latex')
 
 % ----- Extract data ----- %
 states_plot = logsout.getElement('states').Values;
@@ -11,9 +12,9 @@ states_plot = logsout.getElement('states').Values;
     sc_pos_eci = states_plot.position; % [ m ]
     sc_vel_eci = states_plot.velocity; % [ m\s ]
     
-disturbances_plot = logsout.getElement('disturbances').Values;
+%disturbances_plot = logsout.getElement('disturbances').Values;
 
-orbit_data_plot = logsout.getElement('orbit_data').Values;
+%orbit_data_plot = logsout.getElement('orbit_data').Values;
 
 act_meas = logsout.getElement('act_meas').Values;
     

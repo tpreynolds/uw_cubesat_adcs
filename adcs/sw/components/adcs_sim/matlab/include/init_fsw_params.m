@@ -44,18 +44,18 @@ fsw_params.convert.NT2T     = 1e-9;  % convert nano-Tesla to Tesla
 fsw_params.convert.RPM_2_RADPS  = (pi/30); % convert RPM to rad/s
 % -------------------------- %
 
+% ----- Environment ----- %
+fsw_params.environment  = init_environment();
+% ----------------------- %
+
 % ----- Sensors ----- %
 fsw_params.sensors              = init_sensors();
-fsw_params.sensor_processing    = init_sensor_processing();
+fsw_params.sensor_processing    = init_sensor_processing(fsw_params);
 % -------------------- %
 
 % ----- Actuators ----- %
 fsw_params.actuators    = init_actuators();
 % --------------------- %
-
-% ----- Environment ----- %
-fsw_params.environment  = init_environment();
-% ----------------------- %
 
 % ----- Controllers ----- %
 fsw_params.control.pd_controller    = init_pd_controller(fsw_params);
