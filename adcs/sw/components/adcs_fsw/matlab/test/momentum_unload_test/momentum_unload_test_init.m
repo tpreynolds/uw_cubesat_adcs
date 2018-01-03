@@ -13,7 +13,7 @@ addpath(genpath('../../../../adcs_sim/matlab/')) % add the sim libs
 
 run_test    = 3;
 
-t_end   = 20;
+t_end   = 10;
 %% Test 1
 if run_test == 1
 
@@ -214,7 +214,7 @@ fsw_params.bus.quat_commanded   = [cos(eul_angle/2); sin(eul_angle/2)*eul_axis];
 % -----
 % Simulation parameters
 run_time    = num2str(t_end);
-mdl         = 'momentum_unload_test_super_simple';
+mdl         = 'momentum_unload_test';
 load_system(mdl);
 set_param(mdl, 'StopTime', run_time);
 sldebug(mdl);
