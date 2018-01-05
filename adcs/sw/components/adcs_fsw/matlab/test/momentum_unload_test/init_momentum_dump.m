@@ -18,6 +18,6 @@ p_dump.ic.ang_mom_ref       = 2000;
 p_dump.sample_time_s    = 1/5; % sample at 5 Hz
 
 % Momentum unloading controller gains
-p_dump.gain_k     = 1;
+p_dump.gain_k     = 5*10^(-3);
 
 
