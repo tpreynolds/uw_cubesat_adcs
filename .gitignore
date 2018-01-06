@@ -3,6 +3,7 @@
 *.asv
 *.m~
 slprj/
+*_rtw/
 
 # Python
 *.pyc
