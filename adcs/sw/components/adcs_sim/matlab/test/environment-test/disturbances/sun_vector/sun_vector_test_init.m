@@ -17,12 +17,19 @@
 %   - Ref. Vallado p. 301 and 279
 
 % Get right paths
+% addpath(genpath(pwd))
+% cd ~; cd uw_cubesat_adcs_sourcetree/adcs/sw/components/adcs_bdot/matlab/
+% addpath(genpath(pwd))
+% cd ~; cd uw_cubesat_adcs_sourcetree/adcs/sw/components/adcs_fsw/matlab/
+% addpath(genpath(pwd))
+% cd ~; cd uw_cubesat_adcs_sourcetree/adcs/sw/components/adcs_sim/matlab/
+
 addpath(genpath(pwd))
-cd ~; cd uw_cubesat_adcs_sourcetree/adcs/sw/components/adcs_bdot/matlab/
-addpath(genpath(pwd))
-cd ~; cd uw_cubesat_adcs_sourcetree/adcs/sw/components/adcs_fsw/matlab/
-addpath(genpath(pwd))
-cd ~; cd uw_cubesat_adcs_sourcetree/adcs/sw/components/adcs_sim/matlab/
+addpath(genpath('../../adcs_fsw/matlab/'))
+addpath(genpath('../../adcs_bdot/matlab/'))
+addpath(genpath('../../../../../../adcs_fsw/matlab/'))
+addpath(genpath('../../../../../../adcs_bdot/matlab/'))
+
 %% Test 1
 clear variables; close all; clc
 figdir      = './figs/';
@@ -48,6 +55,7 @@ sim_params.sensors.gps.start_week   = 2021;
 
 % Run sim
 run_time = '86400';
+run_time = '6400';
 mdl = 'sun_vector_test';
 load_system(mdl);
 set_param(mdl, 'StopTime', run_time);
