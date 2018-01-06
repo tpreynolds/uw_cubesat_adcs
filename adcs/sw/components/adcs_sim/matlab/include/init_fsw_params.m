@@ -18,16 +18,18 @@ function fsw_params = init_fsw_params()
 
 % ----- Spacecraft Parameters ----- %
 % Geometry
-fsw_params.sc.mass  = 4.5;  % [kg] Satellite mass
+fsw_params.sc.mass  = 2.91084;  % [kg] Satellite mass
 fsw_params.sc.dx = 0.11;                  % [m] X-axis length
 fsw_params.sc.dy = 0.1;                   % [m] Y-axis length
 fsw_params.sc.dz = 0.3;                   % [m] Z-axis length
-fsw_params.sc.center_of_mass = [0.03 0.01 -0.02]';     % [m] CoM location
+fsw_params.sc.center_of_mass = [ -0.04952 -0.04492 0.18508 ]';     % [m] CoM location
 % Moments of inertia (cuboid approximation)
-Ix = (fsw_params.sc.mass/12)*(fsw_params.sc.dy^2+fsw_params.sc.dz^2);    % X-axis inertia
-Iy = (fsw_params.sc.mass/12)*(fsw_params.sc.dx^2+fsw_params.sc.dz^2);    % Y-axis inertia
-Iz = (fsw_params.sc.mass/12)*(fsw_params.sc.dx^2+fsw_params.sc.dy^2);    % Z-axis inertia
-fsw_params.sc.inertia       = diag([Ix Iy Iz]);
+% Ix = (fsw_params.sc.mass/12)*(fsw_params.sc.dy^2+fsw_params.sc.dz^2);    % X-axis inertia
+% Iy = (fsw_params.sc.mass/12)*(fsw_params.sc.dx^2+fsw_params.sc.dz^2);    % Y-axis inertia
+% Iz = (fsw_params.sc.mass/12)*(fsw_params.sc.dx^2+fsw_params.sc.dy^2);    % Z-axis inertia
+fsw_params.sc.inertia       = [ 0.033800072 -0.0000488358 -0.00007392968;
+                                -0.0000488358 0.03456792999 0.00000712402;
+                                 -0.00007392968 0.00000712402 0.00742076536];
 fsw_params.bus.inertia      = fsw_params.sc.inertia;
 fsw_params.bus.quat_id      = [1 0 0 0]';
 fsw_params.bus.RW_RPM_thresh        = [2e3 10e3]; % RPM
