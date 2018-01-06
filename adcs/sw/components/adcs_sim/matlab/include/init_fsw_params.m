@@ -62,6 +62,11 @@ fsw_params.control.pd_controller    = init_pd_controller(fsw_params);
 fsw_params.control.p_dump           = init_momentum_dump();
 % ----------------------- %
 
+% ----- Ground Station Prediction----- %
+fsw_params.gs_prediction = init_gs_prediction(fsw_params);
+% ----------------------- %
+
+
 % ----- Estimation ----- %
 % EKF initialized in sim_params.
 % ---------------------- %

@@ -33,5 +33,3 @@ set_param(mdl,'StopTime', run_time);
 sim(mdl);
 
 plot_results
-
-
