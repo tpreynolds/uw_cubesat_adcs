@@ -1,7 +1,7 @@
-%% SC in Eclipse Unit Test
+%% SC Above Ground Station Unit Test
 %   UW HuskySat-1, ADCS Subsystem
-%   Author: T. Reynolds 
-%   Last update: 9.1.17
+%   Author: S. Rice
+%   Last update: 1.6.17
 % ----------------------------------------------------------------------- %
 % Test 1: Uses SWISSCUBE ephemeris. Uses SGP4 to propagate the orbit and
 % determine if a line of sight vector to the ground station exists.
@@ -14,19 +14,9 @@
 %   - Plots show trajectory and mid point sun vector, and whether or
 %      not the sc has a LoS to the sun.
 %   - Plots show ground track
-%   - Ref. Vallado p. 301 and 279
 
-% Get right paths
-% addpath(genpath(pwd))
-% cd ~; cd uw_cubesat_adcs_sourcetree/adcs/sw/components/adcs_bdot/matlab/
-% addpath(genpath(pwd))
-% cd ~; cd uw_cubesat_adcs_sourcetree/adcs/sw/components/adcs_fsw/matlab/
-% addpath(genpath(pwd))
-% cd ~; cd uw_cubesat_adcs_sourcetree/adcs/sw/components/adcs_sim/matlab/
+%Run the addpaths and get fsw_params from the sim_init file
 
-addpath(genpath(pwd))
-addpath(genpath('../../adcs_fsw/matlab/'))
-addpath(genpath('../../adcs_bdot/matlab/'))
 
 %% Test 1
 clear variables; close all; clc
@@ -80,7 +70,7 @@ figure(1), hold on
 X=X.*REKM;
 Y=Y.*REKM;
 Z=Z.*REKM;
-Earth_im = imread('Flat_earth_cds.jpg', 'jpg');
+Earth_im = imread('Flat_earth.jpg', 'jpg');
 surf(X, Y, Z,'CData',flip(Earth_im,1),'FaceColor','texturemap','EdgeColor','none');
 % plot3(sc_pos_eci(:,1),sc_pos_eci(:,2),sc_pos_eci(:,3),'r','LineWidth',2)
 plot3(sc_ecef.Data(:,1),sc_ecef.Data(:,2),sc_ecef.Data(:,3),'r','LineWidth',2)
@@ -91,9 +81,9 @@ ylabel('y-direction [km]')
 zlabel('z-direction [km]')
 %saveas(gcf, strcat(figdir, 'traj_visualization_test1'),'fig')
 
-% figure(2), hold on
-% Earth_im = imread('Flat_earth_cds.jpg', 'jpg');
-% imshow(Earth_im);
+figure(2), hold on
+Earth_im = imread('Flat_earth_cds.jpg', 'jpg');
+imshow(Earth_im);
 
 figure(3)
 plot(sc_above_gs_time,sc_above_gs)
