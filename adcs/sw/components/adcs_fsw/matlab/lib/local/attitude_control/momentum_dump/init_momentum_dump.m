@@ -1,8 +1,8 @@
-function p_dump = init_momentum_dump( )
+function p_dump = init_momentum_dump(fsw_params)
 % ----------------------------------------------------------------------- %
 % UW HuskySat-1, ADCS Team
 %   Load the parameters for the momentum (p) unloading controller here. 
-% Last Edited: E. Hansen 12.20.17
+% Last Edited: E. Hansen 01.05.18
 % ----------------------------------------------------------------------- %
 
 % Initial Conditions
@@ -12,12 +12,12 @@ p_dump.ic.rt_dipole_Am2     = zeros(3,1);
 p_dump.ic.rt_PPT_on         = 0;
 p_dump.ic.rt_B_meas_valid   = 0;
 p_dump.ic.delay             = zeros(3,1);
-p_dump.ic.ang_mom_ref       = 2000;
+p_dump.ic.ang_mom_ref       = fsw_params.sc.inertia*[max(fsw_params.bus.RW_RPM_thresh)*fsw_params.convert.RPM_2_RADPS;...
+                                                     max(fsw_params.bus.RW_RPM_thresh)*fsw_params.convert.RPM_2_RADPS;...
+                                                     max(fsw_params.bus.RW_RPM_thresh)*fsw_params.convert.RPM_2_RADPS]; %not accurate, just needed a placeholder vector 
 
 % Sample time
 p_dump.sample_time_s    = 1/5; % sample at 5 Hz
 
 % Momentum unloading controller gains
-p_dump.gain_k     = 1;
-
-
+p_dump.gain_k     = 2*10^(-4);

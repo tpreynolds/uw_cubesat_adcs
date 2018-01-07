@@ -13,7 +13,7 @@ addpath(genpath('../../../../adcs_sim/matlab/')) % add the sim libs
 
 run_test    = 3;
 
-t_end   = 20;
+t_end   = 15;
 %% Test 1
 if run_test == 1
 
@@ -192,7 +192,7 @@ fsw_params = init_fsw_params();
 
 % Overrides
 J  = fsw_params.bus.inertia;
-sim_params.dynamics.ic.rate_init = zeros(3,1);
+%sim_params.dynamics.ic.rate_init = zeros(3,1);
 
 % Choose damping ratio and natural frequency
 z   = 1; % Critically damped
@@ -225,6 +225,7 @@ sldebug(mdl);
 % omega   = logsout.getElement('<body_rates>').Values.Data;
 % cmdu       = logsout.getElement('cmd_torque').Values.Data;
 realu       = logsout.getElement('torque').Values.Data;
+% mag_dip     = logsout.getElement('magnetic_dipole').Values.Data;
 % real_time   = logsout.getElement('torque').Values.Time;
 % cmdRPM     = squeeze(logsout.getElement('cmd_rpm').Values.Data);
 % realRPM     = logsout.getElement('real_RPM').Values.Data;
