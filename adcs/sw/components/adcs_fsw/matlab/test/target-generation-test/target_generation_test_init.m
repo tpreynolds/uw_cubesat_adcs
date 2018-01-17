@@ -35,11 +35,11 @@ fsw_params = init_fsw_params();
 [sim_params,fsw_params] = init_sim_params(fsw_params);
 
 % Overrides
-t_end       = 10;
+t_end       = 1;
 sc_mode             = 31;
-sc2sun_eci_unit     = [1; 0; 0];
-vel_eci_kmps        = [2; 3; -0.6];
-sc2gs_eci_unit      = [0; 1; 0];
+sc2sun_eci_unit     = [0.5670; 0.3732; -0.7343];
+vel_eci_kmps        = [0.9082; 0.3185; 0.2715];
+sc2gs_eci_unit      = [-0.2821; 0.7163; 0.6382];
 % -----
 
 % Simulation parameters
@@ -80,7 +80,7 @@ fsw_params = init_fsw_params();
 [sim_params,fsw_params] = init_sim_params(fsw_params);
 
 % Overrides
-t_end       = 200;
+t_end       = 500;
 sc_mode     = 31;
 sc2gs_eci_unit  = zeros(3,1);
 % -----
