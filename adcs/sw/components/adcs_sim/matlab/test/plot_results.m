@@ -16,7 +16,7 @@ states_plot = logsout.getElement('states').Values;
 
 %orbit_data_plot = logsout.getElement('orbit_data').Values;
 
-act_meas = logsout.getElement('act_meas').Values;
+act_meas_plot = logsout.getElement('act_meas').Values;
     
 control_plot = logsout.getElement('control').Values;
     ctrl_RW         = control_plot.torque;
@@ -97,10 +97,10 @@ figure(4), hold on
 X=X.*REKM;
 Y=Y.*REKM;
 Z=Z.*REKM;
-Earth_im = imread('Flat_earth_cds.jpg', 'jpg');
+Earth_im = imread('Flat_earth.jpg', 'jpg');
 surf(X, Y, Z,'CData',flip(Earth_im,1),'FaceColor','texturemap','EdgeColor','none');
 plot3(states_plot.position.Data(:,1)./1e3,states_plot.position.Data(:,2)./1e3,states_plot.position.Data(:,3)./1e3,'r','LineWidth',1)
-plot3(true_posx(1:t_end),true_posy(1:t_end),true_posz(1:t_end),'b','LineWidth',1)
+plot3(true_posx(1:t_end),true_posy(1:t_end),true_posz(1:t_end),'m','LineWidth',3)
 %quiver3(0,0,0,avg_sc2sun(1),avg_sc2sun(2),avg_sc2sun(3),'LineWidth',1)
 xlabel('x-direction [km]')
 ylabel('y-direction [km]')
