@@ -1,6 +1,11 @@
 %% PD Control unit test init file
 
-%
+% Test 1: Basic test to make sure the controller reorients the bus. Used to
+% choose the control gains. Uses either a random initial condition or
+% identity quaternion, and commands a 10deg slew about the x-axis from the
+% identity quaternion.
+
+% Test 2: No test 2 yet.
 
 % UW HuskySat-1, ADCS Subsystem
 %  Last Update: T. Reynolds 9.23.17
@@ -16,7 +21,7 @@ addpath(genpath('../../../../adcs_sim/matlab/')) % add the sim libs
 
 run_test    = 1;
 
-t_end   = 500;
+t_end   = 150;
 %% Test 1
 
 if run_test == 1
@@ -39,10 +44,8 @@ wn  = 0.02*2*pi; % Small natural frequency
 fsw_params.control.pd_controller.p_gain  = -wn^2.*J;
 fsw_params.control.pd_controller.d_gain  = -2*wn*z.*J;
 
-% fsw_params.control.pd_controller.p_gain = -kp;
-% fsw_params.control.pd_controller.d_gain = -kd;
-%temp    = randn(4,1);
-%sim_params.dynamics.ic.quat_init    = temp./norm(temp);
+temp    = randn(4,1);
+sim_params.dynamics.ic.quat_init    = temp./norm(temp);
 sim_params.dynamics.ic.quat_init    = [1; 0; 0; 0];
 
 eul_angle   = deg2rad(10);
@@ -77,7 +80,7 @@ end
 
 
 % ----- End Analysis ----- %
-
+% Actual State Values
 figure(1)
 subplot(2,1,1)
 plot(tout,quat)
@@ -87,9 +90,10 @@ plot(tout,omega)
 title('Angular Velocity [rad/s]','FontSize',15)
 xlabel('Time [s]','FontSize',12)
 
+% Commanded versus Applied Control Signals
 figure(2)
 subplot(2,2,1)
-plot(real_time,cmdu)
+plot(tout,cmdu)
 title('Commanded Torque [Nm]','FontSize',15)
 subplot(2,2,2)
 plot(tout,cmdRPM)
@@ -103,6 +107,7 @@ plot(tout,realRPM)
 title('Actual RW RPM','FontSize',15)
 xlabel('Time [s]','FontSize',12)
 
+% Attitude Error 
 figure(3), hold on
 plot(tout,diff,'LineWidth',1)
 plot(tout,0.02*ones(1,length(tout)),'k--')

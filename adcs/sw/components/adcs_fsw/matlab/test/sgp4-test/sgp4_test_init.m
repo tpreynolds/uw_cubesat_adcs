@@ -37,9 +37,9 @@ sgp4.tle_filename = 'SWISSCUBE.tle'; % the right TLE
 [sgp4.orbit_tle,sgp4.JD_epoch_days] = get_tle(sgp4.tle_filename);
 fsw_params.bus.orbit_tle = sgp4.orbit_tle;
 % convert Oct 1, 2018 19:00:00 to GPS time
-sim_params.environment.sgp4.gps_sec_init    = 154800;
+sim_params.environment.sgp4.gps_sec_init    = 154799;
 sim_params.environment.sgp4.gps_week_init  = 2021;
-t_end   = 86400;
+t_end   = 3*86400;
 % -----
 
 % Simulation parameters
