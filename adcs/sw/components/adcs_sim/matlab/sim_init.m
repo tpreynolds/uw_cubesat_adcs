@@ -30,7 +30,7 @@ load_system(mdl);
 set_param(mdl,'StopTime', run_time);
 
 % Simulation
-%sim(mdl);
+sim(mdl);
 
 %plot_results
 
