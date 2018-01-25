@@ -8,3 +8,4 @@ slprj/
 *.pyc
 *.pyd
 *.pyo
+adcs/sw/components/adcs_fsw/matlab/test/momentum_unload_test/momentum_unload_test_grt_rtw/build_exception.mat
