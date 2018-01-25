@@ -80,8 +80,8 @@ fsw_params = init_fsw_params();
 [sim_params,fsw_params] = init_sim_params(fsw_params);
 
 % Overrides
-t_end       = 500;
-sc_mode     = 31;
+t_end       = 5400;
+sc_mode     = 32;
 sc2gs_eci_unit  = zeros(3,1);
 % -----
 

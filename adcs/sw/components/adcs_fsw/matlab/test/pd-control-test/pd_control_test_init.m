@@ -48,7 +48,7 @@ temp    = randn(4,1);
 sim_params.dynamics.ic.quat_init    = temp./norm(temp);
 sim_params.dynamics.ic.quat_init    = [1; 0; 0; 0];
 
-eul_angle   = deg2rad(10);
+eul_angle   = deg2rad(30);
 eul_axis    = [1; 0; 0];
 sim_params.dynamics.ic.quat_ini = [cos(eul_angle/2); sin(eul_angle/2)*eul_axis];
 fsw_params.bus.quat_commanded   = [cos(eul_angle/2); sin(eul_angle/2)*eul_axis];
@@ -66,6 +66,7 @@ sim(mdl);
 quat    = logsout.getElement('<quaternion>').Values.Data;
 omega   = logsout.getElement('<body_rates>').Values.Data;
 cmdu       = logsout.getElement('cmd_torque').Values.Data;
+cmdtime    = logsout.getElement('cmd_torque').Values.Time;
 realu       = logsout.getElement('torque').Values.Data;
 real_time   = logsout.getElement('torque').Values.Time;
 cmdRPM     = squeeze(logsout.getElement('cmd_rpm').Values.Data);
@@ -93,10 +94,10 @@ xlabel('Time [s]','FontSize',12)
 % Commanded versus Applied Control Signals
 figure(2)
 subplot(2,2,1)
-plot(tout,cmdu)
+plot(cmdtime,cmdu)
 title('Commanded Torque [Nm]','FontSize',15)
 subplot(2,2,2)
-plot(tout,cmdRPM)
+plot(cmdtime,cmdRPM)
 title('Commanded RW RPM','FontSize',15)
 xlabel('Time [s]','FontSize',12)
 subplot(2,2,3)
