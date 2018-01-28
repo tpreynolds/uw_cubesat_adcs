@@ -9,3 +9,4 @@ slprj/
 *.pyd
 *.pyo
 adcs/sw/components/adcs_fsw/matlab/test/momentum_unload_test/momentum_unload_test_grt_rtw/build_exception.mat
+adcs/sw/components/adcs_sim/matlab/src/adcs_sim_main.slx.autosave
