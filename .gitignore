@@ -4,6 +4,7 @@
 *.m~
 slprj/
 *_rtw/
+*.original
 
 # Python
 *.pyc
