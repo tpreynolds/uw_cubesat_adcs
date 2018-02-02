@@ -8,8 +8,8 @@ function reaction_wheel = init_reaction_wheel_assembly
 
 % Initial conditions
 reaction_wheel.ic.current   = 0;
-reaction_wheel.ic.theta     = pi/2;
-reaction_wheel.ic.omega     = 2*pi;
+reaction_wheel.ic.theta     = 0;
+reaction_wheel.ic.omega     = 0;
 reaction_wheel.ic.rt1       = 0;
 reaction_wheel.ic.deriv1    = 0;
 
