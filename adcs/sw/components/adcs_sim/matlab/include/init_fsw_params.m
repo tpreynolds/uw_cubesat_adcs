@@ -18,16 +18,18 @@ function fsw_params = init_fsw_params()
 
 % ----- Spacecraft Parameters ----- %
 % Geometry
-fsw_params.sc.mass  = 4.5;  % [kg] Satellite mass
+fsw_params.sc.mass  = 2.91084;  % [kg] Satellite mass
 fsw_params.sc.dx = 0.11;                  % [m] X-axis length
 fsw_params.sc.dy = 0.1;                   % [m] Y-axis length
 fsw_params.sc.dz = 0.3;                   % [m] Z-axis length
-fsw_params.sc.center_of_mass = [0.03 0.01 -0.02]';     % [m] CoM location
+fsw_params.sc.center_of_mass = [ -0.04952 -0.04492 0.18508 ]';     % [m] CoM location
 % Moments of inertia (cuboid approximation)
-Ix = (fsw_params.sc.mass/12)*(fsw_params.sc.dy^2+fsw_params.sc.dz^2);    % X-axis inertia
-Iy = (fsw_params.sc.mass/12)*(fsw_params.sc.dx^2+fsw_params.sc.dz^2);    % Y-axis inertia
-Iz = (fsw_params.sc.mass/12)*(fsw_params.sc.dx^2+fsw_params.sc.dy^2);    % Z-axis inertia
-fsw_params.sc.inertia       = diag([Ix Iy Iz]);
+% Ix = (fsw_params.sc.mass/12)*(fsw_params.sc.dy^2+fsw_params.sc.dz^2);    % X-axis inertia
+% Iy = (fsw_params.sc.mass/12)*(fsw_params.sc.dx^2+fsw_params.sc.dz^2);    % Y-axis inertia
+% Iz = (fsw_params.sc.mass/12)*(fsw_params.sc.dx^2+fsw_params.sc.dy^2);    % Z-axis inertia
+fsw_params.sc.inertia       = [ 0.033800072 -0.0000488358 -0.00007392968;
+                                -0.0000488358 0.03456792999 0.00000712402;
+                                 -0.00007392968 0.00000712402 0.00742076536];
 fsw_params.bus.inertia      = fsw_params.sc.inertia;
 fsw_params.bus.quat_id      = [1 0 0 0]';
 fsw_params.bus.RW_RPM_thresh        = [-10e3 10e3]; % RPM
@@ -42,6 +44,7 @@ fsw_params.convert.KM2M     = 1e3; % convert km to m
 fsw_params.convert.M2KM     = 1e-3;  % convert m to km
 fsw_params.convert.NT2T     = 1e-9;  % convert nano-Tesla to Tesla
 fsw_params.convert.RPM_2_RADPS  = (pi/30); % convert RPM to rad/s
+fsw_params.convert.RADPS_2_RPM  = (30/pi); % convert RPM to rad/s
 % -------------------------- %
 
 % ----- Environment ----- %
@@ -61,6 +64,11 @@ fsw_params.actuators    = init_actuators();
 fsw_params.control.pd_controller    = init_pd_controller(fsw_params);
 fsw_params.control.p_dump           = init_momentum_dump(fsw_params);
 % ----------------------- %
+
+% ----- Ground Station Prediction----- %
+fsw_params.gs_prediction = init_gs_prediction(fsw_params);
+% ----------------------- %
+
 
 % ----- Estimation ----- %
 % EKF initialized in sim_params.
