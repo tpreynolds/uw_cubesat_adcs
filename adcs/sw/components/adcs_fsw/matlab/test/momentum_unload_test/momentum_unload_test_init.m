@@ -28,7 +28,7 @@ fsw_params = init_fsw_params();
 % -----
 % Simulation parameters
 run_time    = num2str(t_end);
-mdl         = 'momentum_unload_test2';
+mdl         = 'momentum_unload_test';
 load_system(mdl);
 set_param(mdl, 'StopTime', run_time);
 %sldebug(mdl);

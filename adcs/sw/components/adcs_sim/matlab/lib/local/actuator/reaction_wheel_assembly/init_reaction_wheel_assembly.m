@@ -8,8 +8,8 @@ function reaction_wheel = init_reaction_wheel_assembly
 
 % Initial conditions
 reaction_wheel.ic.current   = 0;
-reaction_wheel.ic.theta     = 0;
-reaction_wheel.ic.omega     = 0;
+reaction_wheel.ic.theta     = pi/2;
+reaction_wheel.ic.omega     = 2*pi;
 reaction_wheel.ic.rt1       = 0;
 reaction_wheel.ic.deriv1    = 0;
 
@@ -19,7 +19,7 @@ reaction_wheel.damping          = 1;
 reaction_wheel.rate_limit       = 100;
 
 % Wheel Characteristics
-reaction_wheel.inertia      = 0.0179*(1/10); % kg/m^2
+reaction_wheel.inertia      = 0.0179*(1/10); % kg/ m^2
 reaction_wheel.inertia_matrix   = diag([reaction_wheel.inertia,reaction_wheel.inertia,reaction_wheel.inertia]);
 
 % % Motor Characterisitcs
