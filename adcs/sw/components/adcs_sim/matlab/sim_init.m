@@ -6,7 +6,7 @@
 % simulation. Make sure you cd is the same folder where sim_init is found
 % before you run this.
 %
-%   Last Edited: T. Reynolds  1.8.18
+%   Last Edited: T. Reynolds  1.29.18
 % ----------------------------------------------------------------------- %
 
 % Start fresh
