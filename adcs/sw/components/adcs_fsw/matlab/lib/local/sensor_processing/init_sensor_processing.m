@@ -4,7 +4,7 @@ function sensor_processing = init_sensor_processing( fsw_params )
 %
 % Initializes all sensor parameters to be used in FSW.
 %
-%   Last Edited: T. Reynolds 1.24.18
+%   Last Edited: T. Reynolds 2.3.18
 % ----------------------------------------------------------------------- %
 
 % ----- Magnetometer ----- %
@@ -50,6 +50,14 @@ sensor_processing.gps.rate  = 1; % Hz - sensor read rate
 % ----- Photodiodes ----- %
 sensor_processing.photodiodes.rate  = (1/2); % Hz - sensor read rate
 % ---------------------- %
+
+% ----- Rate Transition ----- %
+sensor_processing.ic.out    = [ 0; 0; 0;        % faceinsun_body_unit
+                                0; 0; 0; 0;     % sun_body_sunsensor + valid
+                                0; 0; 0; 0;     % mag_body_T + valid
+                                sensor_processing.gps.ic.all; % orbit_tle + GPS_time
+                                0; 0; 0; 0];    % omega_radps + valid
+% --------------------------- %                            
 
 end
 
