@@ -25,10 +25,11 @@ fsw_params = init_fsw_params();
 [sim_params,fsw_params] = init_sim_params(fsw_params);
 
 % Overrides
+sim_params.environment.avg_b = [1.59212e-5 -6.1454e-6 4.0276e-5]; % T
 % -----
 % Simulation parameters
 run_time    = num2str(t_end);
-mdl         = 'momentum_unload_test';
+mdl         = 'momentum_unload_test_simple';
 load_system(mdl);
 set_param(mdl, 'StopTime', run_time);
 %sldebug(mdl);
