@@ -20,4 +20,4 @@ p_dump.ic.ang_mom_ref       = fsw_params.actuators.reaction_wheel.inertia_matrix
 p_dump.sample_time_s    = 1/5; % sample at 5 Hz
 
 % Momentum unloading controller gains
-p_dump.gain_k     = 3*10^(-5);
+p_dump.gain_k     = 5*10^(-2);
