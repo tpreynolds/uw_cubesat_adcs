@@ -27,7 +27,7 @@ JD_J2000    = 2451545.0;
 JD          = 182.78495062;
 
 % Choose test
-run_test    = 2;
+run_test    = 3;
 
 %% Test 1
 
@@ -106,15 +106,48 @@ disp(['Position error is: ',num2str(1e3*rERR),' m | ', ...
 
 elseif run_test == 3
 %% Test 3
-
+t_end   = 1;
 JD_des  = 2449877.3458762;
 year    = 1995;
 month   = 6;
+day     = 8;
+doy     = 159;
+hour    = 20;
+min     = 18;
+sec     = 3;
+sec_frac = 0.70370;
 
+% Convert this [y m d h m s] into GPS time and add the fractional seconds
+gps_week    = 804;
+gps_sec     = 418683 + sec_frac;
 
+% override the initial GPS time
+sim_params.environment.sgp4.gps_week_init   = gps_week;
+sim_params.environment.sgp4.gps_sec_init    = gps_sec;
 
+% Simulation parameters
+run_time    = num2str(t_end);
+mdl         = 'coord_rotations_test';
+load_system(mdl);
+set_param(mdl, 'StopTime', run_time);
+sim(mdl);
 
+% ----- Analyze Results ----- %
+time_ut1        = logsout.getElement('time_ut1').Values.Data;
+JD_ut1          = logsout.getElement('JD_ut1').Values.Data;
+JD_ut1_J2000    = logsout.getElement('JD_ut1_J2000').Values.Data;
+JD_ut1_J2000_C  = logsout.getElement('JD_ut1_J2000_C').Values.Data;
+dec_year        = logsout.getElement('dec_year').Values.Data;
+GPS_time        = logsout.getElement('GPS_time').Values.Data;
+% ----- End Analysis ----- %
 
+ymdhms      = time_ut1(:,:,1);
+JD          = JD_ut1(1);
+
+disp(['Computed date-time is: ',num2str(ymdhms(1)),'-',...
+        num2str(ymdhms(2)),'-',num2str(ymdhms(3)),' -- ',...
+        num2str(ymdhms(4)),':',num2str(ymdhms(5)),':',num2str(ymdhms(6)) ])
+disp(['Julian Date is: ',num2str(JD)])
 
 
 end
