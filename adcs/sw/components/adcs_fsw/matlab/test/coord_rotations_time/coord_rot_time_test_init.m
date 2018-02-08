@@ -9,9 +9,14 @@
 % coord_rotations_test.slx using example 3-15 from Vallado 4ed, pp 230-231. 
 % Compares the outputs against the values given in the book.
 %
-% Test 3: Time conversion test.
+% Test 3: Time conversion test. Uses the answer from Example 3-13 in 
+% Vallado 4e pp 203 as a seed for the GPS time, which is then converted
+% back and should recover the answer.
 %
-%  Last Update: T. Reynolds 2.3.18
+% Test 3: Time conversion test #2. Uses Example 3-7 in Vallado 4e pp 195 to 
+% convert a given date-time in UTC to UT1 and TT time frames. 
+%
+% Primary Test: T. Reynolds 2.8.18
 %% Assuming sim_init.m has been run
 close all; clc
 set(0,'defaulttextinterpreter','latex');
@@ -27,7 +32,7 @@ JD_J2000    = 2451545.0;
 JD          = 182.78495062;
 
 % Choose test
-run_test    = 3;
+run_test    = 2;
 
 %% Test 1
 
@@ -117,9 +122,12 @@ min     = 18;
 sec     = 3;
 sec_frac = 0.70370;
 
-% Convert this [y m d h m s] into GPS time and add the fractional seconds
+% Override dut1 for this date: http://maia.usno.navy.mil/ser7/finals.all
+fsw_params.sensor_processing.gps.dut1 = -0.0187545;
+
+% Convert this [y m d h m s] into GPS time and add account for leap secs
 gps_week    = 804;
-gps_sec     = 418683 + sec_frac;
+gps_sec     = 418683 + 37.0 - 19.0 + sec_frac - 1.0;
 
 % override the initial GPS time
 sim_params.environment.sgp4.gps_week_init   = gps_week;
@@ -136,7 +144,7 @@ sim(mdl);
 time_ut1        = logsout.getElement('time_ut1').Values.Data;
 JD_ut1          = logsout.getElement('JD_ut1').Values.Data;
 JD_ut1_J2000    = logsout.getElement('JD_ut1_J2000').Values.Data;
-JD_ut1_J2000_C  = logsout.getElement('JD_ut1_J2000_C').Values.Data;
+JD_ut1_J2000_C  = logsout.getElement('T_UT1').Values.Data;
 dec_year        = logsout.getElement('dec_year').Values.Data;
 GPS_time        = logsout.getElement('GPS_time').Values.Data;
 % ----- End Analysis ----- %
@@ -149,5 +157,58 @@ disp(['Computed date-time is: ',num2str(ymdhms(1)),'-',...
         num2str(ymdhms(4)),':',num2str(ymdhms(5)),':',num2str(ymdhms(6)) ])
 disp(['Julian Date is: ',num2str(JD)])
 
+elseif run_test == 4
+%% Test 4
+t_end = 0;
+% Define baseline time in UTC
+year    = 2004;
+month   = 5;
+day     = 14;
+hour    = 16;
+min     = 43;
+sec     = 13;
+
+% Override dUT1: in Vallado Ex.
+fsw_params.sensor_processing.gps.dut1    = -0.463326;
+
+% Desired JD values in UT1 and TT
+JD_UT1  = 2453140.196522415;
+JD_TT   = 2453140.19727065;
+T_UT1   = 0.043671100545;
+T_TT    = 0.043674121031;
+
+% Convert this [y m d h m s] into GPS time and account for leap seconds
+% Note: in 2004 we had TAI-UTC = 32.0. 
+gps_week    = 1270;
+gps_sec     = 492180 + 37.0 - 19.0 - 1.0;
+
+% override the initial GPS time
+sim_params.environment.sgp4.gps_week_init   = gps_week;
+sim_params.environment.sgp4.gps_sec_init    = gps_sec;
+
+% Simulation parameters
+run_time    = num2str(t_end);
+mdl         = 'time_conv_test';
+load_system(mdl);
+set_param(mdl, 'StopTime', run_time);
+sim(mdl);
+
+% ----- Analyze Results ----- %
+time_ut1        = logsout.getElement('time_ut1').Values.Data;
+JD_ut1          = logsout.getElement('JD_ut1').Values.Data;
+JD_ut1_J2000    = logsout.getElement('JD_ut1_J2000').Values.Data;
+T_UT1           = logsout.getElement('T_UT1').Values.Data;
+dec_year        = logsout.getElement('dec_year').Values.Data;
+GPS_time        = logsout.getElement('GPS_time').Values.Data;
+T_TT            = logsout.getElement('T_TT').Values.Data;
+% ----- End Analysis ----- %
+
+ymdhms      = time_ut1(:,:,1);
+JD          = JD_ut1(1);
+
+disp(['Computed date-time in UT1 is: ',num2str(ymdhms(1)),'-',...
+        num2str(ymdhms(2)),'-',num2str(ymdhms(3)),' -- ',...
+        num2str(ymdhms(4)),':',num2str(ymdhms(5)),':',num2str(ymdhms(6)) ])
+disp(['Julian Date is: ',num2str(JD)])
 
 end

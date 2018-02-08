@@ -44,6 +44,7 @@ sensor_processing.gps.ic.all    = [sensor_processing.gps.ic.pos; ...
                                     1 ];
 sensor_processing.gps.sample_time_s     = 1;
 sensor_processing.gps.rate  = 1; % Hz - sensor read rate
+sensor_processing.gps.dut1  = 0.185889;    % estimated for Feb 8, 2018
 % ---------------------- %
 
 
