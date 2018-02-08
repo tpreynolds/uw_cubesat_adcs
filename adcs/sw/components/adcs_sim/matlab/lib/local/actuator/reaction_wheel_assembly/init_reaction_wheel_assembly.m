@@ -19,7 +19,7 @@ reaction_wheel.damping          = 1;
 reaction_wheel.rate_limit       = 100;
 
 % Wheel Characteristics
-reaction_wheel.inertia      = 0.0179*(1/10); % kg/m^2
+reaction_wheel.inertia      = 1.788e-06; % kg m^2
 reaction_wheel.inertia_matrix   = diag([reaction_wheel.inertia,reaction_wheel.inertia,reaction_wheel.inertia]);
 
 % % Motor Characterisitcs
