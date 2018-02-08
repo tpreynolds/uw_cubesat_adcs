@@ -106,7 +106,7 @@ disp(['Position error is: ',num2str(1e3*rERR),' m | ', ...
 
 elseif run_test == 3
 %% Test 3
-t_end   = 1;
+t_end   = 0;
 JD_des  = 2449877.3458762;
 year    = 1995;
 month   = 6;
@@ -127,7 +127,7 @@ sim_params.environment.sgp4.gps_sec_init    = gps_sec;
 
 % Simulation parameters
 run_time    = num2str(t_end);
-mdl         = 'coord_rotations_test';
+mdl         = 'time_conv_test';
 load_system(mdl);
 set_param(mdl, 'StopTime', run_time);
 sim(mdl);
