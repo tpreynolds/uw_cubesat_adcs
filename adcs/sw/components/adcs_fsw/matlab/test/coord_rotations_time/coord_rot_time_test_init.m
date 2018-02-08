@@ -1,4 +1,4 @@
-%% Target Generation unit test init file
+%% Time and coord rotation unit test init file
 % UW HuskySat-1, ADCS Subsystem
 %
 % Test 1: Coordinate rotation test for TEME to ECI. Runs the simulink file
@@ -24,6 +24,7 @@ sec_2_cent  = 1/(86400*36525);
 dut1        = 0.204241;
 ut1_2_tt    = 32.184 + 32 + dut1;
 JD_J2000    = 2451545.0;
+JD          = 182.78495062;
 
 % Choose test
 run_test    = 2;
@@ -34,7 +35,7 @@ if run_test == 1
 
 % ----- Inputs ----- %
 t_end       = 1;
-JD          = 182.78495062;
+
 % initial vectors
 rTEME       = [ -9060.47373569; 4658.70952502; 813.68673153 ];
 vTEME       = [ -2.232832783; -4.110453490; -3.157345433 ];
@@ -102,4 +103,18 @@ disp(['Position error is: ',num2str(1e3*rERR),' m | ', ...
         'Velocity error is: ',num2str(1e3*vERR),' m/s'])
 
 %save('workspace-test-NAME.mat')
+
+elseif run_test == 3
+%% Test 3
+
+JD_des  = 2449877.3458762;
+year    = 1995;
+month   = 6;
+
+
+
+
+
+
+
 end
