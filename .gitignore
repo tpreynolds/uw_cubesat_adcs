@@ -5,6 +5,7 @@
 slprj/
 *_rtw/
 *.original
+*.r2016a
 
 # Python
 *.pyc
