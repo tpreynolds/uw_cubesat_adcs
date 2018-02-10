@@ -9,7 +9,7 @@
 %   Takes in already defined fsw_params so that sim values can be defined
 %   using the fsw values
 
-% Last Edited: T.Reynolds 2.3.18
+% Last Edited: T.Reynolds 2.10.18
 % ----------------------------------------------------------------------- %
 
 % ----- Spacecraft Parameters ----- %
@@ -36,7 +36,7 @@ fsw_params.actuators.ppt    = init_ppt(fsw_params);
 % -----
 
 % ----- Environment ----- %
-sim_params.environment  = init_environment();
+sim_params.environment  = init_environment(fsw_params);
 % -----
 
 % ----- SGP4 - Orbit Propagator ----- %
