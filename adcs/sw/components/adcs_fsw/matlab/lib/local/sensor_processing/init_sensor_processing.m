@@ -4,25 +4,34 @@ function sensor_processing = init_sensor_processing( fsw_params )
 %
 % Initializes all sensor parameters to be used in FSW.
 %
-%   Last Edited: T. Reynolds 8.15.17
+%   Last Edited: T. Reynolds 2.3.18
 % ----------------------------------------------------------------------- %
 
 % ----- Magnetometer ----- %
-sensor_processing.magnetometer.bias = [0 0 0]';
-sensor_processing.magnetometer.process_matrix     = eye(3);
-sensor_processing.magnetometer.rate     = (1/20); % Hz - sensor read rate
+sensor_processing.magnetometer.bias             = [0 0 0]';
+sensor_processing.magnetometer.process_matrix   = eye(3);
+sensor_processing.magnetometer.sensor2body      = eye(3);
+sensor_processing.magnetometer.rate             = (1/20); % Hz - sensor read rate
 % ------------------------ %
 
 % ----- Gyro ----- %
-sensor_processing.gyro.bias     = [0 0 0]';
-sensor_processing.gyro.process_matrix   = eye(3);
-sensor_processing.gyro.rate     = (1/50); % Hz - sensor read rate
+sensor_processing.gyro.sensor2body  = eye(3);
+sensor_processing.gyro.rate         = (1/50); % Hz - sensor read rate
+sensor_processing.gyro.cutoff_freq  = 2*pi*1; % [rad/s]
+sensor_processing.gyro.c_lpf        = tf([sensor_processing.gyro.cutoff_freq],...
+                                        [1 sensor_processing.gyro.cutoff_freq]);
+sensor_processing.gyro.d_lpf        = c2d(sensor_processing.gyro.c_lpf,sensor_processing.gyro.rate);
+[sensor_processing.gyro.filter_num,sensor_processing.gyro.filter_den] = ...
+                                        tfdata(sensor_processing.gyro.d_lpf,'v');
+sensor_processing.gyro.filter_num   = sensor_processing.gyro.filter_num(2);
+sensor_processing.gyro.filter_den   = sensor_processing.gyro.filter_den(2);
 % ---------------- %
 
 % ----- Sun Sensor ----- %
-sensor_processing.sunsensor.bias     = [0 0 0]';
-sensor_processing.sunsensor.process_matrix   = eye(3);
-sensor_processing.sunsensor.rate    = (1/10); % Hz - sensor read rate
+sensor_processing.sunsensor.bias            = [0 0 0]';
+sensor_processing.sunsensor.process_matrix  = eye(3);
+sensor_processing.sunsensor.sensor2body     = eye(3);
+sensor_processing.sunsensor.rate            = (1/10); % Hz - sensor read rate
 % ---------------------- %
 
 % ----- GPS Sensor ----- %
@@ -41,6 +50,14 @@ sensor_processing.gps.rate  = 1; % Hz - sensor read rate
 % ----- Photodiodes ----- %
 sensor_processing.photodiodes.rate  = (1/2); % Hz - sensor read rate
 % ---------------------- %
+
+% ----- Rate Transition ----- %
+sensor_processing.ic.out    = [ 0; 0; 0;        % faceinsun_body_unit
+                                0; 0; 0; 0;     % sun_body_sunsensor + valid
+                                0; 0; 0; 0;     % mag_body_T + valid
+                                sensor_processing.gps.ic.all; % orbit_tle + GPS_time
+                                0; 0; 0; 0];    % omega_radps + valid
+% --------------------------- %                            
 
 end
 

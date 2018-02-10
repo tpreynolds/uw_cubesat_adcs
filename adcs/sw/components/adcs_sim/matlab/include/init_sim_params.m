@@ -9,17 +9,13 @@
 %   Takes in already defined fsw_params so that sim values can be defined
 %   using the fsw values
 
-% Last Edited: T.Reynolds 11.11.17
+% Last Edited: T.Reynolds 2.3.18
 % ----------------------------------------------------------------------- %
 
 % ----- Spacecraft Parameters ----- %
 % Geometry
-sim_params.sc.mass  = 4.5;  % [kg] Satellite mass
-sim_params.sc.dx = 0.11;                  % [m] X-axis length
-sim_params.sc.dy = 0.1;                   % [m] Y-axis length
-sim_params.sc.dz = 0.3;                   % [m] Z-axis length
-sim_params.sc.center_of_mass = [0.03 0.01 -0.02]';     % [m] CoM location 
-sim_params.sc.inertia = fsw_params.bus.inertia;
+sim_params.bus  = fsw_params.bus;
+% -----
 
 % ----- CAN Signal Emulator ----- %
 sim_params.CAN  = init_CAN();
