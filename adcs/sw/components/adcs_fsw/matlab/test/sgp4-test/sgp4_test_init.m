@@ -11,7 +11,7 @@
 
 % Note: Assumes sim_init.m has been run
 
-run_test    = 2;
+run_test    = 1;
 %% Test 1
 
 if run_test == 1
@@ -19,10 +19,12 @@ if run_test == 1
 % Overrides
 sgp4.tle_filename = 'SWISSCUBE.tle'; % the right TLE
 [sgp4.orbit_tle,sgp4.JD_epoch_days] = get_tle(sgp4.tle_filename);
+tle_array   = parse_tle(sgp4.tle_filename);
 fsw_params.bus.orbit_tle = sgp4.orbit_tle;
 % convert Oct 1, 2018 19:00:00 to GPS time
-sgp4.gps_sec_init   = 154800 + 37.0 - 19.0 + fsw_params.bus.dut1 - 1;
-sgp4.gps_week_init  = 2021;
+fsw_params.bus.dut1 = 0;
+sim_params.environment.sgp4.gps_sec_init   = 154800 + 37.0 - 19.0 + fsw_params.bus.dut1 - 1;
+sim_params.environment.sgp4.gps_week_init  = 2021;
 t_end   = 3*86400;
 % -----
 
@@ -90,8 +92,9 @@ sgp4.tle_filename = 'QUAKESAT.tle'; % the right TLE
 [sgp4.orbit_tle,sgp4.JD_epoch_days] = get_tle(sgp4.tle_filename);
 fsw_params.bus.orbit_tle = sgp4.orbit_tle;
 % convert Oct 1, 2018 19:00:00 to GPS time
-sgp4.gps_sec_init   = 154800 + 37.0 - 19.0 + fsw_params.bus.dut1 - 1;
-sgp4.gps_week_init  = 2021;
+fsw_params.bus.dut1 = 0;
+sim_params.environment.sgp4.gps_sec_init   = 154800 + 37.0 - 19.0 + fsw_params.bus.dut1 - 1;
+sim_params.environment.sgp4.gps_week_init  = 2021;
 t_end  = 86400;
 % -----
 

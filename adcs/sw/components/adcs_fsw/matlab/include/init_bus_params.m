@@ -23,8 +23,8 @@ bus.inertia = [ 0.033800072 -0.0000488358 -0.00007392968;
 
 % Other parameters
 bus.quat.id             = [ 1; 0; 0; 0];
-bus.RW_RPM_thresh       = [ 2e3; 10e3 ];    % [RPM]
-bus.omega_radps_thresh  = [ 0.001; 0.12 ];  % [rad/s]
+bus.RW_RPM_thresh       = [ 10e3; 2e3 ];    % [RPM]
+bus.omega_radps_thresh  = [ 0.12; 0.001 ];  % [rad/s]
 bus.bstar               = 3.2923e-5;        % drag term for SGP4 from SWISSCUBE
 bus.sync_pulse          = 2;                % [s] minor sync pulse for duty cycling PPT
 bus.dut1                = 0.185889;         % estimated for Feb 8, 2018
