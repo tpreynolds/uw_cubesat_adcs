@@ -11,8 +11,8 @@ function CAN = init_CAN( )
 CAN.sample_time_s   = 1/5;  % sample the CAN bus at 5 Hz
 
 CAN.override     = 0;
-CAN.reboot       = 0;
-CAN.pointing     = 1;
+CAN.LowPowerMode = 0;
+CAN.pointing     = 0;
 CAN.COM2_on      = 1;
 CAN.adcs_experimental        = 0;
 CAN.adcs_experimental_type   = 1;

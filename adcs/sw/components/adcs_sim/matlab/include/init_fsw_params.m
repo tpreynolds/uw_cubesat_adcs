@@ -31,7 +31,7 @@ fsw_params.convert.RADPS_2_RPM  = (30/pi); % convert RPM to rad/s
 % -------------------------- %
 
 % ----- Environment ----- %
-fsw_params.environment  = init_environment(fsw_params);
+fsw_params.environment  = init_environment();
 % ----------------------- %
 
 % ----- Sensors ----- %
