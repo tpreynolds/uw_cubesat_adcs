@@ -1,4 +1,4 @@
-function environment = init_environment()
+function environment = init_environment(fsw_params)
 % ----------------------------------------------------------------------- %
 % UW HuskySat-1, ADCS Team
 %
@@ -8,7 +8,7 @@ function environment = init_environment()
 % ----------------------------------------------------------------------- %
 
 % Initialize all sub blocks
-environment.sol_p       = init_solar_pressure();
+environment.sol_p       = init_solar_pressure(fsw_params);
 environment.aero_drag   = init_aero_drag();
 environment.gravity     = init_gravity_field();
 environment.magnetic    = init_magnetic_field();
