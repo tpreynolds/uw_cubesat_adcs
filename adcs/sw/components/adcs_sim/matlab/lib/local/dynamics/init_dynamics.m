@@ -10,7 +10,7 @@ function dynamics = init_dynamics(fsw_params)
 temp    = randn(4,1);
 dynamics.ic.quat_init = temp./norm(temp);
 dynamics.ic.quat_init = [1 0 0 0]'; % override random starting condition
-dynamics.ic.rate_init = [0 0 0]';
+dynamics.ic.rate_init = [0.1 0.1 0.1]';
 
 fsw_params.control.pd_controller.ic.torque = fsw_params.bus.inertia*dynamics.ic.rate_init;
 

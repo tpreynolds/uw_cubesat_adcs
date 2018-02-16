@@ -3,8 +3,7 @@
 %
 % Test 1: Basic test to make sure the controller reorients the bus. Used to
 % choose the control gains. Uses either a random initial condition or
-% identity quaternion, and commands a 10deg slew about the x-axis from the
-% identity quaternion.
+% identity quaternion, and commands a given slewing maneuver.
 
 % Test 2: No test 2 yet.
 
@@ -17,7 +16,7 @@ set(0,'defaulttextinterpreter','latex');
 
 run_test    = 1;
 
-t_end   = 150;
+t_end   = 250;
 %% Test 1
 
 if run_test == 1
@@ -31,7 +30,7 @@ fsw_params = init_fsw_params();
 
 % Overrides
 J  = fsw_params.bus.inertia;
-sim_params.dynamics.ic.rate_init = zeros(3,1);
+sim_params.dynamics.ic.rate_init = 0.01*randn(3,1);
 
 % Choose damping ratio and natural frequency
 z   = 1; % Critically damped
@@ -42,13 +41,14 @@ fsw_params.control.pd_controller.d_gain  = -2*wn*z.*J;
 
 temp    = randn(4,1);
 sim_params.dynamics.ic.quat_init    = temp./norm(temp);
-%sim_params.dynamics.ic.quat_init    = [1; 0; 0; 0];
+sim_params.dynamics.ic.quat_init    = [1; 0; 0; 0];
 
-eul_angle   = deg2rad(30);
-eul_axis    = [1; 0; 0];
-sim_params.dynamics.ic.quat_init    = [cos(eul_angle/2); sin(eul_angle/2)*eul_axis];
+eul_angle   = deg2rad(60);
+eul_axis    = [1; 1; 1];
+eul_axis    = eul_axis./norm(eul_axis);
+%sim_params.dynamics.ic.quat_init    = [cos(eul_angle/2); sin(eul_angle/2)*eul_axis];
 fsw_params.bus.quat_commanded       = [cos(eul_angle/2); sin(eul_angle/2)*eul_axis];
-fsw_params.bus.quat_commanded = [1;0;0;0];
+%fsw_params.bus.quat_commanded = [1;0;0;0];
 % -----
 
 % Simulation parameters

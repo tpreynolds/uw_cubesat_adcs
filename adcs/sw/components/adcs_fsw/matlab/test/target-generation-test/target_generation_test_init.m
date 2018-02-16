@@ -80,9 +80,18 @@ fsw_params = init_fsw_params();
 [sim_params,fsw_params] = init_sim_params(fsw_params);
 
 % Overrides
-t_end       = 5400;
-sc_mode     = 32;
+t_end       = 1000;
+sc_mode     = 31;
 sc2gs_eci_unit  = zeros(3,1);
+
+J  = fsw_params.bus.inertia;
+
+% Choose damping ratio and natural frequency
+z   = 1; % Critically damped
+wn  = 0.01*2*pi; % Small natural frequency
+
+fsw_params.control.pd_controller.p_gain  = -wn^2.*J;
+fsw_params.control.pd_controller.d_gain  = -2*wn*z.*J;
 % -----
 
 % Simulation parameters

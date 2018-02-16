@@ -15,10 +15,11 @@ reaction_wheel.ic.deriv1    = 0;
 
 % Response Characteristics
 reaction_wheel.natural_freq     = 10;
-reaction_wheel.damping          = 1;
-reaction_wheel.rate_limit       = 100;
+reaction_wheel.damping          = 0.8;
+reaction_wheel.rate_limit       = 1000;
 
 % Wheel Characteristics
+reaction_wheel.max_RPM      = 13500;    % RPM
 reaction_wheel.inertia      = 1.788e-06; % kg m^2
 reaction_wheel.inertia_matrix   = diag([reaction_wheel.inertia,reaction_wheel.inertia,reaction_wheel.inertia]);
 
