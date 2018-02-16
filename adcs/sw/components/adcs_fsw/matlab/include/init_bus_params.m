@@ -3,7 +3,7 @@ function [ bus ] = init_bus_params()
 % UW HuskySat-1, ADCS Team
 %   Initializes the parameters for the spacecraft bus.
 %
-% Last Edited: T.Reynolds 2.10.18
+% Last Edited: T.Reynolds 2.15.18
 % ----------------------------------------------------------------------- %
 
 % Physical Parameters
@@ -23,8 +23,10 @@ bus.inertia = [ 0.033800072 -0.0000488358 -0.00007392968;
 
 % Other parameters
 bus.quat.id             = [ 1; 0; 0; 0];
-bus.RW_RPM_thresh       = [ 2e3; 10e3 ];    % [RPM]
-bus.omega_radps_thresh  = [ 0.001; 0.12 ];  % [rad/s]
+bus.RW_RPM_thresh.max   = 10e3;
+bus.RW_RPM_thresh.min   = 2e3;
+bus.omega_radps_thresh.max = 0.12;
+bus.omega_radps_thresh.min = 0.00436; % 0.25 deg/s 
 bus.bstar               = 3.2923e-5;        % drag term for SGP4 from SWISSCUBE
 bus.sync_pulse          = 2;                % [s] minor sync pulse for duty cycling PPT
 bus.dut1                = 0.185889;         % estimated for Feb 8, 2018
