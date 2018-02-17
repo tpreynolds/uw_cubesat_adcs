@@ -18,6 +18,10 @@ fsw_params.estimation.ic.quat_est_init = rand(4,1);
 fsw_params.estimation.ic.rt_w_body_radps = 0*[0.1 -0.05 -0.03]';
 sim_params.dynamics.ic.rate_init = 0*[0.1 -0.05 -0.03]';
 
+% make the noise larger (set 1 otherwise)
+var_mult_mt = 10000;
+var_mult_sun = 10000;
+
 % measurement vectors
 mag_vec_init = [4 1 -8]';
 mag_vec_init = mag_vec_init/norm(mag_vec_init);

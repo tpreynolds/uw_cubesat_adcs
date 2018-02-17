@@ -4,19 +4,25 @@ set(0,'defaulttextinterpreter','latex');
 cd /media/sexymathemagician/LaCie1/uw_cubesat_adcs/adcs/sw/components/adcs_fsw/matlab/test/controller-estimator/
 addpath(genpath(pwd))
 
+% seed the random initial conditions so you get the same stuff everytime
 rng(155);
 
 figdir = strcat(pwd,'/figs/');
 datadir = strcat(pwd,'/data/');
 
 % attitude conditions
-quat_init = [-0.1 0.2 0.3 0.4]';
-quat_init = quat_init/norm(quat_init);
-sim_params.dynamics.ic.quat_init = quat_init;
+quat_cmd = -[-0.1 0.2 0.3 0.4]';
+quat_cmd = quat_cmd/norm(quat_cmd);
+sim_params.dynamics.ic.quat_init = [1 0 0 0];
 fsw_params.estimation.ic.quat_est_init = rand(4,1);
 
 fsw_params.estimation.ic.rt_w_body_radps = 0*[0.1 -0.05 -0.03]';
 sim_params.dynamics.ic.rate_init = 0*[0.1 -0.05 -0.03]';
+
+% make the noise larger (set 1 otherwise)
+var_mult_mt = 10000;
+var_mult_sun = 10000;
+var_mult_gyro = 100;
 
 % measurement vectors
 mag_vec_init = [4 1 -8]';
@@ -26,7 +32,7 @@ sun_vec_init = [9 -3 18]';
 sun_vec_init = sun_vec_init/norm(sun_vec_init);
 
 % body frame
-A = quatToMatrix(quat_init);
+A = quatToMatrix(quat_cmd);
 fsw_params.estimation.ic.rt_mag_eci_est = A*mag_vec_init;
 fsw_params.estimation.ic.rt_sun_eci_est = A*sun_vec_init;
 
@@ -34,7 +40,7 @@ fsw_params.estimation.ic.rt_sun_eci_est = A*sun_vec_init;
 fsw_params.estimation.ic.rt_mag_body = mag_vec_init;
 fsw_params.estimation.ic.rt_sun_body = sun_vec_init;
 
-run_time    = '100';
+run_time    = '200';
 mdl         = 'controller_estimator_minimal';
 load_system(mdl);
 set_param(mdl, 'StopTime', run_time);
@@ -57,6 +63,12 @@ plot(quat_true.Time, quat_true.Data(:,1),'r')
 plot(quat_true.Time, quat_true.Data(:,2),'b')
 plot(quat_true.Time, quat_true.Data(:,3),'k')
 plot(quat_true.Time, quat_true.Data(:,4),'g')
+plot(quat_true.Time, quat_cmd(1)*ones(size(quat_true.Time)), 'k','linewidth',2)
+plot(quat_true.Time, quat_cmd(2)*ones(size(quat_true.Time)), 'k','linewidth',2)
+plot(quat_true.Time, quat_cmd(3)*ones(size(quat_true.Time)), 'k','linewidth',2)
+plot(quat_true.Time, quat_cmd(4)*ones(size(quat_true.Time)), 'k','linewidth',2)
+
+
 
 h3 = figure;
 plot(bias_hat)
