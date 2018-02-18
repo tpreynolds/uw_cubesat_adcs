@@ -11,7 +11,7 @@ p_dump.ic.rt_mag_body_T     = zeros(3,1);
 p_dump.ic.rt_dipole_Am2     = zeros(3,1);
 p_dump.ic.rt_PPT_on         = 0;
 p_dump.ic.rt_B_meas_valid   = 0;
-p_dump.ic.delay             = zeros(3,1);
+p_dump.ic.delay_B           = [1.59212e-5 -6.1454e-6 4.0276e-5]; %Average magnetic field vector
 p_dump.ic.ang_mom_ref       = fsw_params.actuators.reaction_wheel.inertia_matrix*[0*fsw_params.convert.RPM_2_RADPS;...
                                                      0*fsw_params.convert.RPM_2_RADPS;...
                                                      0*fsw_params.convert.RPM_2_RADPS]; %reference angular momentum of reaction wheels
