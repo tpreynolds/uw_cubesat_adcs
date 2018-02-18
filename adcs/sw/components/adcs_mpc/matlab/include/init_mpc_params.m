@@ -3,6 +3,8 @@ function mpc = init_mpc_params(fsw_params)
 mpc.lin = init_mpc_linearization();
 
 Delta = 0.1;
+q   = [1; 0; 0; 0];
+w   = [0; 0; 0];
 
 % Linearization
 XIq     = [ q(1) -q(2)  q(3);
@@ -21,7 +23,7 @@ A = [ 0.5*XIw 0.5*XIq;
 J = fsw_params.bus.inertia;
 J_inv = inv(J);
 B = [zeros(4,3); J_inv];
-C = eye(Nx);
+C = eye(7);
 D = zeros(7,3);
 
 plant = ss(A,B,C,D,Delta);

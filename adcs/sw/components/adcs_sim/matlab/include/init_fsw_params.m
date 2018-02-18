@@ -47,7 +47,7 @@ fsw_params.actuators    = init_actuators();
 fsw_params.control.pd_controller    = init_pd_controller(fsw_params);
 fsw_params.control.p_dump           = init_momentum_dump(fsw_params);
 fsw_params.control.cmd_processing   = init_cmd_processing(fsw_params);
-fsw_params.control.mpc              = init_mpc_params(fsw_params);
+%fsw_params.control.mpc              = init_mpc_params(fsw_params);
 % ----------------------- %
 
 % ----- Ground Station Prediction----- %
