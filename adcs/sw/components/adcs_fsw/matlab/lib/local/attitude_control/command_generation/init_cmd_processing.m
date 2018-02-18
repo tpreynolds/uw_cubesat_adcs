@@ -10,7 +10,7 @@ function [ cmd_processing ] = init_cmd_processing(fsw_params)
 cmd_processing.ic.torque    = zeros(3,1);
 
 % Digital value range
-cmd_processing.digital_value    = 255;
+cmd_processing.digital_value    = 127;
 
 % Gains
 cmd_processing.dv_2_m_X   = fsw_params.actuators.magnetorquer.max_dipole_x/cmd_processing.digital_value;
