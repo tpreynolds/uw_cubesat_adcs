@@ -1,16 +1,18 @@
-function environment = init_env_estimation( )
+function env_estimation = init_env_estimation(fsw_params)
 % ----------------------------------------------------------------------- %
 % UW HuskySat-1, ADCS Team
 %
 % Initialize all parameters for the environment modeling contained in FSW
 %
-%   Last Edited: T. Reynolds 6.23.17
+%   Last Edited: T. Reynolds 2.17.18
 % ----------------------------------------------------------------------- %
 
-% ----- Earth parameters ----- %
-environment.mu  = 3.986004418e14; % [m3/s2]
-environment.earth_w     = 7.292115090e-5;   % [rad/s]
-% ---------------------------- %
+% Library Sample Time
+env_estimation.sample_time_s    = fsw_params.sample_time_s;
+
+% Rate Transition Initial Conditions
+env_estimation.ic.gps_time      = fsw_params.environment.sgp4.ic.gps_time;
+env_estimation.ic.orbit_tle     = fsw_params.environment.sgp4.orbit_tle;
 
 
 end
