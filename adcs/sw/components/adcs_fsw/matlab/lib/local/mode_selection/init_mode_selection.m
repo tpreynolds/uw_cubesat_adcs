@@ -1,11 +1,16 @@
-function mode_logic = init_mode_selection( )
+function mode_selection = init_mode_selection(fsw_params)
+% ----------------------------------------------------------------------- %
+% UW HuskySat-1, ADCS Team
+%
+% Initializes data for target generation library
+%
+% T. Reynolds 2.17.18
+% ----------------------------------------------------------------------- %
 
-% Mode Selection
+mode_selection.sample_time_s    = fsw_params.sample_time_s;
 
-mode_logic.do_nothing   = 0;
-mode_logic.bdot         = 1;
-mode_logic.slew         = 2;
-mode_logic.desat        = 3;
+% Initial rate transition conditions 
+mode_selection.ic.sc_mode   = 1;
 
 
 end

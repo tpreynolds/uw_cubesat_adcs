@@ -30,6 +30,7 @@ function sgp4   = init_sgp4()
     % sec_init from GPS time + account for leap seconds and dUT1
     sgp4.gps_sec_init   = 154800 + 37.0 - 19.0;
     sgp4.gps_week_init  = 2021; 
+    sgp4.ic.gps_time    = [sgp4.gps_sec_init; sgp4.gps_week_init];
     
  
 
