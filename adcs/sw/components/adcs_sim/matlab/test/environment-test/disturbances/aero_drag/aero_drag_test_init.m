@@ -1,9 +1,10 @@
 %% Aerodynamic drag unit test init file
 
-% Test 1: 
+% Test 1: Plug in a lat/lon/alt and observe the magnitude of the gravity
+% field. Static test.
 
 % UW HuskySat-1, ADCS Subsystem
-%  Last Update: T. Reynolds 12.5.17
+%  Last Update: B. Barzgaran 2.20.18
 %% Load paths and stuff needed
 clear variables;
 
@@ -13,9 +14,6 @@ load('bus_definitions.mat')
 % Load parameters for both flight software and simulation
 fsw_params = init_fsw_params();
 [sim_params,fsw_params] = init_sim_params(fsw_params);
-fsw_params.bdot     = init_bdot_controller(fsw_params);
-
-
 
 %% Test 1
 
