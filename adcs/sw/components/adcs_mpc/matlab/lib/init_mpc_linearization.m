@@ -8,3 +8,8 @@ lin.bus_ic.U = zeros(3,1);
 lin.bus_ic.X = zeros(7,1);
 lin.bus_ic.Y = zeros(7,1);
 lin.bus_ic.DX = zeros(7,1);
+
+lin.ic_quat_ud = [1 0 0 0];
+lin.ic_update_ud = 1;
+
+lin.thresh = 60; % degrees

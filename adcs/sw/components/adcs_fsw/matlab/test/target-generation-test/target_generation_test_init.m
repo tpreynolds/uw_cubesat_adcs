@@ -80,18 +80,18 @@ fsw_params = init_fsw_params();
 [sim_params,fsw_params] = init_sim_params(fsw_params);
 
 % Overrides
-t_end       = 1000;
+t_end       = 5400;
 sc_mode     = 31;
 sc2gs_eci_unit  = zeros(3,1);
 
-J  = fsw_params.bus.inertia;
-
-% Choose damping ratio and natural frequency
-z   = 1; % Critically damped
-wn  = 0.01*2*pi; % Small natural frequency
-
-fsw_params.control.pd_controller.p_gain  = -wn^2.*J;
-fsw_params.control.pd_controller.d_gain  = -2*wn*z.*J;
+% J  = fsw_params.bus.inertia;
+% 
+% % Choose damping ratio and natural frequency
+% z   = 1; % Critically damped
+% wn  = 0.02*2*pi; % Small natural frequency
+% 
+% fsw_params.control.pd_controller.p_gain  = -wn^2.*J;
+% fsw_params.control.pd_controller.d_gain  = -2*wn*z.*J;
 % -----
 
 % Simulation parameters
@@ -106,7 +106,9 @@ quat        = logsout.getElement('quat').Values.Data;
 omega       = logsout.getElement('body_rates').Values.Data;
 quat_cmd    = logsout.getElement('quat_cmd').Values.Data;
 omega_cmd   = logsout.getElement('omega_cmd_radps').Values.Data;
-
+ang_err     = logsout.getElement('angle_err').Values.Data;
+cmd_torque  = logsout.getElement('cmd_torque').Values.Data;
+cmd_RPM     = logsout.getElement('cmd_RPM').Values.Data;
 
 % ----- End Analysis ----- %
 
@@ -120,6 +122,13 @@ plot(tout,omega)
 plot(tout,omega_cmd,'--')
 title('Angular Velocity [rad/s]','FontSize',15)
 xlabel('Time [s]','FontSize',12)
+
+figure(2), hold on
+plot(tout,ang_err,'LineWidth',1)
+legend('x','y','z')
+title('Angle Error','FontSize',15)
+xlabel('Time [s]','FontSize',12)
+
 
 %save('workspace-test-NAME.mat')
 end
