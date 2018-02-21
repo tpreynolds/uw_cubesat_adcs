@@ -11,5 +11,14 @@ function gs_prediction = init_gs_prediction( fsw_params )
 gs_prediction.fov_ang  = 30; % [degrees]
 % ---------------------------- %
 
+% Sample time
+gs_prediction.sample_time_s     = fsw_params.sample_time_s;
+
+% UW Ground Station 
+gs_prediction.latlon = [47.6553;-122.3035];
+gs_prediction.alt   = 0.0;
+
+
+
 
 end
