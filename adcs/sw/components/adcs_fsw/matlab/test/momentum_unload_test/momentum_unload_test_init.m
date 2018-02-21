@@ -25,7 +25,8 @@ fsw_params = init_fsw_params();
 [sim_params,fsw_params] = init_sim_params(fsw_params);
 
 % Overrides
-sim_params.environment.avg_b = [1.59212e-5 -6.1454e-6 4.0276e-5]; % T
+%sim_params.environment.avg_b = [1.59212e-5 -6.1454e-6 4.0276e-5]; % T
+%sim_params.dynamics.ic.rate_init = [0.1; 0.1; 0.1];
 % -----
 % Simulation parameters
 run_time    = num2str(t_end);
