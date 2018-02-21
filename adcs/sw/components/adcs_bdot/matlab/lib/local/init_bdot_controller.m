@@ -31,7 +31,7 @@ bdot.gain_matrix = diag([- fsw_params.actuators.magnetorquer.max_dipole_x/1.5e-6
 
 % -----
 bdot.sample_time_s  = 1/10; %[s] - sampling at 10Hz
-bdot.digital_value  = 255; 
+bdot.digital_value  = 127; 
 bdot.cutoff_freq    = 2*pi*0.1; % [rad/s]
 bdot.continuous_lpf = tf([bdot.cutoff_freq],[1 bdot.cutoff_freq]);
 bdot.discrete_lpf   = c2d(bdot.continuous_lpf,bdot.sample_time_s);

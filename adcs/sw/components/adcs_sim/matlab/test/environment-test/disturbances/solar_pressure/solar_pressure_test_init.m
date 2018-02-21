@@ -19,7 +19,19 @@ fsw_params.bdot     = init_bdot_controller(fsw_params);
 
 %% Test 1
 
-% Overrides
+% t_end   = 86400; % Sim for 1 day
+t_end   = 6400;
+t = [0:t_end]';
+
+quaternionVals = [1,0,0,0]';
+quaternion.time = t;
+quaternion.signals.values = repmat(quaternionVals,[1 1 length(t)]);
+quaternion.signals.dimensions = [4,1];
+
+sun_vec_eciVals = [1,0,0]';
+sun_vec_eci.time = t;
+sun_vec_eci.signals.values = repmat(sun_vec_eciVals,[1 1 length(t)]);
+sun_vec_eci.signals.dimensions = [3,1];
 
 % -----
 
@@ -32,8 +44,11 @@ sim(mdl);
 
 % ----- Analyze Results ----- %
 %   extract pos/vel/time data from sim
-dt_aero = logsout.getElement('dt_aero').Values.Data;
-dt_aero_time = logsout.getElement('dt_aero').Values.Time;
+solar_torque = logsout.getElement('solar_torque').Values.Data;
+solar_torque_time = logsout.getElement('solar_torque').Values.Time;
+
+solar_force = logsout.getElement('solar_force').Values.Data;
+solar_force_time = logsout.getElement('solar_force').Values.Time;
 
 
 % ----- Plot Results ----- %

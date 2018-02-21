@@ -36,7 +36,7 @@ fsw_params.actuators.ppt    = init_ppt(fsw_params);
 % -----
 
 % ----- Environment ----- %
-sim_params.environment  = init_environment();
+sim_params.environment  = init_environment(fsw_params);
 % -----
 
 % ----- SGP4 - Orbit Propagator ----- %

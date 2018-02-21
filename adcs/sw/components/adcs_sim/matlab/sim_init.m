@@ -14,6 +14,7 @@ clear variables; close all; clc
 addpath(genpath(pwd))
 addpath(genpath('../../adcs_fsw/matlab/'))
 addpath(genpath('../../adcs_bdot/matlab/'))
+addpath(genpath('../../adcs_mpc/matlab/'))
 
 % Load bus stub definitions
 load('bus_definitions.mat')
@@ -25,7 +26,7 @@ fsw_params = init_fsw_params();
 fsw_params.bdot     = init_bdot_controller(fsw_params);
 
 % Load sim and set params
-run_time    = 5400;
+run_time    = 360;
 mdl         = 'adcs_sim_main';
 load_system(mdl);
 set_param(mdl,'StopTime', num2str(run_time));
