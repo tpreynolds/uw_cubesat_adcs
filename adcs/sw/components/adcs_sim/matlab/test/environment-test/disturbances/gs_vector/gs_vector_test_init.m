@@ -33,6 +33,7 @@ fsw_params.bdot     = init_bdot_controller(fsw_params);
 
 % ----- Overrides ----- %
 REKM = 6378.135; % earth radius [km]
+RE = REKM*1000;
 sgp4.tle_filename = 'SWISSCUBE.tle'; % the right TLE
 [sgp4.orbit_tle,sgp4.JD_epoch_days] = get_tle(sgp4.tle_filename);
 fsw_params.bus.orbit_tle = sgp4.orbit_tle;
@@ -57,24 +58,26 @@ sc2gs_unit_time = logsout.getElement('sc2gs_unit').Values.Time;
 sc_above_gs = logsout.getElement('sc_above_gs').Values.Data;
 sc_above_gs_time = logsout.getElement('sc_above_gs').Values.Time;
 
-sc_pos_eci = logsout.getElement('pos_eci_km').Values.Data;
-sc_pos_eci_time = logsout.getElement('pos_eci_km').Values.Time;
+sc_ecef = logsout.getElement('sc_pos_ecef').Values.Data;
+sc_ecef_time = logsout.getElement('sc_pos_ecef').Values.Time;
 JD_ut1 = logsout.getElement('jd_j2000_ut1').Values.Data;
 
-mid = floor(length(sc_pos_eci_time)/2);
+gs_ecef = lla2ecef([fsw_params.gs_prediction.latlon;fsw_params.gs_prediction.alt]');
+
+mid = floor(length(sc_ecef_time)/2);
 
 % avg_sc2gs  = (2*REKM).*sc2gs_unit(mid,:); 
 
 figure(1), hold on
 [X, Y, Z]=sphere(100);
-X=X.*REKM;
-Y=Y.*REKM;
-Z=Z.*REKM;
+X=X.*RE;
+Y=Y.*RE;
+Z=Z.*RE;
 Earth_im = imread('Flat_earth.jpg', 'jpg');
 surf(X, Y, Z,'CData',flip(Earth_im,1),'FaceColor','texturemap','EdgeColor','none');
 % plot3(sc_pos_eci(:,1),sc_pos_eci(:,2),sc_pos_eci(:,3),'r','LineWidth',2)
-plot3(sc_ecef.Data(:,1),sc_ecef.Data(:,2),sc_ecef.Data(:,3),'r','LineWidth',2)
-plot3(gs_ecef.Data(1,1),gs_ecef.Data(1,2),gs_ecef.Data(1,3),'mx','LineWidth',8)
+plot3(sc_ecef(:,1),sc_ecef(:,2),sc_ecef(:,3),'r','LineWidth',2)
+plot3(gs_ecef(1,1),gs_ecef(1,2),gs_ecef(1,3),'mx','LineWidth',8)
 % quiver3(0,0,0,avg_sc2gs(1),avg_sc2gs(2),avg_sc2gs(3),'LineWidth',2)
 xlabel('x-direction [km]')
 ylabel('y-direction [km]')
@@ -108,6 +111,7 @@ fsw_params.bdot     = init_bdot_controller(fsw_params);
 
 % ----- Overrides ----- %
 REKM    = 6378.135; % earth radius [km]
+RE = REKM*1000;
 sgp4.tle_filename = 'QUAKESAT.tle'; % the right TLE
 [sgp4.orbit_tle,sgp4.JD_epoch_days] = get_tle(sgp4.tle_filename);
 fsw_params.bus.orbit_tle = sgp4.orbit_tle;
@@ -132,33 +136,35 @@ sc2gs_unit_time = logsout.getElement('sc2gs_unit').Values.Time;
 sc_above_gs = logsout.getElement('sc_above_gs').Values.Data;
 sc_above_gs_time = logsout.getElement('sc_above_gs').Values.Time;
 
-sc_pos_eci = logsout.getElement('pos_eci_km').Values.Data;
-sc_pos_eci_time = logsout.getElement('pos_eci_km').Values.Time;
+sc_ecef = logsout.getElement('sc_pos_ecef').Values.Data;
+sc_ecef_time = logsout.getElement('sc_pos_ecef').Values.Time;
 JD_ut1 = logsout.getElement('jd_j2000_ut1').Values.Data;
 
-mid = floor(length(sc_pos_eci_time)/2);
+gs_ecef = lla2ecef([fsw_params.gs_prediction.latlon;fsw_params.gs_prediction.alt]');
+
+mid = floor(length(sc_ecef_time)/2);
 
 % avg_sc2gs  = (2*REKM).*sc2gs_unit(mid,:); 
 
 figure(1), hold on
 [X, Y, Z]=sphere(100);
-X=X.*REKM;
-Y=Y.*REKM;
-Z=Z.*REKM;
-Earth_im = imread('Flat_earth_cds.jpg', 'jpg');
+X=X.*RE;
+Y=Y.*RE;
+Z=Z.*RE;
+Earth_im = imread('Flat_earth.jpg', 'jpg');
 surf(X, Y, Z,'CData',flip(Earth_im,1),'FaceColor','texturemap','EdgeColor','none');
 % plot3(sc_pos_eci(:,1),sc_pos_eci(:,2),sc_pos_eci(:,3),'r','LineWidth',2)
-plot3(sc_ecef.Data(:,1),sc_ecef.Data(:,2),sc_ecef.Data(:,3),'r','LineWidth',2)
-plot3(gs_ecef.Data(1,1),gs_ecef.Data(1,2),gs_ecef.Data(1,3),'mx','LineWidth',8)
+plot3(sc_ecef(:,1),sc_ecef(:,2),sc_ecef(:,3),'r','LineWidth',2)
+plot3(gs_ecef(1,1),gs_ecef(1,2),gs_ecef(1,3),'mx','LineWidth',8)
 % quiver3(0,0,0,avg_sc2gs(1),avg_sc2gs(2),avg_sc2gs(3),'LineWidth',2)
 xlabel('x-direction [km]')
 ylabel('y-direction [km]')
 zlabel('z-direction [km]')
 %saveas(gcf, strcat(figdir, 'traj_visualization_test1'),'fig')
 
-% figure(2), hold on
-% Earth_im = imread('Flat_earth_cds.jpg', 'jpg');
-% imshow(Earth_im);
+figure(2), hold on
+Earth_im = imread('Flat_earth_cds.jpg', 'jpg');
+imshow(Earth_im);
 
 figure(3)
 plot(sc_above_gs_time,sc_above_gs)
