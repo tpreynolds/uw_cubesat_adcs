@@ -8,12 +8,12 @@ set(0,'defaulttextinterpreter','latex');
 
 % Start fresh
 clear variables; close all; clc
-addpath(genpath('../../../matlab/')) % adds the fsw libs
-addpath(genpath('../../../../adcs_sim/matlab/')) % add the sim libs
+addpath(genpath('../../../../matlab/')) % adds the fsw libs
+addpath(genpath('../../../../../adcs_sim/matlab/')) % add the sim libs
 
 run_test    = 1;
 
-t_end   = 2400;
+t_end   = 5400;
 %% Test 1
 if run_test == 1
 
@@ -25,12 +25,11 @@ fsw_params = init_fsw_params();
 [sim_params,fsw_params] = init_sim_params(fsw_params);
 
 % Overrides
-%sim_params.environment.avg_b = [1.59212e-5 -6.1454e-6 4.0276e-5]; % T
-%sim_params.dynamics.ic.rate_init = [0.1; 0.1; 0.1];
+sim_params.environment.avg_b = [1.59212e-5 -6.1454e-6 4.0276e-5]; % T
 % -----
 % Simulation parameters
 run_time    = num2str(t_end);
-mdl         = 'momentum_dump_test_rev2';
+mdl         = 'momentum_unload_test_simple';
 load_system(mdl);
 set_param(mdl, 'StopTime', run_time);
 %sldebug(mdl);
