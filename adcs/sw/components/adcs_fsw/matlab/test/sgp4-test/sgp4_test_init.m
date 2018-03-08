@@ -1,19 +1,23 @@
 %% SGP4 unit test init file
+% ----------------------------------------------------------------------- %
 % Test 1:
 %   Compare my SGP4 propagation to data obtained from SWISSCUBE via STK
 % Test 2:
 %   Compare my SGP4 propagation to data obtained from QUAKESAT via STK
 % Test 3:
 %   Compare my SGP4 with example from Vallado (pp. 233-234)
-
+%
 % UW HuskySat-1, ADCS Subsystem
 %  Last Update: T. Reynolds 3.6.18
-
+%
 % Note: Assumes sim_init.m has been run
+% ----------------------------------------------------------------------- %
 
-run_test    = 2;
+% Toggle the test to run here
+run_test    = 1;
+
+
 %% Test 1
-
 if run_test == 1
     clear variables; close all
     % Load parameters for both flight software and simulation
@@ -40,6 +44,12 @@ if run_test == 1
     sim(mdl);
     
     % ----- Analyze Results ----- %
+    flag    = logsout.getElement('SGP4_FLAG').Values.Data;
+    for i = 1:length(flag)
+        if( flag(i) == -1 )
+            error('Flag thrown during SGP4 operation')
+        end
+    end    
     %   extract pos/vel/time data from sim
     pos_eci_km = logsout.getElement('pos_eci_km').Values.Data;
     vel_eci_kmps = logsout.getElement('vel_eci_kmps').Values.Data;
@@ -115,6 +125,12 @@ elseif run_test == 2
     sim(mdl);
     
     % ----- Analyze Results ----- %
+    flag    = logsout.getElement('SGP4_FLAG').Values.Data;
+    for i = 1:length(flag)
+        if( flag(i) == -1 )
+            error('Flag thrown during SGP4 operation')
+        end
+    end    
     %   extract pos/vel/time data from sim
     pos_eci_km = logsout.getElement('pos_eci_km').Values.Data;
     vel_eci_kmps = logsout.getElement('vel_eci_kmps').Values.Data;
@@ -184,6 +200,12 @@ elseif run_test == 3
     sim(mdl);
     
     % ----- Analyze Results ----- %
+    flag    = logsout.getElement('SGP4_FLAG').Values.Data;
+    for i = 1:length(flag)
+        if( flag(i) == -1 )
+            error('Flag thrown during SGP4 operation')
+        end
+    end    
     %   extract pos/vel/time data from sim
     pos_eci_km      = logsout.getElement('pos_eci_km').Values.Data;    
     vel_eci_kmps    = logsout.getElement('vel_eci_kmps').Values.Data;
