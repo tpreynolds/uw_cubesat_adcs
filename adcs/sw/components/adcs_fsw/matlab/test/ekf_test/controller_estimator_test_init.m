@@ -13,11 +13,17 @@ clc; close all;
 set(0,'defaulttextinterpreter','latex');
 %% Test 1
 
+% figure name prefix
+filename = 'full_test_nonrand_';
+
 % seed the random initial conditions so you get the same stuff everytime
-rng(155);
+
+%rng(155) gives particularly bad performance due to insanely suboptimal
+%initial conditions
+rng(34523);
 
 % Attitude conditions
-quat_cmd = randn(4,1);%-[-0.1; 0.2; 0.3; 0.4];
+quat_cmd = randn(4,1);
 quat_cmd = quat_cmd/norm(quat_cmd);
 sim_params.dynamics.ic.quat_init        = [1 0 0 0]';
 fsw_params.estimation.ic.quat_est_init  = rand(4,1);
@@ -57,21 +63,29 @@ sim(mdl);
 %% Plot results
 
 % body rates
+
+% compute axes to plot on
+ax_bnd = std(abs(omega_true.Data(:,:)));
+t = omega_hat.Time;
+
 h1 = figure;
 subplot(3,1,1)
 plot(omega_hat.Time, omega_hat.Data(:,1),'r--'), hold on
 plot(omega_true.Time, omega_true.Data(:,1),'r')
+axis([t(1) t(end) -3*ax_bnd(1) 3*ax_bnd(1)])
 ylabel('$\omega_x$'), xlabel('t')
 title('$\omega(t)$ (solid) and $\hat \omega(t)$ (dashed)')
 
 subplot(3,1,2)
 plot(omega_hat.Time, omega_hat.Data(:,2),'b--'), hold on
 plot(omega_true.Time, omega_true.Data(:,2),'b')
+axis([t(1) t(end) -3*ax_bnd(2) 3*ax_bnd(2)])
 ylabel('$\omega_y$'), xlabel('t')
 
 subplot(3,1,3)
 plot(omega_true.Time, omega_true.Data(:,3),'k'), hold on
 plot(omega_hat.Time, omega_hat.Data(:,3),'k--')
+axis([t(1) t(end) -3*ax_bnd(3) 3*ax_bnd(3)])
 ylabel('$\omega_z$'), xlabel('t')
 
 % quaternion
@@ -104,4 +118,13 @@ ylabel('$q_4(t)$'), xlabel('t')
 % bias
 h3 = figure;
 plot(bias_hat)
+title('Gyroscope bias estimate')
+
+cd figs
+
+print(h1, '-depsc', strcat(filename,'omega.eps'))
+print(h2, '-depsc', strcat(filename,'quat.eps'))
+print(h3, '-depsc', strcat(filename,'bias.eps'))
+
+cd ../
 
