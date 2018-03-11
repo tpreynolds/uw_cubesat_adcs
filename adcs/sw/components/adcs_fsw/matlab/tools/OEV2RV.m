@@ -1,10 +1,11 @@
-function [r_km,v_kmps] = OEV2RV(orbit_tle)
+function [r_km,v_kmps,FLAG] = OEV2RV(orbit_tle)
 % ----------------------------------------------------------------------- %
 % HuskySat-1, ADCS Subsystem
 % Last Update: T. Reynolds - 12.7.17
 %
 % Computes an inertial position and velocity from a set of orbital
 % elements.
+% #codegen
 % ----------------------------------------------------------------------- %
 
 % Constants
@@ -24,58 +25,45 @@ MNM     = orbit_tle(9) * (twopi / day2sec); % Mean motion [rad/s]
 a = (mu/(MNM^2))^(1/3);     % Semi-major axis [km]    
 
 % solve kepler's equation for true anomaly
-[~,TRA] = kepler(MNA,ECC);
+[~,TRA,FLAG] = kepler(MNA,ECC);
 
-% Six orbital elements 
-% orb_els = [a ECC INC RAAN AOP E];
+if( ECC == 1 )
+    FLAG    = -1;
+end
+slr     = a * (1 - ECC * ECC); % semi-latus rectum
 
-% ----- Compute r_eci, v_eci ----- %
-r = zeros(3, 1);
-v = zeros(3, 1);
+c1      = sqrt(mu/slr);
+c2      = 1 + ECC*cos(TRA);
 
-slr = a * (1 - ECC * ECC);
+r_PQW   = [ slr*cos(TRA)/c2; slr*sin(TRA)/c2; 0 ];
+v_PQW   = [ -c1*sin(TRA); c1*(ECC + cos(TRA)); 0];
 
-rm = slr / (1 + ECC * cos(TRA));
-   
-arglat = AOP + TRA;
+C       = rot3(-RAAN)*rot1(-INC)*rot3(-AOP);
 
-sarglat = sin(arglat);
-carglat = cos(arglat);
-   
-c4 = sqrt(mu / slr);
-c5 = ECC * cos(AOP) + carglat;
-c6 = ECC * sin(AOP) + sarglat;
-
-sinc = sin(INC);
-cinc = cos(INC);
-
-sraan = sin(RAAN);
-craan = cos(RAAN);
-
-% position vector
-
-r(1) = rm * (craan * carglat - sraan * cinc * sarglat);
-r(2) = rm * (sraan * carglat + cinc * sarglat * craan);
-r(3) = rm * sinc * sarglat;
-
-% velocity vector
-
-v(1) = -c4 * (craan * c6 + sraan * cinc * c5);
-v(2) = -c4 * (sraan * c6 - craan * cinc * c5);
-v(3) = c4 * c5 * sinc;
-
-r_km     = r;
-v_kmps   = v;
+r_km    = C*r_PQW;
+v_kmps  = C*v_PQW;
 
 end
 
-function [E, TRA] = kepler(MNA, ECC)
-% solve Kepler's equation for elliptic orbits using Newton-Raphson
+function [E, TRA, FLAG] = kepler(MNA, ECC)
+% ----------------------------------------------------------------------- %
+% UW HuskySat-1, ADCS Subsystem
+% T. Reynolds -- 3.9.18
+%
+% MNA is MeaN Anomaly
+% ECC is ECCentricity
+% TRA is TRue Anomaly
+% E   is Eccentric Anomaly
+%
+% Solves Kepler's equation for elliptic orbits using Newton-Raphson
+%
+% ----------------------------------------------------------------------- %
 
 % Constants
-tol     = 1e-8;
-twopi   = 2 * pi;
-i_max   = 10;
+tol         = 1e-8;
+twopi       = 2 * pi;
+i_max       = 10;
+FLAG        = 0;
 
 % Project onto [-2pi,2pi]
 if( abs(MNA) > twopi )
@@ -92,23 +80,46 @@ end
 % Run Loop
 Enew    = 1e6;
 for i = 1:i_max
-    err     = abs(E - Enew);
-    if( err < tol )
-        E   = Enew;
-        break;
-    end
     den     = 1 - ECC*cos(E);
     if( abs(den) > tol ) % avoid dividing by zero
         Enew    = E + (MNA - E + ECC*sin(E))/den;
     else
-        Enew    = E;
+        FLAG    = -1;
     end
+    
+    err     = abs(E - Enew);
+    if( err < tol )
+        break;
+    end
+    E   = Enew;
+end
+
+if( i == i_max )
+    FLAG    = 1;
 end
 
 % Compute true anomaly
-sta = sqrt(1 - ECC * ECC) * sin(E);
-cta = cos(E) - ECC;
-TRA = atan3(sta, cta);
+if( abs(1-ECC) < 1e-10 )
+    TRA     = 0;
+    FLAG    = -1;
+else
+    c1      = sqrt( (1 + ECC) / (1 - ECC) );
+    temp    = c1 * tan(0.5*E);
+    TRA     = mod(2 * atan(temp), 2*pi);
+end
 
+end
+
+
+function C = rot1(x)
+    C   = [ 1.0   0.0     0.0;
+            0.0   cos(x)  sin(x);
+            0.0  -sin(x)  cos(x) ];
+end
+
+function C = rot3(x)
+    C   = [ cos(x)  sin(x)  0.0;
+           -sin(x)  cos(x)  0.0;
+            0.0     0.0     1.0 ];
 end
 

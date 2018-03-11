@@ -1,7 +1,7 @@
-function [INC,RAAN,ECC,AOP,MNA,MNM,FLAG] = RV2OEV(r_km,v_kmps)
+ function [INC,RAAN,ECC,AOP,MNA,MNM,FLAG] = RV2OEV(r_km,v_kmps)
 % Converts inertial position and velocity to classical orbital elements.
 %   UW HuskySat-1, ADCS Subsystem
-%   Updated: T. Reynolds 3.6.18
+%   Updated: T. Reynolds 3.9.18
 % #codegen
 
 % Input
@@ -25,7 +25,7 @@ function [INC,RAAN,ECC,AOP,MNA,MNM,FLAG] = RV2OEV(r_km,v_kmps)
 mu          = 398600.4418;      % km3/s2
 small       = 1.0e-10;
 twopi       = 2.0 * pi;
-sec2day     = 86400;
+sinday      = 24 * 3600;
 rad2deg     = 180.0 / pi;
 RE          = 6378.137;         % Earth radius [km]
 FLAG        = 0; % exit flag; flipped to -1 if there is a perceived error
@@ -67,7 +67,7 @@ end
 
 % find mean motion
 MNM     = sqrt(mu/a^3);
-MNM     = MNM * (sec2day / twopi);
+MNM     = MNM/(twopi/sinday);
 
 % find inclination 
 hk      = hbar(3)/magh;
@@ -77,6 +77,7 @@ if( INC < 0.0 )
 end
 
 % find longitude of ascending node 
+RAAN    = 0.0;
 if ( magn > small )
     temp = nbar(1) / magn;
     if ( abs(temp) > 1.0  )
@@ -87,11 +88,11 @@ if ( magn > small )
         RAAN = twopi - RAAN;
     end
 else
-    RAAN    = Inf;
     FLAG    = -1;
 end
 
 % find argument of perigee
+AOP     = 0.0;
 temp = dot( nbar,ebar );
 if( (magn > small) && (ECC > small) )
     temp2   = temp/(magn*ECC);
@@ -107,6 +108,7 @@ if ( ebar(3) < 0.0  )
 end
 
 % find true anomaly at epoch
+nu      = 0.0;
 temp    = dot( ebar,r );
 if( (ECC > small) && (magr > small) )
     temp2   = temp/(ECC*magr);
@@ -122,7 +124,7 @@ if ( rdotv < 0.0  )
 end
 
 % find mean anomaly for all orbits 
-[~,MNA,FLAG] = newtonnu(ECC,nu);
+[~,MNA,FLAG] = newtonnu(ECC,nu,FLAG);
 
 % Convert to degrees
 INC     = rad2deg*INC;
@@ -132,21 +134,18 @@ MNA     = rad2deg*MNA;
 
 end
 
-function [e0,m,FLAG] = newtonnu ( ecc,nu )
+function [e0,m,FLAG] = newtonnu ( ecc,nu,FLAG )
 
-% ---------------------  implementation   ---------------------
+% Constants
 e0      = 1e6;
 m       = 1e6;
 small   = 1e-8;
-FLAG    = 0;
 
-% --------------------------- circular ------------------------
-if ( abs( ecc ) < small  )
+if( abs( ecc ) < small ) % circular 
     m   = nu;
     e0  = nu;
-else
-    % ---------------------- elliptical -----------------------
-    if ( ecc < 1.0-small  )
+else % elliptical
+    if( ecc < 1.0-small )
         sine    = (sqrt( 1.0 - ecc*ecc ) * sin(nu)) / (1.0 + ecc*cos(nu));
         cose    = (ecc + cos(nu)) / (1.0 + ecc*cos(nu));
         e0      = atan2( sine,cose );
@@ -157,12 +156,12 @@ else
     end
 end
 
-if ( ecc < 1.0  )
-    m   = rem( m,2.0 *pi );
-    if ( m < 0.0  )
-        m   = m + 2.0 *pi;
+if( ecc < 1.0 )
+    m   = rem( m,2.0*pi );
+    if( m < 0.0 )
+        m   = m + 2.0*pi;
     end
-    e0  = rem( e0,2.0 *pi );
+    e0  = rem( e0,2.0*pi );
 end
 
 end
