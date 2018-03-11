@@ -5,7 +5,7 @@
 %   state. Required estimator convergencence in under 60s.
 
 % UW HuskySat-1, ADCS Subsystem
-%  Primary: M. Hudoba de Badyn -- x.x.xx
+%   Primary: M. Hudoba de Badyn -- 2.25.18
 %   Secondary: T. Reynolds -- 3.6.18
 
 % Note: Assumes sim_init.m has been run
@@ -54,29 +54,54 @@ load_system(mdl);
 set_param(mdl, 'StopTime', run_time);
 sim(mdl);
 
-% Plot results
+%% Plot results
+
+% body rates
 h1 = figure;
+subplot(3,1,1)
 plot(omega_hat.Time, omega_hat.Data(:,1),'r--'), hold on
-plot(omega_hat.Time, omega_hat.Data(:,2),'b--')
-plot(omega_hat.Time, omega_hat.Data(:,3),'k--')
 plot(omega_true.Time, omega_true.Data(:,1),'r')
+ylabel('$\omega_x$'), xlabel('t')
+title('$\omega(t)$ (solid) and $\hat \omega(t)$ (dashed)')
+
+subplot(3,1,2)
+plot(omega_hat.Time, omega_hat.Data(:,2),'b--'), hold on
 plot(omega_true.Time, omega_true.Data(:,2),'b')
-plot(omega_true.Time, omega_true.Data(:,3),'k')
+ylabel('$\omega_y$'), xlabel('t')
 
+subplot(3,1,3)
+plot(omega_true.Time, omega_true.Data(:,3),'k'), hold on
+plot(omega_hat.Time, omega_hat.Data(:,3),'k--')
+ylabel('$\omega_z$'), xlabel('t')
+
+% quaternion
 h2 = figure;
+subplot(4,1,1)
 plot(quat_hat.Time, quat_hat.Data(:,1),'r--'), hold on
-plot(quat_hat.Time, quat_hat.Data(:,2),'b--')
-plot(quat_hat.Time, quat_hat.Data(:,3),'k--')
-plot(quat_hat.Time, quat_hat.Data(:,4),'g--')
 plot(quat_true.Time, quat_true.Data(:,1),'r')
-plot(quat_true.Time, quat_true.Data(:,2),'b')
-plot(quat_true.Time, quat_true.Data(:,3),'k')
-plot(quat_true.Time, quat_true.Data(:,4),'g')
 plot(quat_true.Time, quat_cmd(1)*ones(size(quat_true.Time)), 'k','linewidth',2)
-plot(quat_true.Time, quat_cmd(2)*ones(size(quat_true.Time)), 'k','linewidth',2)
-plot(quat_true.Time, quat_cmd(3)*ones(size(quat_true.Time)), 'k','linewidth',2)
-plot(quat_true.Time, quat_cmd(4)*ones(size(quat_true.Time)), 'k','linewidth',2)
+ylabel('$q_1(t)$'), xlabel('t')
+title('$q(t)$ (solid) and $\hat q(t)$ (dashed); $q_{cmd}$ (black)')
 
+subplot(4,1,2)
+plot(quat_hat.Time, quat_hat.Data(:,2),'b--'), hold on
+plot(quat_true.Time, quat_true.Data(:,2),'b')
+plot(quat_true.Time, quat_cmd(2)*ones(size(quat_true.Time)), 'k','linewidth',2)
+ylabel('$q_2(t)$'), xlabel('t')
+
+subplot(4,1,3)
+plot(quat_hat.Time, quat_hat.Data(:,3),'k--'), hold on
+plot(quat_true.Time, quat_true.Data(:,3),'k')
+plot(quat_true.Time, quat_cmd(3)*ones(size(quat_true.Time)), 'k','linewidth',2)
+ylabel('$q_3(t)$'), xlabel('t')
+
+subplot(4,1,4)
+plot(quat_hat.Time, quat_hat.Data(:,4),'g--'), hold on
+plot(quat_true.Time, quat_true.Data(:,4),'g')
+plot(quat_true.Time, quat_cmd(4)*ones(size(quat_true.Time)), 'k','linewidth',2)
+ylabel('$q_4(t)$'), xlabel('t')
+
+% bias
 h3 = figure;
 plot(bias_hat)
 
