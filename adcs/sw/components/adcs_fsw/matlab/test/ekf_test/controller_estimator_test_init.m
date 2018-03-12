@@ -20,13 +20,20 @@ filename = 'full_test_nonrand_';
 
 %rng(155) gives particularly bad performance due to insanely suboptimal
 %initial conditions
-rng(34523);
+rng(155);
+
+% turn the controller on/off <=> 1/0; the gain block appears in "Dynamics
+% Subsystem"
+ctrlGain = 1;
 
 % Attitude conditions
-quat_cmd = randn(4,1);
+quat_cmd = [1 0 0 0]'; %randn(4,1);
 quat_cmd = quat_cmd/norm(quat_cmd);
 sim_params.dynamics.ic.quat_init        = [1 0 0 0]';
-fsw_params.estimation.ic.quat_est_init  = rand(4,1);
+fsw_params.estimation.ic.quat_est_init  = [ 0.1399;
+                                            0.6237;
+                                           -0.3252;
+                                           -0.6969]; %rand(4,1);
 
 % Angular velocity
 fsw_params.estimation.ic.rt_w_body_radps    = 0*[0.01 -0.05 -0.03]';
@@ -52,6 +59,10 @@ fsw_params.estimation.ic.rt_sun_eci_est = sun_vec_init;%.*randn(3,1);
 % reference frame
 fsw_params.estimation.ic.rt_mag_body = A'*mag_vec_init;%.*randn(3,1);
 fsw_params.estimation.ic.rt_sun_body = A'*sun_vec_init;%.*randn(3,1);
+
+% stop condition (degree error from estimate to true quat)
+sim_tol = 1E-100; %make this ridiculously small if you want the sim to run
+                  %the full length. A reasonable value is like 0.1 rad
 
 % Run the test
 run_time    = '200';
@@ -119,6 +130,16 @@ ylabel('$q_4(t)$'), xlabel('t')
 h3 = figure;
 plot(bias_hat)
 title('Gyroscope bias estimate')
+
+% quat error
+h4 = figure;
+[len,~] = size(quat_error.Data);
+quat_err_norm = zeros(1,len);
+for kk = 1:len
+    quat_err_norm(kk) = norm(quat_error.Data(kk,:));
+end
+plot(quat_error.Time,quat_err_norm,'linewidth',2)
+
 
 cd figs
 
