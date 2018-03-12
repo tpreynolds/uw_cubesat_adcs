@@ -139,6 +139,27 @@ for kk = 1:len
     quat_err_norm(kk) = norm(quat_error.Data(kk,:));
 end
 plot(quat_error.Time,quat_err_norm,'linewidth',2)
+title('Quaternion error $e(t) = 2\mathrm{acos}([q_e]_1(t))$')
+
+
+% error quat
+h5 = figure;
+subplot(4,1,1)
+plot(error_quat.Time, error_quat.Data(:,1),'r--')
+ylabel('$q_1(t)$'), xlabel('t')
+title('Error quaternion $q_e(t) = \hat q(t) \otimes q(t)$')
+
+subplot(4,1,2)
+plot(error_quat.Time, error_quat.Data(:,2),'b--')
+ylabel('$q_2(t)$'), xlabel('t')
+
+subplot(4,1,3)
+plot(error_quat.Time, error_quat.Data(:,3),'k--')
+ylabel('$q_3(t)$'), xlabel('t')
+
+subplot(4,1,4)
+plot(error_quat.Time, error_quat.Data(:,4),'g--')
+ylabel('$q_4(t)$'), xlabel('t')
 
 
 cd figs
@@ -148,4 +169,5 @@ print(h2, '-depsc', strcat(filename,'quat.eps'))
 print(h3, '-depsc', strcat(filename,'bias.eps'))
 
 cd ../
+
 
