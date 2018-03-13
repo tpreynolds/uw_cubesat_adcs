@@ -7,11 +7,12 @@
 
 % UW HuskySat-1, ADCS Subsystem
 %   Primary: M. Hudoba de Badyn -- 03.10.18
-%   Secondary: T. Reynolds      -- xx.xx.xx
+%   Secondary: T. Reynolds      -- 3.12.18
 
 % Note: Assumes sim_init.m has been run
 clc; close all;
 set(0,'defaulttextinterpreter','latex');
+set(0,'defaultAxesFontSize',14)
 %% Test 1
 
 % figure name prefix
@@ -34,8 +35,8 @@ sim_params.dynamics.ic.quat_init        = [1 0 0 0]';
 fsw_params.estimation.ic.quat_est_init  = rand(4,1);
 
 % Angular velocity
-fsw_params.estimation.ic.rt_w_body_radps    = 0*[0.01 -0.05 -0.03]';
-sim_params.dynamics.ic.rate_init            = 0*[0.1 -0.05 -0.03]';
+fsw_params.estimation.ic.rt_w_body_radps    = 0.1*randn(3,1);
+sim_params.dynamics.ic.rate_init            = zeros(3,1);
 
 % make the noise larger (set 1 for flight values)
 var_mult_mt     = 1;
@@ -59,8 +60,7 @@ fsw_params.estimation.ic.rt_mag_body = A'*mag_vec_init;%.*randn(3,1);
 fsw_params.estimation.ic.rt_sun_body = A'*sun_vec_init;%.*randn(3,1);
 
 % stop condition (degree error from estimate to true quat)
-sim_tol = 1; %make this ridiculously small if you want the sim to run
-                  %the full length. A reasonable value is like 0.1 rad
+sim_tol = deg2rad(2); % The requirement is 2deg within 60s.
 
 stoppingTimes = zeros(1,nRuns);
 quatKeep = zeros(4,nRuns);
@@ -89,13 +89,13 @@ end
 
 %% plot stuff
 
-cd ./figs
+%cd ./figs
 
 h1 = figure;
 hist(stoppingTimes)
 xlabel('frequency')
 ylabel('convergence time')
-print(h1, '-depsc', strcat(filename, 'histogram.eps'))
-title(sprintf('Estimator convergence time to %3.3f degree error',sim_tol))
+%print(h1, '-depsc', strcat(filename, 'histogram.eps'))
+title(sprintf('Estimator convergence time to %3.3f degree error',rad2deg(sim_tol)))
 
-cd ../
+%cd ../

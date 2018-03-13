@@ -72,7 +72,7 @@ set_param(mdl, 'StopTime', run_time);
 sim(mdl);
 
 %% Plot results
-
+set(0,'defaultAxesFontSize',14)
 % body rates
 
 % compute axes to plot on
@@ -147,7 +147,7 @@ h5 = figure;
 subplot(4,1,1)
 plot(error_quat.Time, error_quat.Data(:,1),'r--')
 ylabel('$q_1(t)$'), xlabel('t')
-title('Error quaternion $q_e(t) = \hat q(t) \otimes q(t)$')
+title('Error quaternion $q_e(t) = \hat q(t)^* \otimes q(t)$')
 
 subplot(4,1,2)
 plot(error_quat.Time, error_quat.Data(:,2),'b--')
@@ -162,12 +162,12 @@ plot(error_quat.Time, error_quat.Data(:,4),'g--')
 ylabel('$q_4(t)$'), xlabel('t')
 
 
-cd figs
-
-print(h1, '-depsc', strcat(filename,'omega.eps'))
-print(h2, '-depsc', strcat(filename,'quat.eps'))
-print(h3, '-depsc', strcat(filename,'bias.eps'))
-
-cd ../
+% cd figs
+% 
+% print(h1, '-depsc', strcat(filename,'omega.eps'))
+% print(h2, '-depsc', strcat(filename,'quat.eps'))
+% print(h3, '-depsc', strcat(filename,'bias.eps'))
+% 
+% cd ../
 
 
