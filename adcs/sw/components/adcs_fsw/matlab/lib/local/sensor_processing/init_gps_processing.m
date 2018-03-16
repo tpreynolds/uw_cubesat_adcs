@@ -16,8 +16,7 @@ cent2JD = fsw_params.constants.time.cent2JD;
 gps.sample_time_s     = fsw_params.sample_time_s;
 
 % Initialize positions in TEME, ECI and ECEF frames
-gps.ic.time = [fsw_params.environment.sgp4.gps_sec_init ...
-                    fsw_params.environment.sgp4.gps_week_init]';
+gps.ic.time = fsw_params.environment.sgp4.ic.gps_time;
 [gps.ic.pos_teme_km,gps.ic.vel_teme_kmps] = ...
                             TLE2ECI(fsw_params.environment.sgp4.orbit_tle);
                         

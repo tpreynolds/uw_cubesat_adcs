@@ -2,13 +2,14 @@ function [ MET ] = init_MET( fsw_params )
 % ----------------------------------------------------------------------- %
 % UW HuskySat-1, ADCS Team
 % 
-% Initializes the MET library.
+% Initializes the Mission Elapsed Time library.
 %
 % T.Reynolds -- 3.9.18
 % ----------------------------------------------------------------------- %
 
-MET.res     = 1e-8;
-MET.epoch   = fsw_params.sensor_processing.gps.JD_J2000_TT;
+MET.res     = 1e-8; %resolution
+MET.epoch   = fsw_params.sensor_processing.gps.JD_J2000_TT * ...
+                    fsw_params.constants.time.day2sec; % s
 
 end
 

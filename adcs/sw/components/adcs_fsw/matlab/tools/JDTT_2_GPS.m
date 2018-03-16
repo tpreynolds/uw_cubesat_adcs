@@ -1,4 +1,4 @@
-function [ GPS_time ] = JDTT_2_GPS( JD_J2000_TT )
+function [ GPS_time ] = JDTT_2_GPS( JD_J2000_TT_s )
 % ----------------------------------------------------------------------- %
 % Husky-Sat 1, ADCS Subsystem
 % 
@@ -17,6 +17,9 @@ sec2day     = 1/day2sec;
 dayinweek   = 7;
 JD_GPSepoch = 2444244.5;
 JD_J2000    = 2451545.0;
+
+% Map input to JD_J2000_TT_days
+JD_J2000_TT     = JD_J2000_TT_s * sec2day;
 
 % Map input to GPS time frame
 JD_J2000_GPS    = JD_J2000_TT - sec2day*gps2tt;
