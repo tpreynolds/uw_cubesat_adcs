@@ -11,6 +11,7 @@ function [ gps ] = init_gps_processing( fsw_params )
 KM2M    = fsw_params.constants.convert.KM2M;
 dut1    = fsw_params.constants.time.dut1;
 cent2JD = fsw_params.constants.time.cent2JD;
+day2sec = fsw_params.constants.time.day2sec;
 
 % Sensor sample time
 gps.sample_time_s     = fsw_params.sample_time_s;
@@ -26,6 +27,7 @@ gps.ic.vel_teme_mps = KM2M*gps.ic.vel_teme_kmps;
 % get time values
 [~,~,~,~,T_ut1_J2000,T_TT_J2000] = time_conversion(gps.ic.time,dut1);
 gps.JD_J2000_TT     = T_TT_J2000 * cent2JD; % save for epoch initialization
+gps.JD_J2000_TT_s   = gps.JD_J2000_TT * day2sec;
 
 % get rotation matrices
 [ecef_2_eci, ppef_2_veci, ~, teme_2_eci]  = ...
