@@ -9,11 +9,13 @@
 % Assumes sim_init.m has been run to set the paths.
 % ----------------------------------------------------------------------- %
 JD_J2000    = fsw_params.constants.time.JD_J2000;
+day2sec     = fsw_params.constants.time.day2sec;
 
 JD_TT           = 2453140.19727065; % from example
 JD_J2000_TT     = JD_TT - JD_J2000;
+JD_J2000_TT_s   = JD_J2000_TT * day2sec;
 
-GPS_time    = JDTT_2_GPS( JD_J2000_TT );
+GPS_time    = JDTT_2_GPS( JD_J2000_TT_s );
 
 % Convert this [y m d h m s] into GPS time and account for leap seconds
 % Note: in 2004 we had TAI-UTC = 32.0. 
