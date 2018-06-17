@@ -1,9 +1,12 @@
-%% Init Sim Magnetorquer Model
-%   HuskySat-1, ADCS Subsystem
-%   Last Update: T. Reynolds - 8.3.17
-
-%%
 function magnetorquer     = init_magnetorquer_assembly
+% ----------------------------------------------------------------------- %
+%INIT_MAGNETORQUER_ASSEMBLY
+%
+% Set parameters for each magnetorquer library.
+%
+% T. Reynolds -- 8.3.17
+% ----------------------------------------------------------------------- %
 
-% Set params for each magnetorquer library
 magnetorquer = init_magnetorquer();
+
+end

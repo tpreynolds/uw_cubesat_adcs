@@ -1,9 +1,10 @@
 function [ cmd_processing ] = init_cmd_processing(fsw_params)
 % ----------------------------------------------------------------------- %
-% UW HuskySat-1, ADCS Team
+%INIT_CMD_PROCESSING
+%
 %   Parameters used in command processing library.
 %
-% Last Edited: T. Reynolds 2.23.18
+% T. Reynolds -- 2.23.18
 % ----------------------------------------------------------------------- %
 
 % Initial conditions

@@ -1,10 +1,11 @@
-%% Init Sim Magnetorquer Model
-%   HuskySat-1, ADCS Subsystem
+function magnetorquer = init_magnetorquer()
+% ----------------------------------------------------------------------- %
+%INIT_MAGNETORQUER  Init Sim Magnetorquer Model
+%
 % Initializes each of the magnetorquer models for use in SIM.
-%   Last Update: T. Reynolds - 8.3.17
-
-%%
-function magnetorquer     = init_magnetorquer
+%
+% T. Reynolds -- 8.3.17
+% ----------------------------------------------------------------------- %
 
 % Initial conditions
 magnetorquer.ic.current    = 0;
@@ -44,6 +45,7 @@ magnetorquer.mu_z     = 1;
 magnetorquer.max_dipole_x = 0.15;
 magnetorquer.max_dipole_y = 0.15;
 magnetorquer.max_dipole_z = 0.15;
+
 % Conversions
 magnetorquer.dv_2_m_X   = magnetorquer.max_dipole_x/255;
 magnetorquer.m_2_dv_X   = 1/magnetorquer.dv_2_m_X;
@@ -51,8 +53,9 @@ magnetorquer.dv_2_m_Y   = magnetorquer.max_dipole_y/255;
 magnetorquer.m_2_dv_Y   = 1/magnetorquer.dv_2_m_Y;
 magnetorquer.dv_2_m_Z   = magnetorquer.max_dipole_z/255;
 magnetorquer.m_2_dv_Z   = 1/magnetorquer.dv_2_m_Z;
+
 % Other params
-magnetorquer.actuation_time_pct     = 50;
-magnetorquer.tol        = 1e-3;
-magnetorquer.max_power     = 200;  % mW
-magnetorquer.max_current   = 50;   % mA
+magnetorquer.actuation_time_pct     = 50;   % duty cycle
+magnetorquer.tol                    = 1e-3;
+magnetorquer.max_power              = 200;  % mW
+magnetorquer.max_current            = 50;   % mA

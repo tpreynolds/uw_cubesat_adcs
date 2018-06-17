@@ -1,7 +1,11 @@
 function gps = init_gps()
+% ----------------------------------------------------------------------- %
+%INIT_GPS
+%
 % Initialize the GPS sensor library block.
-% HuskySat-1, ADCS Subsystem
-% Last Update: T. Reynolds 12.18.17
+%
+% T. Reynolds -- 12.18.17
+% ----------------------------------------------------------------------- %
 
 gps.sample_time_s = 1;
 gps.num_sats    = 5;

@@ -1,8 +1,10 @@
 function p_dump = init_momentum_dump(fsw_params)
 % ----------------------------------------------------------------------- %
 % UW HuskySat-1, ADCS Team
-%   Load the parameters for the momentum (p) unloading controller here. 
-% Last Edited: E. Hansen 01.05.18
+%
+%   Load the parameters for the momentum (p) unloading controller here.
+%
+% E. Hansen -- 01.05.18
 % ----------------------------------------------------------------------- %
 
 % Initial Conditions
@@ -16,12 +18,15 @@ p_dump.ic.rmp_setpoint_x    = 0;
 p_dump.ic.rmp_setpoint_y    = 0;
 p_dump.ic.rmp_setpoint_z    = 0;
 I                           = fsw_params.actuators.reaction_wheel.inertia_matrix;
-p_dump.ic.ang_mom_ref       = I*[p_dump.ic.rmp_setpoint_x*fsw_params.convert.RPM_2_RADPS;...
-                                 p_dump.ic.rmp_setpoint_y*fsw_params.convert.RPM_2_RADPS;...
-                                 p_dump.ic.rmp_setpoint_z*fsw_params.convert.RPM_2_RADPS]; %reference angular momentum of reaction wheels
+% Reference angular momentum of reaction wheels
+p_dump.ic.ang_mom_ref       = I*[p_dump.ic.rmp_setpoint_x*fsw_params.constants.convert.RPM_2_radps;...
+                                 p_dump.ic.rmp_setpoint_y*fsw_params.constants.convert.RPM_2_radps;...
+                                 p_dump.ic.rmp_setpoint_z*fsw_params.constants.convert.RPM_2_radps]; 
 
 % Sample time
 p_dump.sample_time_s    = 1/5; % sample at 5 Hz
 
 % Momentum unloading controller gains
 p_dump.gain_k     = 10;
+
+end
