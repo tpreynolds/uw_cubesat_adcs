@@ -1,4 +1,4 @@
-function [ MET ] = init_MET( fsw_params )
+function [ MET,fsw_params ] = init_MET( fsw_params )
 % ----------------------------------------------------------------------- %
 % UW HuskySat-1, ADCS Team
 % 
@@ -8,7 +8,8 @@ function [ MET ] = init_MET( fsw_params )
 % ----------------------------------------------------------------------- %
 
 MET.res     = 1e-8; %resolution
-MET.epoch   = fsw_params.sensor_processing.gps.JD_J2000_TT_s;
+MET.epoch   = fsw_params.constants.ic.time.JD_J2000_TT_s;
+fsw_params.bus.MET_epoch    = MET.epoch;
 
 end
 

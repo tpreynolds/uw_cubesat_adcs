@@ -1,4 +1,4 @@
-function mag_vec = init_magnetic_field( env_estimation )
+function mag_vec = init_magnetic_field( )
 % ----------------------------------------------------------------------- %
 % UW HuskySat-1, ADCS Team
 %
@@ -6,11 +6,6 @@ function mag_vec = init_magnetic_field( env_estimation )
 %
 % T. Reynolds 6.3.18
 % ----------------------------------------------------------------------- %
-
-% Sample time
-if( nargin == 1 )
-    mag_vec.sample_time_s     = env_estimation.sample_time_s;
-end
 
 % Initial conditions
 mag_vec.ic.ecef_2_eci       = eye(3);

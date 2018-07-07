@@ -1,10 +1,10 @@
 function gs_prediction = init_gs_prediction( env_estimation )
 % ----------------------------------------------------------------------- %
-% UW HuskySat-1, ADCS Team
+%INIT_GS_PREDICTION
 %
-% Initialize all parameters for the sun vector estimation
+% Initialize all parameters for the ground station prediction library.
 %
-% S. Rice 1/6/2018
+% S. Rice -- 1.6.18
 %   - updated by T. Reynolds 3.6.18 (added initial conditions)
 % ----------------------------------------------------------------------- %
 
@@ -23,10 +23,7 @@ gs_prediction.ic.sc_in_fov      = 0;
 gs_prediction.ic.sc2gs_unit     = zeros(3,1);
 
 % UW Ground Station 
-gs_prediction.latlon = [47.6553;-122.3035];
-gs_prediction.alt   = 0.0;
-
-
-
+gs_prediction.latlon    = [ 47.6553; -122.3035 ];
+gs_prediction.alt       = 0.0;
 
 end

@@ -1,18 +1,16 @@
-function sensors = init_sensors( )
+function sensors = init_sensors( fsw_params )
 % ----------------------------------------------------------------------- %
-% UW HuskySat-1, ADCS Team
+%INIT_SENSORS
 %
-% Initializes all sensor parameters for the sim
+% Initializes all sensor parameters for the SIM
 %
-%   Last Edited: T. Reynolds, 8.3.17
+% T. Reynolds -- 8.3.17
 % ----------------------------------------------------------------------- %
 
-% Header
-sensors.gps     = init_gps();
-sensors.gyro    = init_gyroscope();
+sensors.gps             = init_gps();
+sensors.gyro            = init_gyroscope();
 sensors.magnetometer    = init_magnetometer();
 sensors.photodiodes     = init_photodiodes();
-sensors.sun_sensor      = init_sun_sensor();
-
+sensors.sun_sensor      = init_sun_sensor(fsw_params);
 
 end
