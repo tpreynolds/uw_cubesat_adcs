@@ -7,7 +7,7 @@ function sensor_processing = init_sensor_processing( fsw_params )
 % T. Reynolds -- 3.15.18
 % ----------------------------------------------------------------------- %
 
-sensor_processing.SP.sample_time_s  = fsw_params.sample_time_s;
+sensor_processing.sample_time_s  = fsw_params.sample_time_s;
 
 % ----- MAGNETOMETER ----- %
 sensor_processing.magnetometer.bias             = [0 0 0]';
