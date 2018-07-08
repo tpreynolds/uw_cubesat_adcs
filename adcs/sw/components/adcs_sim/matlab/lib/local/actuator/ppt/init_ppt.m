@@ -1,4 +1,4 @@
-function PPT = init_PPT(sim_params)
+function ppt = init_ppt(sim_params)
 % ----------------------------------------------------------------------- %
 %INIT_PPT
 %
@@ -11,9 +11,9 @@ function PPT = init_PPT(sim_params)
 % ----------------------------------------------------------------------- %
 
 % Initial conditions
-PPT.on              = 1;
-PPT.orbit_freq      = 1/3;
-PPT.avg_thrust      = 0.36e-3;   %.36 mN of thrust on average
-PPT.pulse_duration  = sim_params.CAN.sync_pulse_period_s;
+ppt.on              = 1;
+ppt.orbit_freq      = 1/3;
+ppt.avg_thrust      = 0.36e-3;   %.36 mN of thrust on average
+ppt.pulse_duration  = sim_params.CAN.sync_pulse_period_s;
 
 end
