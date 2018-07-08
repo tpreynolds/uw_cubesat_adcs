@@ -19,7 +19,7 @@ actuators.ic.RW_omega_radps = zeros(3,1);
 actuators.magnetorquer      = init_magnetorquer_assembly();
 actuators.reaction_wheel    = init_reaction_wheel_assembly();
 if( nargin == 1 )
-    actuators.ppt           = init_PPT(varargin{1});
+    actuators.ppt           = init_ppt(varargin{1});
 end
 
 end
