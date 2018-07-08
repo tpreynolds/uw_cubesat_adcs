@@ -1,6 +1,5 @@
 function fsw_params = init_fsw_params()
-% ----------------------------------------------------------------------- %
-% UW HuskySat-1, ADCS Team
+%INIT_FSW_PARAMS
 %
 % Define all parameters to be used by FSW here. This is the first file to
 % be called by 'SimInit.m' to initialize simulation data for the full 'Main
@@ -12,51 +11,50 @@ function fsw_params = init_fsw_params()
 %   that a call to "init_sensors" will initialize all sub-libraries used.
 %       ex. fsw_params.sensors = init_sensors();
 %
-% T.Reynolds -- 4.18.18
-% ----------------------------------------------------------------------- %
+% RAIN-SAT -- T.Reynolds 4.18.18
 fsw_params  = struct;
 
-% ----- Spacecraft Parameters ----- %
-fsw_params.sample_time_s    = 1/10; % Sample at 10Hz
+% ------------------------ Spacecraft Parameters ------------------------ %
+fsw_params.sample_time_s    = 1/10; 
 fsw_params.bus              = init_bus_params();
-% --------------------------------- %
+% ----------------------------------------------------------------------- %
 
-% ----- Constants ----- %
+% ------------------------------ Constants ------------------------------ %
 fsw_params.constants    = init_fsw_constants();
-% --------------------- %
+% ----------------------------------------------------------------------- %
 
-% ----- Environment ----- %
+% ----------------------------- Environment ----------------------------- %
 fsw_params  = init_env_estimation(fsw_params);
-% ----------------------- %
+% ----------------------------------------------------------------------- %
 
-% ---- Update FSW Conversions with Env Data ----- %
+% ------------------ Update FSW Conversions with Env Data --------------- %
 fsw_params  = init_time_coord_rot(fsw_params);
-% ----------------------------------------------- %
+% ----------------------------------------------------------------------- %
 
-% ----- Sensors ----- %
+% ------------------------------- Sensors ------------------------------- %
 fsw_params.sensor_processing    = init_sensor_processing(fsw_params);
-% ------------------- %
+% ----------------------------------------------------------------------- %
 
-% ----- Actuators ----- %
-fsw_params.actuators    = init_actuators();
-% --------------------- %
+% ------------------------------ Actuators ------------------------------ %
+fsw_params.actuators    = init_actuators(fsw_params);
+% ----------------------------------------------------------------------- %
 
-% ----- ADCS Mode Management ----- %
+% ------------------------- ADCS Mode Management ------------------------ %
 fsw_params.mode_selection   = init_mode_selection(fsw_params);
 fsw_params.target_gen       = init_target_generation(fsw_params);
-% -------------------------------- %
+% ----------------------------------------------------------------------- %
 
-% ----- Controllers ----- %
+% ----------------------------- Controllers ----------------------------- %
 fsw_params.control.pd_controller    = init_pd_controller(fsw_params);
 fsw_params.control.p_dump           = init_momentum_dump(fsw_params);
 fsw_params.control.cmd_processing   = init_cmd_processing(fsw_params);
-% ----------------------- %
+% ----------------------------------------------------------------------- %
 
-% ----- Ground Station Prediction----- %
+% ----------------------- Ground Station Prediction --------------------- %
 fsw_params.gs_prediction    = init_gs_prediction(fsw_params);
-% ------------------------------------ %
+% ----------------------------------------------------------------------- %
 
-% ----- Estimation ----- %
+% ------------------------------ Estimation ----------------------------- %
 % EKF initialized in sim_params.
-% ---------------------- %
+% ----------------------------------------------------------------------- %
 

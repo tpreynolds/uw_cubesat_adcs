@@ -48,6 +48,7 @@ constants.mag.b6    = x.x(19:21);
 % Misc.
 constants.twopi     = 2*pi;
 constants.o_prec    = 7.292115146706979e-5;
+constants.dig_val   = 100;
 
 
 end

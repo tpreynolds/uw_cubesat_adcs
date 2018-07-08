@@ -26,13 +26,12 @@ function sgp4   = init_sgp4(fsw_params)
     sgp4.AOP     = sgp4.orbit_tle(7)*DEG2RAD;       % [rad]
     sgp4.MNA     = sgp4.orbit_tle(8)*DEG2RAD;       % [rad]
     sgp4.MNM     = sgp4.orbit_tle(9)*REVpD2RADpM;   % [rad/min]
-    
-    % Estimated from epoch_jd using online converters
+
     % DON'T CHANGE THE TLE W/O CHANGING THE GPS START TIME
     % SWISSCUBE and QUAKESAT have the same epoch
     % sec_init from GPS time + account for leap seconds
-    sgp4.gps_sec_init   = 154800 + 37.0 - 19.0;
+    sgp4.gps_sec_init   = 154800 + 37.0 - 19.0; % last two are for leap sec
     sgp4.gps_week_init  = 2021; 
-    sgp4.ic.gps_time    = [sgp4.gps_sec_init; sgp4.gps_week_init];
+    sgp4.gps_time       = [sgp4.gps_sec_init; sgp4.gps_week_init];
 
 end

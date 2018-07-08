@@ -1,10 +1,11 @@
 function fsw_params = init_env_estimation(fsw_params)
 % ----------------------------------------------------------------------- %
-% UW HuskySat-1, ADCS Team
+%INIT_ENV_ESTIMATION
 %
-% Initialize all parameters for the environment modeling contained in FSW
+% INIT_ENV_ESTIMATION(fsw_params) Initializes all parameters for the 
+% environment models contained in FSW.
 %
-% T. Reynolds 3.6.18
+% RAIN-SAT -- T. Reynolds 7.7.18
 % ----------------------------------------------------------------------- %
 
 % Library Sample Time
@@ -16,7 +17,7 @@ env_estimation.orb_estimation   = ....
 
 % Rate Transition Initial Conditions
 env_estimation.ic.gps_time      = ...
-                            env_estimation.orb_estimation.sgp4.ic.gps_time;
+                            env_estimation.orb_estimation.sgp4.gps_time;
 env_estimation.ic.orbit_tle     = ...
                             env_estimation.orb_estimation.sgp4.orbit_tle;                        
                         
@@ -24,7 +25,8 @@ env_estimation.ic.orbit_tle     = ...
 env_estimation.gs_estimation    = init_gs_prediction(env_estimation);
 
 % Initialize sun vector library
-env_estimation.sun_estimation   = init_sun_estimation(env_estimation);
+env_estimation.sun_estimation   = ...
+                            init_sun_estimation(fsw_params,env_estimation);
 
 % Initialize magnetic field library
 env_estimation.mag_vec      = init_magnetic_field();

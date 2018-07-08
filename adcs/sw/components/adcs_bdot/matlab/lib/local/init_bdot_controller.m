@@ -1,13 +1,10 @@
 function bdot = init_bdot_controller( fsw_params )
-
-% ----------------------------------------------------------------------- %
-% Loads the parameters of the b-dot controller using predefined fsw_params.
-%   Any block added should be initialized and defined in here.
-
-% UW HuskySat-1, ADCS Subsystem
-% Last Edited: T.Reynolds 9.23.17
-
-% ----------------------------------------------------------------------- %
+%INIT_BDOT_CONTROLLER
+%
+% INIT_BDOT_CONTROLLER(fsw_params) Loads the parameters of the b-dot 
+% controller using predefined fsw_params.
+%
+% RAIN-SAT -- T.Reynolds 9.23.17
 
 % Initial conditions
 bdot.ic.RT_mt_on        = 0;
@@ -19,19 +16,14 @@ bdot.ic.derivative      = 0;
 bdot.ic.unit_delay      = [0 0 0]';
 bdot.ic.invalid_input   = [0 0 0]';
 
-% Library parameters
-
 % Make sure gains are negative
-bdot.gain_matrix = diag([- fsw_params.actuators.magnetorquer.max_dipole_x/1.5e-6,...
-                         - fsw_params.actuators.magnetorquer.max_dipole_y/1.5e-6,...
-                         - fsw_params.actuators.magnetorquer.max_dipole_z/1.7e-6]);
-                               
-% NOTE: 3e-6 is the cut off value of \dot{B} below which we no longer want to be
-% saturating the torque rods.
-
-% -----
+bdot.gain_matrix = ...
+    diag([- fsw_params.actuators.magnetorquer.max_dipole_x/1.5e-6,...
+          - fsw_params.actuators.magnetorquer.max_dipole_y/1.5e-6,...
+          - fsw_params.actuators.magnetorquer.max_dipole_z/1.7e-6]);
+                              
 bdot.sample_time_s  = 1/10; %[s] - sampling at 10Hz
-bdot.digital_value  = 127; 
+bdot.digital_value  = fsw_params.constants.dig_val; 
 bdot.cutoff_freq    = 2*pi*0.1; % [rad/s]
 bdot.continuous_lpf = tf([bdot.cutoff_freq],[1 bdot.cutoff_freq]);
 bdot.discrete_lpf   = c2d(bdot.continuous_lpf,bdot.sample_time_s);
