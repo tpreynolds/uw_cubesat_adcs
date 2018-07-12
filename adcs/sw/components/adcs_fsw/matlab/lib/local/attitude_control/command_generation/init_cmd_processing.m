@@ -4,7 +4,7 @@ function [ cmd_processing ] = init_cmd_processing(fsw_params)
 %
 %   Parameters used in command processing library.
 %
-% T. Reynolds -- 2.23.18
+% RAIN-SAT -- T. Reynolds 7.7.18
 % ----------------------------------------------------------------------- %
 
 % Initial conditions
@@ -14,22 +14,19 @@ cmd_processing.ic.momentum = ...
                             fsw_params.constants.convert.RPM_2_radps);
 
 % Digital value range
-cmd_processing.digital_value    = 127;
+DV    = fsw_params.constants.dig_val;
 
 % Gains
 cmd_processing.dv_2_m_X   = ...
-                        fsw_params.actuators.magnetorquer.max_dipole_x /...
-                            cmd_processing.digital_value;
+                   fsw_params.actuators.magnetorquer.max_dipole_x / DV;
 cmd_processing.m_2_dv_X   = 1/cmd_processing.dv_2_m_X;
 
 cmd_processing.dv_2_m_Y   = ...
-                        fsw_params.actuators.magnetorquer.max_dipole_y /...
-                            cmd_processing.digital_value;
+                   fsw_params.actuators.magnetorquer.max_dipole_y / DV;
 cmd_processing.m_2_dv_Y   = 1/cmd_processing.dv_2_m_Y;
 
 cmd_processing.dv_2_m_Z   = ...
-                        fsw_params.actuators.magnetorquer.max_dipole_z /...
-                            cmd_processing.digital_value;
+                    fsw_params.actuators.magnetorquer.max_dipole_z / DV;
 cmd_processing.m_2_dv_Z   = 1/cmd_processing.dv_2_m_Z;
 end
 

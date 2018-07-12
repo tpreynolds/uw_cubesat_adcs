@@ -148,7 +148,7 @@ fsw_params = init_fsw_params();
 [sim_params,fsw_params] = init_sim_params(fsw_params);
 
 % Overrides
-t_end       = 1;
+t_end               = 1;
 sc_mode             = 31;
 sc2sun_eci_unit     = zeros(3,1);
 vel_eci_kmps        = [0.9082; 0.3185; 0.2715];

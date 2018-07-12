@@ -18,13 +18,14 @@ p_dump.ic.rmp_setpoint_x    = 0;
 p_dump.ic.rmp_setpoint_y    = 0;
 p_dump.ic.rmp_setpoint_z    = 0;
 I                           = fsw_params.actuators.reaction_wheel.inertia_matrix;
+
+% Sample time
+p_dump.sample_time_s    = fsw_params.sample_time_s; 
+
 % Reference angular momentum of reaction wheels
 p_dump.ic.ang_mom_ref       = I*[p_dump.ic.rmp_setpoint_x*fsw_params.constants.convert.RPM_2_radps;...
                                  p_dump.ic.rmp_setpoint_y*fsw_params.constants.convert.RPM_2_radps;...
                                  p_dump.ic.rmp_setpoint_z*fsw_params.constants.convert.RPM_2_radps]; 
-
-% Sample time
-p_dump.sample_time_s    = 1/5; % sample at 5 Hz
 
 % Momentum unloading controller gains
 p_dump.gain_k     = 10;

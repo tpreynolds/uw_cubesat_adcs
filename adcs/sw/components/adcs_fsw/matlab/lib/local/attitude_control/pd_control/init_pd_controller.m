@@ -14,10 +14,10 @@ pd_controller.ic.rt_command_RPM     = zeros(3,1);
 pd_controller.ic.torque             = zeros(3,1);
 
 % Sample time
-pd_controller.sample_time_s     = 1/10; % sample at 10 Hz
+pd_controller.sample_time_s = 1/10; % sample at 10 Hz
 
 % Conversions
-pd_controller.rps_2_rpm     = 60/(2*pi);
+pd_controller.rps_2_rpm     = fsw_params.constants.convert.radps_2_RPM;
 
 J  = fsw_params.bus.inertia;
 

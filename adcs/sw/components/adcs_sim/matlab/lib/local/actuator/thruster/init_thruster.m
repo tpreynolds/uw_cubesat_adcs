@@ -7,7 +7,7 @@ function thruster = init_thruster(sim_params)
 % operation. Numbers found in "Pulsed Plasma Thruster Gains in Specific Thrust for
 % CubeSat Propulsion"
 %
-% S. Rice 4.30.18
+% RAIN-SAT -- T. Reynolds 7.7.18
 % ----------------------------------------------------------------------- %
 
 % Initial conditions
@@ -19,6 +19,6 @@ else
     thruster.avg_thrust     = 0.0;
 end
 thruster.boresight      = [ 0.0; 0.0; -1.0 ]; % point in -zB direction
-thruster.pulse_duration = sim_params.CAN.sync_pulse_period_s;
+thruster.pulse_duration = sim_params.CAN.sync_pulse_s;
 
 end

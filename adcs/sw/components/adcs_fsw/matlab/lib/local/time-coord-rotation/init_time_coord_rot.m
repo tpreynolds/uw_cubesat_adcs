@@ -14,8 +14,7 @@ cent2JD = fsw_params.constants.time.cent2JD;
 day2sec = fsw_params.constants.time.day2sec;
 
 % Initialize position/velocity in TEME frame
-fsw_params.constants.ic.time.gps = ...
-                fsw_params.env_estimation.orb_estimation.sgp4.ic.gps_time;
+fsw_params.constants.ic.time.gps = fsw_params.env_estimation.ic.gps_time;
 [fsw_params.constants.ic.pos_teme_km,...
           fsw_params.constants.ic.vel_teme_kmps] = ...
           TLE2TEME(fsw_params.env_estimation.orb_estimation.sgp4.orbit_tle);
