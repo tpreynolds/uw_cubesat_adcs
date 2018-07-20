@@ -1,13 +1,12 @@
-clear variables; close all; clc;
-set(0,'defaulttextinterpreter','latex');
-path(pathdef)
-cd ~; cd uw_cubesat_adcs_sourcetree/adcs/sw/components/adcs_sim/matlab/
-addpath(genpath(pwd))
-cd ~; cd uw_cubesat_adcs_sourcetree/adcs/sw/components/adcs_fsw/matlab/
-addpath(genpath(pwd))
-cd ~; cd uw_cubesat_adcs_sourcetree/adcs/sw/components/adcs_bdot/matlab/
-addpath(genpath(pwd))
+% Bdot Controller Unit test file
+%
+% This test case assumes a static B vector and is used for only very rough
+% gain selection and to ensure stability of the overall system.
+%
+% Assumes sim_init.m has been run to set the paths
 
+set(0,'defaulttextinterpreter','latex')
+clear variables; close all; clc;
 
 figdir = './test/figs/';
 datadir = './test/data/';
@@ -18,28 +17,25 @@ datadir = './test/data/';
 % Test 2:
 %   Test control gain and cut-off frequency to try attempt improvements
 
-% Last saved test: 
-%   T. Reynolds 8.19.17
+% RAIN-SAT -- T. Reynolds 8.19.17
 
 % Toggle to save figures and data. 0 => no save, 1 => save.
 save_all = 0;
 
 %% Test 1
 
-% Initialization
-fsw_params = init_fsw_params();
-sim_params = init_sim_params(fsw_params);
-
-% Load libraries used in this test
-fsw_params.bdot  = init_bdot_controller(fsw_params);
+% Load parameters for both flight software and simulation
+fsw_params              = init_fsw_params();
+[sim_params,fsw_params] = init_sim_params(fsw_params);
 
 % ----- Overrides ----- %
-sim_params.environment.avg_b = [1.59212e-5 -6.1454e-6 4.0276e-5]; % T
+sim_params.dynamics.ic.rate_init    = [ 0.2; 0.2; 0.2 ];
+sim_params.environment.avg_b        = [1.59212e-5 -6.1454e-6 4.0276e-5]; % T
 % --------------------- %
 
 % Simulation parameters
-run_time    = '10000';
-mdl         = 'bdot_simple_sim';
+run_time    = '10800';
+mdl         = 'bdot_static_test';
 load_system(mdl);
 set_param(mdl, 'StopTime', run_time);
 sim(mdl);
@@ -54,8 +50,8 @@ cmd_dipole_Am2_time = logsout.getElement('cmd_dipole_Am2').Values.Time;
 body_rates_radps = logsout.getElement('body_rates_radps').Values.Data;
 body_rates_radps_time = logsout.getElement('body_rates_radps').Values.Time;
 
-b_meas_eci_T = logsout.getElement('b_meas_eci_T').Values.Data;
-b_meas_eci_time = logsout.getElement('b_meas_eci_T').Values.Time;
+b_meas_body_T = logsout.getElement('b_meas_body_T').Values.Data;
+b_meas_body_time = logsout.getElement('b_meas_body_T').Values.Time;
 
 figure(1)
 subplot(3,1,1)
@@ -117,15 +113,15 @@ end
 %% Test 2
 
 % Testing new gain and cut-off freq in the filter for better performance.
+fprintf('Press any key to run test 2')
+pause
 
 % Initialization
 clear varialbes; close all; clc
-figdir = '/Users/Taylor/Dropbox/Cubesat/Cubesat_sim/Sandbox/FSW/Control/Bdot/sim_test_v2/fig/';
-datadir = '/Users/Taylor/Dropbox/Cubesat/Cubesat_sim/Sandbox/FSW/Control/Bdot/sim_test_v2/data/';
 
-fsw_params = init_fsw_params();
-sim_params = init_sim_params(fsw_params);
-fsw_params.bdot  = init_bdot_controller(fsw_params);
+% Load parameters for both flight software and simulation
+fsw_params              = init_fsw_params();
+[sim_params,fsw_params] = init_sim_params(fsw_params);
 
 % ----- Overrides ----- %
 sim_params.environment.avg_b = [1.59212e-5 -6.1454e-6 4.0276e-5]; % T
@@ -135,19 +131,28 @@ fsw_params.bdot.gain_matrix    =  1.5*fsw_params.bdot.gain_matrix;
 % ----- End Overrides ----- %
 
 % Change cut-off frequency
-fsw_params.bdot.cutoff_freq = 2*pi*0.1; % [rad/s]
-fsw_params.bdot.continuous_lpf = tf([fsw_params.bdot.cutoff_freq],[1 fsw_params.bdot.cutoff_freq]);
-fsw_params.bdot.discrete_lpf   = c2d(fsw_params.bdot.continuous_lpf,fsw_params.bdot.sample_time_s);
-[fsw_params.bdot.filter_num,fsw_params.bdot.filter_den] = tfdata(fsw_params.bdot.discrete_lpf,'v');
+fsw_params.control.bdot.cutoff_freq = 2*pi*0.1; % [rad/s]
+
+fsw_params.control.bdot.continuous_lpf = ...
+    tf([fsw_params.control.bdot.cutoff_freq],...
+    [1 fsw_params.control.bdot.cutoff_freq]);
+
+fsw_params.control.bdot.discrete_lpf   = ...
+    c2d(fsw_params.control.bdot.continuous_lpf,...
+    fsw_params.control.bdot.sample_time_s);
+
+[fsw_params.control.bdot.filter_num,fsw_params.control.bdot.filter_den] = ...
+    tfdata(fsw_params.control.bdot.discrete_lpf,'v');
+
 % Extract second component only for use in filter
-fsw_params.bdot.filter_num     = fsw_params.bdot.filter_num(2);
-fsw_params.bdot.filter_den     = fsw_params.bdot.filter_den(2);
+fsw_params.control.bdot.filter_num     = fsw_params.control.bdot.filter_num(2);
+fsw_params.control.bdot.filter_den     = fsw_params.control.bdot.filter_den(2);
 
 % --------------------- %
 
 % Simulation parameters
 run_time    = '10000';
-mdl         = 'bdot_simple_sim';
+mdl         = 'bdot_static_test';
 load_system(mdl);
 set_param(mdl, 'StopTime', run_time);
 sim(mdl);

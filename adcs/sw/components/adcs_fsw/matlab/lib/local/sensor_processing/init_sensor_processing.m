@@ -10,11 +10,7 @@ function sensor_processing = init_sensor_processing( fsw_params )
 sensor_processing.sample_time_s  = fsw_params.sample_time_s;
 
 % ----- MAGNETOMETER ----- %
-sensor_processing.magnetometer.bias             = [0 0 0]';
-sensor_processing.magnetometer.process_matrix   = eye(3);
-sensor_processing.magnetometer.sensor2body      = eye(3);
-sensor_processing.magnetometer.sample_time_s    = (1/20); % Hz
-sensor_processing.magnetometer.invalid_input    = zeros(3,1);
+sensor_processing.magnetometer = init_magnetometer_processing();
 % ------------------------ %
 
 % ----- GYRO ----- %
