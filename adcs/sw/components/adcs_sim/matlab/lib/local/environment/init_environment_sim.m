@@ -22,6 +22,9 @@ sim_params.constants.mag.orbit_freq = ...
                                 fsw_params.constants.convert.rev2rad * ...
                                 fsw_params.constants.time.sec2day;
 
-
+sim_params.constants.ic_orbit_data  = [ zeros(3,1);
+                                        sim_params.environment.magnetic.ic.eci_T;
+                                        zeros(9,1);
+                                        fsw_params.constants.ic.time.gps ];
 
 end
