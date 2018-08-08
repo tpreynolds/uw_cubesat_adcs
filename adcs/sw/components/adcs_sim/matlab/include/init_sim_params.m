@@ -12,7 +12,7 @@
 %
 % RAIN-SAT -- T. Reynolds 4.18.18
 
-sim_params.sample_time_s    = (1/200);
+sim_params.sample_time_s    = (1/100);
 
 % ------------------------ Spacecraft Parameters ------------------------ %
 sim_params.bus                  = fsw_params.bus;

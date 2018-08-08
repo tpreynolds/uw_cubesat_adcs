@@ -7,7 +7,7 @@ function magnetometer = init_magnetometer
 % T. Reynolds -- 8.3.17
 % ----------------------------------------------------------------------- %
 
-magnetometer.sample_time_s  = (1/40); % From doc 
+magnetometer.sample_time_s  = (1/20); % From doc 
 magnetometer.err_x          = 1.637696e-7; % Based on MAG3110 noise from Thu
 magnetometer.err_y          = 9.22938e-8;  % Based on MAG3110 noise from Thu
 magnetometer.err_z          = 1.343961e-7; % Based on MAG3110 noise from Thu
