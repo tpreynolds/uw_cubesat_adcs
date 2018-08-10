@@ -28,6 +28,6 @@ p_dump.ic.ang_mom_ref       = I*[p_dump.ic.rmp_setpoint_x*fsw_params.constants.c
                                  p_dump.ic.rmp_setpoint_z*fsw_params.constants.convert.RPM_2_radps]; 
 
 % Momentum unloading controller gains
-p_dump.gain_k     = 10;
+p_dump.gain_k     = 0; %10;
 
 end
