@@ -9,6 +9,7 @@ function magnetorquer = init_magnetorquer(fsw_params)
 
 % Constants
 DV  = fsw_params.constants.dig_val;
+magnetorquer.sample_time_s  = (1/20);
 
 % Max dipoles
 magnetorquer.max_dipole_x = 0.20;
