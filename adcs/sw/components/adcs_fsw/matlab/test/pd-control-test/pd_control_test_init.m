@@ -36,8 +36,8 @@ sim_params.dynamics.ic.rate_init = 0.01*randn(3,1);
 z   = 1; % Critically damped
 wn  = 0.02*2*pi; % Small natural frequency
 
-fsw_params.control.pd_controller.p_gain  = -wn^2.*J;
-fsw_params.control.pd_controller.d_gain  = -2*wn*z.*J;
+fsw_params.control.pd_controller.p_gain  = wn^2.*J;
+fsw_params.control.pd_controller.d_gain  = 2*wn*z.*J;
 
 temp    = randn(4,1);
 sim_params.dynamics.ic.quat_init    = temp./norm(temp);

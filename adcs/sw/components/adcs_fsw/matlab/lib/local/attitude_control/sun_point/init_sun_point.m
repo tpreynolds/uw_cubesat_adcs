@@ -22,6 +22,6 @@ J   = fsw_params.bus.inertia;
 z   = 1;                % Critically damped
 wn  = 0.01 * 2 * pi;    % small natural frequency
 sun_point.prop_gain = wn^2 * J;
-sun_point.drv_gain = 2 * wn * z * J;
+sun_point.drv_gain  = 2 * wn * z * J;
 
 end
