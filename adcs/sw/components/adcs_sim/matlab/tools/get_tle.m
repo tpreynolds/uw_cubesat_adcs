@@ -24,9 +24,10 @@ epoch_year          = 2000 + y;
 % compute JD for Jan 1, epoch_year, 00:00:00 UTC
 jd_begin_of_year    = 367*epoch_year - floor((7/4)*(epoch_year + floor(10/12))) + floor(275/9) + 1721013.5;
 jd_epoch_days       = day_dec + jd_begin_of_year;
+jd_epoch_days_J2000 = jd_epoch_days - 2451545.0;
 
 B_star      = B_star*10^(B_star_ex); 
 
-orbit_tle   = [y; jd_epoch_days; B_star; INC; RAAN; ECC; AOP; MNA; MNM];
+orbit_tle   = [y; jd_epoch_days_J2000; B_star; INC; RAAN; ECC; AOP; MNA; MNM];
 
 end
