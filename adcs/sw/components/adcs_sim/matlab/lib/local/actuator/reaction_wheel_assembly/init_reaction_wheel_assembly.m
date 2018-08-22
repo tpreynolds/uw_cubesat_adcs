@@ -27,9 +27,7 @@ reaction_wheel.torque_cnst  = 2.34e-3;  % Nm/A WAG
 reaction_wheel.delay        = 6.81e-3;  % s WAG
 reaction_wheel.resistance   = 1;     % Ohms WAG
 reaction_wheel.inductance   = 0.071e-3; % Henry WAG
-reaction_wheel.inertia_matrix   = diag([reaction_wheel.inertia,...
-                                        reaction_wheel.inertia,...
-                                        reaction_wheel.inertia]);
+reaction_wheel.inertia_matrix   = reaction_wheel.inertia * eye(3);
 
 % Motor Characterisitcs
 num  = reaction_wheel.torque_cnst;

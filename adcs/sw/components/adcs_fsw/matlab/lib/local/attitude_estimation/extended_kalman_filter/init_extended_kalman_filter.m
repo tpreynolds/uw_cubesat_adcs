@@ -37,17 +37,19 @@ ekf.converge_time_s   = 60;
 
 % Constant matrices
 ekf.G   = blkdiag(-eye(3),eye(3));
+% This dt MUST be the rate at which information in the KF is updated!
+ekf.dt  = ekf.sample_time_s;
 
 % Process and measurement covariances
 sig_v   = sim_params.sensors.gyro.arw;
 sig_u   = sim_params.sensors.gyro.rrw;
-dt      = sim_params.sensors.gyro.sample_time_s;
-mag_err = sim_params.sensors.magnetometer.deg_err;
+dt      = ekf.dt;
+mag_err = sim_params.sensors.magnetometer.nrm_err;
 sun_err = sim_params.sensors.sun_sensor.deg_err;
 
 ekf.proc_cov = [(sig_v^2*dt + 1/3*sig_u^2*dt^3)*eye(3)    -(1/2*sig_u^2*dt^2)*eye(3);
                    -(1/2*sig_u^2*dt^2)*eye(3)              (sig_u^2*dt)*eye(3)];
-ekf.meas_cov = diag([mag_err^2*ones(1,3), sun_err^2*ones(1,3)]);
+ekf.meas_cov = diag([mag_err*ones(1,3), sun_err*ones(1,3)]);
 
 end
    

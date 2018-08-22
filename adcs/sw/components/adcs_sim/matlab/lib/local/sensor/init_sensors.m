@@ -11,6 +11,6 @@ sensors.gps             = init_gps();
 sensors.gyro            = init_gyroscope();
 sensors.magnetometer    = init_magnetometer();
 sensors.photodiodes     = init_photodiodes();
-sensors.sun_sensor      = init_sun_sensor(fsw_params);
+sensors.sun_sensor      = init_sun_sensor();
 
 end

@@ -7,7 +7,7 @@ function gyro = init_gyroscope( )
 % T. Reynolds -- 8.3.17
 % ----------------------------------------------------------------------- %
 
-gyro.sample_time_s  = (1/100);      % [Hz]
+gyro.sample_time_s  = (1/20);      % [Hz]
 % ARW/RRW/initial bias taken from Crassidis Ex. 7.1 pp 460.
 gyro.arw            = sqrt(10)*1e-7;            % angle random walk
 gyro.rrw            = sqrt(10)*1e-10;           % rate random walk
