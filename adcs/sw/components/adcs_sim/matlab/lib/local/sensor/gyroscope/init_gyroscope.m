@@ -8,10 +8,10 @@ function gyro = init_gyroscope( )
 % ----------------------------------------------------------------------- %
 
 gyro.sample_time_s  = (1/100);      % [Hz]
-gyro.arw            = 1e-3;         % angle random walk
-gyro.rrw            = 1e-3;         % rate random walk
-gyro.resolution     = 1e-5;         % resolution of sensor
-gyro.valid_pct      = 99;           % over 10 seconds
-gyro.bias_init      = 0.0*(pi/180)*[1 1 1]';     % Initial bias
+% ARW/RRW/initial bias taken from Crassidis Ex. 7.1 pp 460.
+gyro.arw            = sqrt(10)*1e-7;            % angle random walk
+gyro.rrw            = sqrt(10)*1e-10;           % rate random walk
+gyro.resolution     = 1e-8;                     % resolution of sensor
+gyro.bias_init      = 0.1*(1/3600)*(pi/180)*[1 1 1]';   % Initial bias
 
 end

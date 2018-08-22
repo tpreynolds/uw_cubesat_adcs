@@ -14,9 +14,11 @@ ekf.sample_time_s = 1/10;
 % Initial conditions
 ekf.ic.quat_est_init = [1 0 0 0]';
 ekf.ic.rate_est_init = [0 0 0]';
-ekf.ic.bias_est_init = 3*pi/180*[-1 1 1]';
 ekf.ic.bias_est_init = [0 0 0]';
-ekf.ic.error_cov = blkdiag((3*pi/180)^2*eye(3),(0.3*pi/180)^2*eye(3));
+% Initial covariance from Crassidis Ex. 7.1 pp. 460.
+P_0_a = 3.0462e-6;  % attitude
+P_0_b = 9.4018e-13; % bias
+ekf.ic.error_cov = blkdiag(P_0_a*eye(3),P_0_b*eye(3));
     % rate transition blocks
     ekf.ic.rt_valid_gyro    = 0;
     ekf.ic.rt_valid_mag     = 0;
