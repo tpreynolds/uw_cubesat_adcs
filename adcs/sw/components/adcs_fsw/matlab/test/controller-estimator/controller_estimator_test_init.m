@@ -17,7 +17,7 @@ set(0,'defaulttextinterpreter','latex');
 rng(155);
 
 % Attitude conditions
-quat_cmd = randn(4,1);%-[-0.1; 0.2; 0.3; 0.4];
+quat_cmd = [0.5; 0.5; 0.5; 0.5];%-[-0.1; 0.2; 0.3; 0.4];
 quat_cmd = quat_cmd/norm(quat_cmd);
 sim_params.dynamics.ic.quat_init        = [1 0 0 0]';
 fsw_params.estimation.ic.quat_est_init  = rand(4,1);

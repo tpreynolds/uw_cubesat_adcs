@@ -21,6 +21,5 @@ sunsensor.range_deg     = 60;
 
 sunsensor.noise         = 1;        % noise on/off
 sunsensor.resolution    = 1e-6;     % resolution
-sunsensor.valid_pct     = 99;       % over 10 seconds
 
 end
