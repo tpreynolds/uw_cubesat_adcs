@@ -19,6 +19,6 @@ else
     thruster.avg_thrust     = 0.0;
 end
 thruster.boresight      = [ 0.0; 0.0; -1.0 ]; % point in -zB direction
-thruster.pulse_duration = sim_params.CAN.sync_pulse_s;
+thruster.pulse_duration = sim_params.telecom.sync_pulse_s;
 
 end

@@ -20,7 +20,7 @@ sim_params.bus                  = fsw_params.bus;
 % ----------------------------------------------------------------------- %
 
 % -------------------- Physical Bus Signal Emulators -------------------- %
-[sim_params.CAN, fsw_params]  = init_CAN(sim_params, fsw_params);
+[sim_params.telecom, fsw_params]  = init_telecom(sim_params, fsw_params);
 % ----------------------------------------------------------------------- %
 
 % ------------------------------ Dynamics ------------------------------- %
