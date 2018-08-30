@@ -15,17 +15,19 @@ function [ dx ] = Q_ode( P,t,x,u,ut )
 % States
 q   = x(1:4);
 q   = q./norm(q);
+q0  = q(1);
+qv  = q(2:4);
 w   = x(5:7);
 
 % Get control
 if( nargin < 5 )
     uu = u;
 else
-    uu = interp1(ut,u',t,method)';
+    uu = interp1(ut,u',t,P.method)';
 end
     
 % Kinematics
-dq  = 0.5*quatmultiply(q',[0;w]')';
+dq  = 0.5*[ -dot(qv,w); (q0*eye(3)+skew(qv))*w ];
 % Dynamics
 dw  = P.inertia\(uu - skew(w)*P.inertia*w);
 
