@@ -18,7 +18,7 @@ ang_err = 2*acosd(q_err(1));
 
 OAC.N   = ceil(ang_err/5);
 OAC.t0  = 0;
-OAC.tf  = 60; % WAG
+OAC.tf  = 60; % WAGq
 OAC.t   = linspace(OAC.t0,OAC.tf,OAC.N);
 
 % Initial trajectory

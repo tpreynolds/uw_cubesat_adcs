@@ -1,44 +1,45 @@
-function [CAN, fsw_params] = init_CAN( sim_params, fsw_params )
+function [telecom, fsw_params] = init_telecom( sim_params, fsw_params )
 % ----------------------------------------------------------------------- %
-%INIT_CAN  Initialize CAN Bus
+%INIT_TELECOM   Initialize Telecommands Bus
 %
-% Initializes all parameters for the CAN bus library used in flight
+% Initializes all parameters for the telecommand library used in flight
 % software to simulate different signals coming from the rest of the bus.
 %
 % T. Reynolds -- 1.24.18
 % ----------------------------------------------------------------------- %
 
 % Initial conditions
-CAN.ic.override                 = 0;
-CAN.ic.LowPowerMode             = 0;
-CAN.ic.pointing                 = 0;
-CAN.ic.sync_pulse_s             = 2;
-CAN.ic.MET_epoch                = sim_params.MET.epoch;
-CAN.ic.MET                      = 0.0;
-CAN.ic.all  = [ CAN.ic.override; 
-                CAN.ic.LowPowerMode; 
-                CAN.ic.pointing;
-                CAN.ic.MET_epoch; 
-                CAN.ic.MET ];
+telecom.ic.override                 = 0;
+telecom.ic.LowPowerMode             = 0;
+telecom.ic.pointing                 = 0;
+telecom.ic.sync_pulse_s             = 2;
+telecom.ic.MET_epoch                = sim_params.MET.epoch;
+telecom.ic.MET                      = 0.0;
+telecom.ic.all  = [ telecom.ic.override;
+                    telecom.ic.LowPowerMode;
+                    telecom.ic.pointing;
+                    telecom.ic.MET_epoch;
+                    telecom.ic.MET ];
+                
+telecom.ic.telecom  = [ telecom.ic.override;
+                        telecom.ic.LowPowerMode;
+                        telecom.ic.pointing ];
 
-% sample the CAN bus at 5 Hz
-CAN.sample_time_s   = fsw_params.sample_time_s; 
-
-% Update fsw.bus initial condition
-CAN.ic.CAN              = [ CAN.ic.override;
-                            CAN.ic.LowPowerMode;
-                            CAN.ic.pointing ];
-
-fsw_params.bus.CAN_ic   = [ CAN.ic.override;
-                            CAN.ic.LowPowerMode;
-                            CAN.ic.pointing ];
+% Sample rate
+telecom.sample_time_s   = fsw_params.sample_time_s; 
 
 % Signal values for simulation
-CAN.override                = 0;
-CAN.LowPowerMode            = 0;
-CAN.pointing                = 1;
-CAN.sync_pulse_s            = 2;
-CAN.MET_epoch               = sim_params.MET.epoch;
+telecom.override                = 0;
+telecom.LowPowerMode            = 0;
+telecom.pointing                = 1;
+telecom.sync_pulse_s            = 2;
+telecom.MET_epoch               = sim_params.MET.epoch;
+
+% Update fsw params
+fsw_params.bus.telecom_ic = [ telecom.ic.override;
+                                telecom.ic.LowPowerMode;
+                                telecom.ic.pointing ];
+fsw_params.bus.sync_pulse_s     = telecom.sync_pulse_s;
 
 end
 
