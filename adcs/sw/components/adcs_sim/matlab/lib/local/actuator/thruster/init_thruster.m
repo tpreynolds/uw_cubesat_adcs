@@ -11,13 +11,9 @@ function thruster = init_thruster(sim_params)
 % ----------------------------------------------------------------------- %
 
 % Initial conditions
-thruster.on             = false;
+thruster.on             = 0;
 thruster.orbit_freq     = 1/3;
-if( thruster.on )
-    thruster.avg_thrust     = 0.36e-3;   %.36 mN of thrust on average
-else
-    thruster.avg_thrust     = 0.0;
-end
+thruster.avg_thrust     = 0.36e-3;   %.36 mN of thrust on average
 thruster.boresight      = [ 0.0; 0.0; -1.0 ]; % point in -zB direction
 thruster.pulse_duration = sim_params.telecom.sync_pulse_s;
 

@@ -20,6 +20,6 @@ actuators.pct_sync_pulse    = 60;
 
 % Actuator assemblies
 actuators.magnetorquer      = init_magnetorquer(fsw_params);
-actuators.reaction_wheel    = init_reaction_wheel_assembly();
+actuators.reaction_wheel    = init_reaction_wheel_assembly(fsw_params);
 
 end

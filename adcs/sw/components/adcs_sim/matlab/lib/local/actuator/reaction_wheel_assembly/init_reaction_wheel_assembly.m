@@ -1,4 +1,4 @@
-function reaction_wheel = init_reaction_wheel_assembly
+function reaction_wheel = init_reaction_wheel_assembly(fsw_params)
 %INIT_RW
 %
 % Initialize all parameters for the reaction wheel model.
@@ -14,11 +14,6 @@ reaction_wheel.ic.rpm       = zeros(3,1);
 reaction_wheel.ic.rt1       = 0;
 reaction_wheel.ic.deriv1    = 0;
 
-% Response Characteristics
-reaction_wheel.natural_freq     = 10;
-reaction_wheel.damping          = 0.8;
-reaction_wheel.rate_limit       = 1000;
-
 % Wheel Characteristics
 reaction_wheel.max_RPM      = 13500;    % RPM
 reaction_wheel.inertia      = 1.788e-06; % kg m^2
@@ -28,6 +23,11 @@ reaction_wheel.delay        = 6.81e-3;  % s WAG
 reaction_wheel.resistance   = 1;     % Ohms WAG
 reaction_wheel.inductance   = 0.071e-3; % Henry WAG
 reaction_wheel.inertia_matrix   = reaction_wheel.inertia * eye(3);
+
+% Approximated response characterisic
+reaction_wheel.dOmega_max       = 3 * fsw_params.constants.convert.radps_2_RPM * ...
+    fsw_params.bus.max_torque * ...
+    reaction_wheel.sample_time_s / reaction_wheel.inertia;
 
 % Motor Characterisitcs
 num  = reaction_wheel.torque_cnst;
