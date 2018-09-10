@@ -1,4 +1,4 @@
-function [ EH,BEm,BEp,ZE ] = foh( OAC )
+function [ EH,BE,ES,ZE ] = foh( OAC )
 % ----------------------------------------------------------------------- %
 %FOH   first order hold discretization
 %
@@ -25,28 +25,39 @@ function [ EH,BEm,BEp,ZE ] = foh( OAC )
 szeA  = OAC.Nx;
 szeB1 = OAC.Nx;
 szeB2 = OAC.Nu;
+szeS  = OAC.Nx;
 szeZ  = OAC.Nx;
 
 % Relevant info from structs
 X       = OAC.X;
 U       = OAC.U;
+s       = OAC.s;
 N       = OAC.N;
-time    = OAC.t;
+time    = OAC.tau;
 len     = length(time)-1;
 x0      = X(1:szeA);
 
+% % Set sizes for each discrete matrix
+% EH                  = zeros(szeA,szeA,len);
+% BEp                 = zeros(szeA,szeB2,len);
+% BEm                 = zeros(szeA,szeB2,len);
+% ES                  = zeros(szeA,1,len);
+% ZE                  = zeros(szeA,1,len);
+
 % Set sizes for each discrete matrix
-EH                  = zeros(szeA,szeA,len);
-BEp                 = zeros(szeA,szeB2,len);
-BEm                 = zeros(szeA,szeB2,len);
-ZE                  = zeros(szeA,1,len);
+EH                  = zeros(szeA*(len+1),szeA*(len+1));
+EH(1:szeA,1:szeA)   = eye(szeA);
+BE                  = zeros(szeA*(len+1),szeB2*(len+1));
+ES                  = zeros(szeA*(len+1),1);
+ZE                  = zeros(szeA*(len+1),1);
 
 % Initial conditions
 A0      = eye(szeA);
 B0p     = zeros(szeB1*szeB2,1);
 B0m     = zeros(szeB1*szeB2,1);
+S0      = zeros(szeS,1);
 Z0      = zeros(szeZ,1);
-P0      = [x0(:); A0(:); B0p(:); B0m(:); Z0(:)];
+P0      = [x0(:); A0(:); B0p(:); B0m(:); S0(:); Z0(:)];
 
 for k = 1:len
     um  = U(szeB2*(k-1)+1:szeB2*(k));
@@ -54,34 +65,44 @@ for k = 1:len
     u   = [reshape(um,3,1) reshape(up,3,1)];
     tspan   = linspace(time(k), time(k+1), N);
     
-    F   = rk4(@(t,X)deriv(t,X,u,tspan,OAC),tspan,P0(:));
+    F   = rk4(@(t,X)deriv(t,X,u,tspan,s,OAC),tspan,P0(:));
     
     xF      = X(szeA*k+1:szeA*(k+1)); 
     AF      = F(end,szeA+1:szeA*(szeA+1));
     BFp     = F(end,szeA*(szeA+1)+1:szeA*(szeA+1)+szeB1*szeB2);
     BFm     = F(end,szeA*(szeA+1)+szeB1*szeB2+1:szeA*(szeA+1)+2*szeB1*szeB2);
-    ZF      = F(end,szeA*(szeA+1)+2*szeB1*szeB2+1:end);
+    SF      = F(end,szeA*(szeA+1)+2*szeB1*szeB2+1:szeA*(szeA+1)+2*szeB1*szeB2+szeS);
+    ZF      = F(end,szeA*(szeA+1)+2*szeB1*szeB2+szeS+1:end);
     
     % Reshape to matrices
     Ad   = reshape(AF,szeA,szeA);
     Bdp  = Ad*reshape(BFp,szeB1,szeB2);
     Bdm  = Ad*reshape(BFm,szeB1,szeB2);
+    Sd   = Ad*reshape(SF,szeS,1);
     Zd   = Ad*reshape(ZF,szeZ,1);
     
     % Redefine initial condition
-    P0 = [xF(:); A0(:); B0p(:); B0m(:); Z0(:)];
+    P0 = [xF(:); A0(:); B0p(:); B0m(:); S0(:); Z0(:)];
+    
+%     % Fill up matrices
+%     EH(:,:,k)   = Ad;
+%     BEm(:,:,k)  = Bdm;
+%     BEp(:,:,k)  = Bdp;
+%     ES(:,:,k)   = Sd;
+%     ZE(:,:,k)   = Zd;
     
     % Fill up matrices
-    EH(:,:,k)   = Ad;
-    BEm(:,:,k)  = Bdm;
-    BEp(:,:,k)  = Bdp;
-    ZE(:,:,k)   = Zd;
+    EH(szeA*(k)+1:szeA*(k+1),szeA*(k-1)+1:szeA*k)       = Ad;
+    BE(szeA*(k)+1:szeA*(k+1),szeB2*(k-1)+1:szeB2*(k))   = Bdm;
+    BE(szeA*(k)+1:szeA*(k+1),szeB2*(k)+1:szeB2*(k+1))   = Bdp;
+    ES(szeA*(k)+1:szeA*(k+1))                           = Sd;
+    ZE(szeA*(k)+1:szeA*(k+1))                           = Zd;
 end
 
 
 end
 
-function DX = deriv(t,X,u,tspan,OAC)
+function DX = deriv(t,X,u,tspan,s,OAC)
     Nx  = OAC.Nx;
     x   = X(1:Nx);
     
@@ -89,13 +110,15 @@ function DX = deriv(t,X,u,tspan,OAC)
     
     Phi = reshape(X(Nx+1:Nx+Nx*Nx),size(A));
        
-    xdot        = f;
-    Phi_dot     = A*Phi;
-    Bdp_dot     = Phi\Bp;
-    Bdm_dot     = Phi\Bm;
-    Zd_dot      = Phi\Z;
+    xdot        = s*f;
+    Phi_dot     = (s*A)*Phi;
+    Bdp_dot     = Phi\(s*Bp);
+    Bdm_dot     = Phi\(s*Bm);
+    Sd_dot      = Phi\f;
+    Zd_dot      = Phi\(s*Z);
     
-    DX      = [ xdot(:); Phi_dot(:); Bdp_dot(:); Bdm_dot(:); Zd_dot(:)];
+    DX      = [ xdot(:); Phi_dot(:); Bdp_dot(:);...
+                Bdm_dot(:); Sd_dot(:); Zd_dot(:)];
 end
 
 function [f,A,Bp,Bm,Z] = get_f_vals(t,x,u,tspan,OAC)
@@ -106,7 +129,10 @@ function [f,A,Bp,Bm,Z] = get_f_vals(t,x,u,tspan,OAC)
     lam_kp  = (t - tkm)/(tkp - tkm);
     
     % Interpolate u
-    uu   = interp1([tkm tkp],u',t,'linear')';
+    uu  = zeros(3,1);
+    for k = 1:3
+        uu(k)   = interp1([tkm tkp],u(k,:),t,'linear');
+    end
 
     % compute jacobian matrices
     [A,B,f] = Q_linearize(t,x,uu,OAC);
@@ -115,6 +141,6 @@ function [f,A,Bp,Bm,Z] = get_f_vals(t,x,u,tspan,OAC)
     Bm  = lam_km*B;
     
     % compute z
-    Z       = f - A*x - B*uu;
+    Z   = - A*x - B*uu;
                            
 end

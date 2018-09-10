@@ -8,7 +8,7 @@ function [ A,B,f ] = Q_linearize( t,x,u,P )
 % T. Reynolds -- RAIN Lab.
 
 % States
-q   = x(1:4)./norm(x(1:4));
+q   = x(1:4);%./norm(x(1:4));
 q0  = q(1);
 qv  = q(2:4);
 w   = x(5:7);
@@ -17,9 +17,8 @@ w   = x(5:7);
 J   = P.inertia;
 
 % Partials
-dfq_dq  = 0.5*[ 0 -w'; w -skew(w) ];
-dfq_dw  = 0.5 * [ q0 -qv'; qv skew(qv)+q0*eye(3) ];
-dfq_dw  = dfq_dw(:,1:3);
+dfq_dq  = 0.5 * [ 0 -w'; w -skew(w) ];
+dfq_dw  = 0.5 * [ -qv'; skew(qv)+q0*eye(3) ];
 dfw_dq  = zeros(3,4);
 dfw_dw  = -J\( skew(w)*J - skew(J*w) );
 dfq_du  = zeros(4,3);

@@ -27,7 +27,7 @@ else
 end
     
 % Kinematics
-dq  = 0.5*[ -dot(qv,w); (q0*eye(3)+skew(qv))*w ];
+dq  = 0.5 * [ -qv'; skew(qv)+q0*eye(3) ] * w;
 % Dynamics
 dw  = P.inertia\(uu - skew(w)*P.inertia*w);
 

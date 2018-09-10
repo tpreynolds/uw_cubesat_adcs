@@ -2,16 +2,9 @@
 %
 % T. Reynolds -- RAIN Lab
 clear variables; close all;
-
 OAC         = struct;
-OAC.Nx      = 7;
-OAC.Nu      = 3;
-OAC.inertia = [ 0.0338    -4.884e-05 -7.393e-05;
-               -4.884e-05  0.0346     7.124e-06;
-               -7.393e-05  7.124e-06  0.0075 ];
-OAC.T_max   = 1e-2;
-OAC.method  = 'linear';
 
+% Boundary Conditions
 % q0  = Q_rand();
 q0  = [ cosd(60/2); sind(60/2); 0; 0 ];
 w0  = [ 0.0; 0.0; 0.0 ];
@@ -21,6 +14,20 @@ wf  = [ 0.0; 0.0; 0.0 ];
 q_err   = quatmultiply(quatconj(q0'),qf')';
 ang_err = 2*acosd(q_err(1));
 OAC.N   = ceil(ang_err/10);
+
+% Controller parameters
+OAC.Nx      = 7;
+OAC.Nu      = 3;
+OAC.inertia = [ 0.0338    -4.884e-05 -7.393e-05;
+               -4.884e-05  0.0346     7.124e-06;
+               -7.393e-05  7.124e-06  0.0075 ];
+OAC.T_max   = 1e-2;
+OAC.method  = 'linear';
+OAC.id_x    = 1:OAC.N*OAC.Nx;
+OAC.id_u    = OAC.id_x(end) + (1:OAC.N*OAC.Nu);
+OAC.id_s    = OAC.id_u(end) + 1;
+OAC.id_v    = OAC.id_s(end) + (1:OAC.N*OAC.Nx);
+OAC.id_etas = OAC.id_v(end) + (1:OAC.N);
 
 % Initial trajectory
 x0      = zeros(7,OAC.N);
@@ -47,46 +54,50 @@ OAC.U   = u0;
 OAC.s   = s0;
 [EH,BE,ES,ZE] = foh(OAC);
 
-cvx_clear
-cvx_tic;
-cvx_begin quiet
-    cvx_solver('ecos')
-    cvx_precision('low')
-    
-    % Variables
-    variables x(OAC.Nx*OAC.N) u(OAC.Nu*OAC.N) v(OAC.Nx*OAC.N)
-    variable s nonnegative
-    variable eta_s
-    
-    % Cost function
-    minimize( s + 1e-1*eta_s + 1e1*norm(v,1) )
-    
-    subject to
-    
-    % Initial conditions
-    x(1:4) == q0;
-    x(5:7) == w0;
-    
-    % Final conditions
-    x(OAC.Nx*(OAC.N-1)+1:OAC.Nx*(OAC.N-1)+4) == qf;
-    x(OAC.Nx*(OAC.N-1)+5:OAC.Nx*OAC.N) == wf;
-    
-    % Time trust region
-    (s-s0)'*(s-s0) <= eta_s;
-    0.5*sqrt((pi/180)*ang_err) <= s <= 4*sqrt((pi/180)*ang_err);
-    
-    % Dynamics
-    x == EH*x + BE*u + ES*s + ZE + v;
-    
-    % Constraints
-    for k = 1:OAC.N        
-%         xk  = x(OAC.Nx*(k-1)+1:OAC.Nx*k);
-        norm(u(OAC.Nu*(k-1)+1:OAC.Nu*k),inf) <= OAC.T_max;
-%         norm(xk(5:7),inf) <= 0.3;
-    end
-    
-    cvx_end
-    sol_time = cvx_toc;
+
+% REPLACE WITH CALL TO ECOS DIRECTLY
+% z = [x; u; s; v; eta_s]
+
+% cvx_clear
+% cvx_tic;
+% cvx_begin quiet
+%     cvx_solver('ecos')
+%     cvx_precision('low')
+%     
+%     % Variables
+%     variables x(OAC.Nx*OAC.N) u(OAC.Nu*OAC.N) v(OAC.Nx*OAC.N)
+%     variable s nonnegative
+%     variable eta_s
+%     
+%     % Cost function
+%     minimize( s + 1e-1*eta_s + 1e1*norm(v,1) )
+%     
+%     subject to
+%     
+%     % Initial conditions
+%     x(1:4) == q0;
+%     x(5:7) == w0;
+%     
+%     % Final conditions
+%     x(OAC.Nx*(OAC.N-1)+1:OAC.Nx*(OAC.N-1)+4) == qf;
+%     x(OAC.Nx*(OAC.N-1)+5:OAC.Nx*OAC.N) == wf;
+%     
+%     % Time trust region
+%     (s-s0)'*(s-s0) <= eta_s;
+%     0.5*sqrt((pi/180)*ang_err) <= s <= 4*sqrt((pi/180)*ang_err);
+%     
+%     % Dynamics
+%     x == EH*x + BE*u + ES*s + ZE + v;
+%     
+%     % Constraints
+%     for k = 1:OAC.N        
+% %         xk  = x(OAC.Nx*(k-1)+1:OAC.Nx*k);
+%         norm(u(OAC.Nu*(k-1)+1:OAC.Nu*k),inf) <= OAC.T_max;
+% %         norm(xk(5:7),inf) <= 0.3;
+%     end
+%     
+%     cvx_end
+%     sol_time = cvx_toc;
     
     % Difference from last solution
     diff        = norm(x - x0,1);
