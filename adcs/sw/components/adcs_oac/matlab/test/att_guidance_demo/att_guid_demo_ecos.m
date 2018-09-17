@@ -2,14 +2,16 @@
 %
 % T. Reynolds -- RAIN Lab
 clear variables; close all;
-OAC         = struct;
+OAC     = struct;
+opts    = ecosoptimset('verbose',0);
 
 % Boundary Conditions
-% q0  = Q_rand();
 q0  = [ cosd(60/2); sind(60/2); 0; 0 ];
 w0  = [ 0.0; 0.0; 0.0 ];
+xi  = [ q0; w0 ];
 qf  = [ 1.0; 0.0; 0.0; 0.0 ];
 wf  = [ 0.0; 0.0; 0.0 ];
+xf  = [ qf; wf ];
 
 q_err   = quatmultiply(quatconj(q0'),qf')';
 ang_err = 2*acosd(q_err(1));
@@ -28,6 +30,14 @@ OAC.id_u    = OAC.id_x(end) + (1:OAC.N*OAC.Nu);
 OAC.id_s    = OAC.id_u(end) + 1;
 OAC.id_v    = OAC.id_s(end) + (1:OAC.N*OAC.Nx);
 OAC.id_etas = OAC.id_v(end) + (1:OAC.N);
+Hx  = [ eye(OAC.N*OAC.Nx) zeros(OAC.N*OAC.Nx,OAC.N*(OAC.Nu+2*OAC.Nx)+2) ];
+Hu  = [ zeros(OAC.N*OAC.Nu,OAC.N*OAC.Nx) eye(OAC.N*OAC.Nu) zeros(OAC.N*OAC.Nu,2*OAC.N*OAC.Nx+2) ];
+Hv  = [ zeros(OAC.N*OAC.Nx) zeros(OAC.N*OAC.Nx,OAC.N*OAC.Nu) ...
+        zeros(OAC.N*OAC.Nx,1) eye(OAC.N*OAC.Nx) zeros(OAC.N*OAC.Nx,OAC.N*OAC.Nx+1) ];
+Hs  = [ zeros(1,OAC.N*(OAC.Nx+OAC.Nu)) 1 zeros(1,2*OAC.N*OAC.Nx+1) ];
+Hes = [ zeros(1,OAC.N*(OAC.Nx+OAC.Nu)) 0 zeros(1,OAC.N*OAC.Nx) 1 zeros(1,OAC.N*OAC.Nx) ];
+Hev = [ zeros(OAC.N*OAC.Nx,OAC.N*(2*OAC.Nx+OAC.Nu)+2) eye(OAC.N*OAC.Nx) ];
+W   = sqrt(Hs'*Hs);
 
 % Initial trajectory
 x0      = zeros(7,OAC.N);
@@ -45,6 +55,7 @@ end
 x0 = reshape(x0,OAC.Nx*OAC.N,1);
 u0 = reshape(u0,OAC.Nu*OAC.N,1);
 ecos_time = 0.0;
+u_max = OAC.T_max * ones(OAC.N*OAC.Nu,1);
 
 % Successive Loop
 for iter = 1:10
@@ -52,11 +63,30 @@ for iter = 1:10
 OAC.X   = x0;
 OAC.U   = u0;
 OAC.s   = s0;
+% Discretize
 [EH,BE,ES,ZE] = foh(OAC);
 
+% Cost function
+c   = [ zeros(1,OAC.N*(OAC.Nx+OAC.Nu)) 1 zeros(1,OAC.N*OAC.Nx) 1e-1*1 1e2*ones(1,OAC.N*OAC.Nx) ];
+% Equality constraints
+A   = sparse([ eye(OAC.Nx) repmat(zeros(OAC.Nx),1,OAC.N-1) zeros(OAC.Nx,OAC.N*OAC.Nu) zeros(OAC.Nx,1) zeros(OAC.Nx,OAC.N*OAC.Nx) zeros(OAC.Nx,1) zeros(OAC.Nx,OAC.N*OAC.Nx);
+        EH-eye(size(EH)) BE ES eye(OAC.Nx*OAC.N) zeros(OAC.N*OAC.Nx,OAC.N*OAC.Nx+1);
+        repmat(zeros(OAC.Nx),1,OAC.N-1) eye(OAC.Nx) zeros(OAC.Nx,OAC.N*OAC.Nu) zeros(OAC.Nx,1) zeros(OAC.Nx,OAC.N*OAC.Nx) zeros(OAC.Nx,1) zeros(OAC.Nx,OAC.N*OAC.Nx) ]);
+b   = [xi; -ZE; xf];
+% Inequality constraints
+Glin    = [ Hs; -Hs; Hu; -Hu; Hv-Hev; -Hv-Hev ];
+Gquad   = [ -(2*s0*Hs+Hes); -W; (2*s0*Hs+Hes) ];
+G       = sparse([ Glin; Gquad ]);
+hlin    = [ 4*sqrt((pi/180)*ang_err); -0.5*sqrt((pi/180)*ang_err); u_max; u_max; zeros(OAC.N*OAC.Nx,1); zeros(OAC.N*OAC.Nx,1) ];
+hquad   = [ 0.5; zeros(size(W,1),1); 0.5 ];
+h       = [ hlin; hquad ];
+% Dimensions
+dims    = struct;
+dims.l  = size(Glin,1);
+dims.q  = size(W,1)+2;
 
-% REPLACE WITH CALL TO ECOS DIRECTLY
-% z = [x; u; s; v; eta_s]
+% Solve with ecos
+[ze,ye,info,~,~] = ecos(c',G,h,dims,A,b,opts);
 
 % cvx_clear
 % cvx_tic;
@@ -65,56 +95,60 @@ OAC.s   = s0;
 %     cvx_precision('low')
 %     
 %     % Variables
-%     variables x(OAC.Nx*OAC.N) u(OAC.Nu*OAC.N) v(OAC.Nx*OAC.N)
-%     variable s nonnegative
-%     variable eta_s
+%     variable z(OAC.N*(3*OAC.Nx+OAC.Nu)+2)
 %     
 %     % Cost function
-%     minimize( s + 1e-1*eta_s + 1e1*norm(v,1) )
+%     minimize( dot(c,z) )
 %     
 %     subject to
-%     
-%     % Initial conditions
-%     x(1:4) == q0;
-%     x(5:7) == w0;
-%     
-%     % Final conditions
-%     x(OAC.Nx*(OAC.N-1)+1:OAC.Nx*(OAC.N-1)+4) == qf;
-%     x(OAC.Nx*(OAC.N-1)+5:OAC.Nx*OAC.N) == wf;
-%     
-%     % Time trust region
-%     (s-s0)'*(s-s0) <= eta_s;
-%     0.5*sqrt((pi/180)*ang_err) <= s <= 4*sqrt((pi/180)*ang_err);
-%     
+%         
+%     % Second order cones
+%     norm([ 0.5*(1+s0^2-dot(2*s0*Hs+Hes,z)); dot(Hs,z) ]) <= 0.5*(1-s0^2+dot(2*s0*Hs+Hes,z)); % time trust region
+%     % Linear cones
+%     Glin*z <= hlin;
+%    
 %     % Dynamics
-%     x == EH*x + BE*u + ES*s + ZE + v;
-%     
-%     % Constraints
-%     for k = 1:OAC.N        
-% %         xk  = x(OAC.Nx*(k-1)+1:OAC.Nx*k);
-%         norm(u(OAC.Nu*(k-1)+1:OAC.Nu*k),inf) <= OAC.T_max;
-% %         norm(xk(5:7),inf) <= 0.3;
-%     end
-%     
+%     b == A * z;
+%         
 %     cvx_end
 %     sol_time = cvx_toc;
     
+    % Compute ECOS states
+    xe   = ze(1:OAC.N*OAC.Nx);
+    ue   = ze(OAC.N*OAC.Nx+1:OAC.N*(OAC.Nx+OAC.Nu));
+    se   = ze(OAC.N*(OAC.Nx+OAC.Nu)+1);
+    ve   = ze(OAC.N*(OAC.Nx+OAC.Nu)+2:OAC.N*(2*OAC.Nx+OAC.Nu)+1);
+    
     % Difference from last solution
-    diff        = norm(x - x0,1);
-    ecos_time   = ecos_time + sol_time(5);
-    x0 = full(x);
-    u0 = full(u);
-    s0 = s;
+%     x   = z(1:OAC.N*OAC.Nx);
+%     u   = z(OAC.N*OAC.Nx+1:OAC.N*(OAC.Nx+OAC.Nu));
+%     s   = z(OAC.N*(OAC.Nx+OAC.Nu)+1);
+%     v   = z(OAC.N*(OAC.Nx+OAC.Nu)+2:OAC.N*(2*OAC.Nx+OAC.Nu)+1);
+    diff        = norm(xe - x0,1);
+    ecos_time   = ecos_time + info.timing.runtime;
+    x0 = full(xe);
+    u0 = full(ue);
+    s0 = se;
     
     % Display iter information
     fprintf('Iter: %d |',iter)
-    fprintf(' Solver Time: %2.2g s |',sol_time(5))
-    fprintf(' HoG: %02.2e |',norm(v,1))
+    fprintf(' Solver time: %2.2g s |',info.timing.runtime)
+    fprintf(' HoG: %02.2e |',norm(ve,1))
     fprintf(' Diff: %02.2e |',diff)
-    fprintf(' t_f: %2.2f \n',s)
+    fprintf(' t_f: %2.2f \n',se)
+%     fprintf(' Solver Time: %2.2g s |',sol_time(5))
+%     fprintf(' HoG: %02.2e |',norm(v,1))
+%     fprintf(' Diff: %02.2e |',diff)
+%     fprintf(' t_f: %2.2f \n',s)
+%     fprintf(' ECOS differences: |')
+%     fprintf(' x: %2.2e',norm(x-xe))
+%     fprintf(' u: %2.2e',norm(u-ue))
+%     fprintf(' s: %2.2e',norm(s-se))
+%     fprintf(' v: %2.2e',norm(v-ve))
+%     fprintf(' Solver Time: %2.2g s \n',info.timing.runtime)
     
     % Check exit condition
-    if( (norm(v,1) < 1e-5) && (diff < 1e-5) )
+    if( (norm(ve,1) < 1e-5) && (diff < 1e-5) )
         break;
     end
 end
@@ -123,12 +157,12 @@ end
 fprintf('Total Solver time: %g s\n',ecos_time)
 
 % Integrate through ODE
-T = linspace(0,s,100);
-OAC.tf  = s;
+T = linspace(0,se,100);
+OAC.tf  = se;
 OAC.t   = linspace(OAC.t0,OAC.tf,OAC.N);
-xopt    = reshape(full(x),OAC.Nx,OAC.N);
-uopt    = reshape(full(u),OAC.Nu,OAC.N);
-X = rk4(@(t,y)Q_ode(OAC,t,y,uopt,OAC.t),T,full(x(1:OAC.Nx)));
+xopt    = reshape(full(xe),OAC.Nx,OAC.N);
+uopt    = reshape(full(ue),OAC.Nu,OAC.N);
+X = rk4(@(t,y)Q_ode(OAC,t,y,uopt,OAC.t),T,full(xe(1:OAC.Nx)));
 
 % Plot
 close all
