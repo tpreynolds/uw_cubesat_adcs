@@ -19,7 +19,8 @@ bus.inertia = [ 0.033800072 -0.0000488358 -0.00007392968;
 bus.solar_panel_unit    = [ 0.0; 1.0; 0.0 ];
 
 % Other parameters
-bus.quat_id                 = [ 1; 0; 0; 0 ];
+% bus.quat_id                 = [ 1; 0; 0; 0 ];
+bus.max_torque              = 5e-5; % [Nm]
 bus.RW_RPM_thresh.max       = 10e3;
 bus.RW_RPM_thresh.min       = 2e3;
 bus.omega_radps_thresh.max  = 0.12;

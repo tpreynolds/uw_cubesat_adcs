@@ -11,5 +11,5 @@ function aero    = init_aero_drag
 % Initialize empty struct
 aero    = struct();
 % Toggle on/off to allow aerodynamic drag as a disturbance torque
-aero.on     = 0;
+aero.on     = 1;
 

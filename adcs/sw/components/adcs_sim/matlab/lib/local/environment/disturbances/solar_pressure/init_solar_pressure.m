@@ -7,7 +7,7 @@ function sol_p = init_solar_pressure(fsw_params)
 % Last Update: S. Rice, 2.16.18
 
 % Toggle 0/1 for turning solar pressure on/off as a disturbance torque
-sol_p.on    = 0;
+sol_p.on    = 1;
 
 sol_p.force_coeff = 4.5e-6; % N/m^2
 

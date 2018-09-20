@@ -28,9 +28,6 @@ wn  = 0.02*2*pi;    % Small natural frequency
 pd_controller.p_gain  = wn^2.*J;
 pd_controller.d_gain  = 2*wn*z.*J;
 
-% Saturation limits
-pd_controller.max_torque = 5e-5; % [ N m ]
-
 end
 
 
