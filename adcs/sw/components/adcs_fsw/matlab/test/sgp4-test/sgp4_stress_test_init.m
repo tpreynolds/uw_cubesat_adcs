@@ -33,7 +33,7 @@ sim_params.environment.sgp4.gps_sec_init   = 154800 + 37.0 - 19.0;
 sim_params.environment.sgp4.gps_week_init  = 2021;
 
 % Toggle the test to run here
-run_test = 5;
+run_test = 4;
 
 %% Test 1
 if( run_test == 1 )
@@ -100,6 +100,7 @@ elseif( run_test == 2 )
     test_TLE    = sgp4.orbit_tle;
     % Do something to the TLE to test case #2.
     % >>> FILL THIS IN <<<
+    warning('Test 2 not set up - too hard to trick the sim into tripping the alarm')
     
     % run the test case
     t_end  = 1;
@@ -121,6 +122,7 @@ elseif( run_test == 3 )
     test_TLE    = sgp4.orbit_tle;
     % Do something to the TLE to test case #3.
     % >>> FILL THIS IN <<<
+    warning('Test 3 not set up - too hard to trick the sim into tripping the alarm')
     
     % run the test case
     t_end  = 1;
@@ -142,6 +144,7 @@ elseif( run_test == 4 )
     test_TLE    = sgp4.orbit_tle;
     % Do something to the TLE to test case #4.
     % >>> FILL THIS IN <<<
+    warning('Test 4 not set up - too hard to trick the sim into tripping the alarm')
     
     % run the test case
     t_end  = 1;
@@ -155,7 +158,7 @@ elseif( run_test == 4 )
     flag_c    = logsout.getElement('SGP4_FLAG').Values.Data;
     for i = 1:length(flag_c)
         if( flag_c(i) == 0 )
-            error('Did not catch divide by zero in case #3')
+            error('Did not catch divide by zero in case #4')
         end
     end
     

@@ -1,13 +1,8 @@
 % run sim init before starting this script
 clc; close all;
 set(0,'defaulttextinterpreter','latex');
-%cd /media/sexymathemagician/LaCie1/uw_cubesat_adcs/adcs/sw/components/adcs_fsw/matlab/test/triad-test/
-addpath(genpath(pwd))
 
 rng(155);
-
-figdir = strcat(pwd,'/figs/');
-datadir = strcat(pwd,'/data/');
 
 % Load parameters for both flight software and simulation
 fsw_params = init_fsw_params();
