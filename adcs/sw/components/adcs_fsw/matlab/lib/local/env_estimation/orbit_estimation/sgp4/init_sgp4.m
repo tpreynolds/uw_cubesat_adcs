@@ -38,6 +38,8 @@ function sgp4   = init_sgp4(fsw_params)
     sgp4.MNM     = sgp4.orbit_tle(9)*REVpD2RADpM;   % [rad/min]
 
     % Compute initial GPS time
-    sgp4.gps_time   = JDUTC_2_GPS(sgp4.JD_UTC_epoch_J2000,fsw_params);
+    sgp4.gps_time       = JDUTC_2_GPS(sgp4.JD_UTC_epoch_J2000,fsw_params);
+    sgp4.gps_week_init  = sgp4.gps_time(2);
+    sgp4.gps_sec_init   = sgp4.gps_time(1);
 
 end
