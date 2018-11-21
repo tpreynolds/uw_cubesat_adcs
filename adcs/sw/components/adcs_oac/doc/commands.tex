@@ -1,0 +1,188 @@
+% Number/Set stuff
+\newcommand{\real}{{\mathbb{R}}}
+\newcommand{\realp}{\real_+}
+\newcommand{\realpp}{\real_{++}}
+\newcommand{\complex}{{\mathbb{C}}}
+\newcommand{\field}{{\mathbb{F}}}
+\newcommand{\realpart}{\mathrm{Re}}
+\newcommand{\impart}{\mathrm{Im}}
+\newcommand{\psd}[1]{\mathbb{S}^{#1}_+}
+\newcommand{\pd}[1]{\mathbb{S^{#1}}_{++}}
+\newcommand{\definedas}{\triangleq}
+
+% Derivatives & Optimization
+\newcommand{\argmin}{\operatorname{argmin}}
+\newcommand{\der}[2]{\frac{d #1}{d #2}}
+\newcommand{\pder}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\sproc}{$\mathcal{S}$-procedure }
+\newcommand{\scvx}{\texttt{SCvx}}
+
+% Coordinate frames
+\newcommand{\inertial}{\mathcal{I}}
+\newcommand{\body}{\mathcal{B}}
+\newcommand{\landing}{\mathcal{O}}
+\newcommand{\cframe}[2]{\mathcal{#1}_{#2}}
+\newcommand{\Fbody}{\cframe{F}{\body}}
+\newcommand{\Finertial}{\cframe{F}{\inertial}}
+\newcommand{\DCM}[2]{C_{{#1} \rightarrow {#2}}}
+\newcommand{\cItoB}{C_{\body \leftarrow \inertial}}
+\newcommand{\cBtoI}{C_{\inertial \leftarrow \body}}
+\newcommand{\cBO}{C_{\landing/\body}}
+\newcommand{\cOB}{C_{\body/landing}}
+\newcommand{\xI}{\bm{x}_{\inertial}}
+\newcommand{\yI}{\bm{y}_{\inertial}}
+\newcommand{\zI}{\bm{z}_{\inertial}}
+\newcommand{\xB}{\bm{x}_{\body}}
+\newcommand{\yB}{\bm{y}_{\body}}
+\newcommand{\zB}{\bm{z}_{\body}}
+
+% Time 
+\newcommand{\tf}{t_f}
+\newcommand{\ti}{t_0}
+\newcommand{\tfmin}{t_{f,\min}}
+\newcommand{\tfmax}{t_{f,\max}}
+
+% States
+\newcommand{\Hq}{H_{\q}}
+\newcommand{\Hw}{H_{\omega}}
+
+% General math
+\newcommand{\dg}{^{\circ}}
+\newcommand{\zeros}[2]{0_{#1 \times #2}}
+\newcommand{\eye}[1]{I_{#1}}
+\newcommand{\blkdiag}{\mathop{\bf blkdiag}}
+\newcommand{\spec}[1]{\mathop{\bf spec}\left\lbrace #1 \right\rbrace}
+\newcommand{\diag}{\mathop{\bf diag}}
+\newcommand{\eig}[1]{\mathop{\bf eig}\left\lbrace #1 \right\rbrace}
+
+% Rigid bodies
+%\newcommand{\skew}[1]{{#1}^{\times}}
+\newcommand{\gI}{\bm{g}_{\inertial}}
+\newcommand{\gB}{\bm{g}_{\body}}
+\newcommand{\JB}{J_{\body}}
+\newcommand{\FI}{\bm{F}_{\inertial}}
+\newcommand{\FB}{\bm{F}_{\body}}
+\newcommand{\rI}{\bm{r}_{\inertial}}
+\newcommand{\rIb}{\bar{\bm{r}}_{\inertial}}
+\newcommand{\rB}{\bm{r}_{\body}}
+\newcommand{\rBb}{\bar{\bm{r}}_{\body}}
+\newcommand{\vI}{\bm{v}_{\inertial}}
+\newcommand{\vB}{\bm{v}_{\body}}
+\newcommand{\vIb}{\bar{\bm{v}}_{\inertial}}
+\newcommand{\vBb}{\bar{\bm{v}}_{\body}}
+\newcommand{\wB}{\bm{\omega}_{\body}}
+\newcommand{\wBb}{\bar{\bm{\omega}}_{\body}}
+\newcommand{\TB}{\bm{T}_{\body}}
+\newcommand{\TBb}{\bar{\bm{T}}_{\body}}
+\newcommand{\uB}{\bm{u}_{\body}}
+\newcommand{\uI}{\bm{u}_{\inertial}}
+\newcommand{\xb}{\bar{\bm{x}}}
+\newcommand{\ub}{\bar{\bm{u}}}
+\newcommand{\uBb}{\bar{\bm{u}}_{\body}}
+\newcommand{\tauI}{\bm{\tau}_{\inertial}}
+\newcommand{\tauIb}{\bar{\bm{\tau}}_{\inertial}}
+\newcommand{\tauB}{\bm{\tau}_{\body}}
+\newcommand{\tauBb}{\bar{\bm{\tau}}_{\body}}
+
+\newcommand{\mi}{m_{\text{dry}}}
+\newcommand{\mf}{m_{\text{wet}}}
+\newcommand{\ri}[1]{\bm{r}_{#1,0}}
+\newcommand{\vi}[1]{\bm{v}_{#1,0}}
+\newcommand{\wi}{\bm{\omega}_{\body,i}}
+\newcommand{\Ti}[1]{\bm{T}_{#1,i}}
+\newcommand{\mk}{m_{k}}
+\newcommand{\rk}[1]{\bm{r}_{#1,k}}
+\newcommand{\vk}[1]{\bm{v}_{#1,k}}
+\newcommand{\wk}{\bm{\omega}_{\body,k}}
+\newcommand{\Tk}[1]{\bm{T}_{#1,k}}
+\newcommand{\uk}[1]{\bm{u}_{#1,k}}
+\newcommand{\mN}{m_{f}}
+\newcommand{\rf}[1]{\bm{r}_{#1,f}}
+\newcommand{\vf}[1]{\bm{v}_{#1,f}}
+\newcommand{\wf}{\bm{\omega}_{\body,N}}
+\newcommand{\Tf}[1]{\bm{T}_{#1,f}}
+\newcommand{\uf}[1]{\bm{u}_{#1,f}}
+
+\newcommand{\mdot}{\dot{m}}
+\newcommand{\rdot}{\dot{\bm{r}}_{\inertial}}
+\newcommand{\vdot}{\dot{\bm{v}}_{\inertial}}
+\newcommand{\wdot}{\dot{\bm{\omega}}_{\body}}
+
+% constraints
+\newcommand{\vmax}{v_{\max}}
+\newcommand{\wmax}{\omega_{\max}}
+\newcommand{\gimbal}{\delta_{\max}}
+\newcommand{\los}{\xi}
+\newcommand{\losmax}{\los_{\max}}
+\newcommand{\losvec}{\bm{p}_{\body}}
+\newcommand{\rLoSI}{\bm{r}_{d,\inertial}}
+\newcommand{\rLoSB}{\bm{r}_{d,\body}}
+\newcommand{\gs}{\gamma}
+\newcommand{\gsmax}{\gamma_{\max}}
+\newcommand{\gsvec}{\zI}
+\newcommand{\tiltmax}{\theta_{\max}}
+\newcommand{\tilt}{\theta}
+\newcommand{\Tmin}{T_{\min}}
+\newcommand{\Tmax}{T_{\max}}
+\newcommand{\umin}{u_{\min}}
+\newcommand{\umax}{u_{\max}}
+\newcommand{\dTmax}{\dot{T}_{\max}}
+\newcommand{\dumax}{\dot{u}_{\max}}
+\newcommand{\ME}{\tilde{M}_e}
+\newcommand{\MI}{\tilde{M}_i}
+
+% Quaternions & dual quaternions
+\newcommand{\q}{\bm{q}}
+\newcommand{\qb}{\bar{\q}}
+\newcommand{\qi}[1]{\q_{i}}
+\newcommand{\qdot}{\dot{\q}}
+\newcommand{\dq}[1]{\tilde{\bm{#1}}}
+\newcommand{\dqgB}{\dq{\bm{g}}_{\body}}
+\newcommand{\dqgI}{\dq{\bm{g}}_{\inertial}}
+\newcommand{\dqq}{\dq{q}}
+\newcommand{\dqb}{\bar{\dqq}}
+\newcommand{\dqw}{\dq{\omega}}
+\newcommand{\dqx}{\dq{x}}
+\newcommand{\dqu}{\dq{u}}
+\newcommand{\dqdot}[1]{\dot{\tilde{\bm{#1}}}}
+\newcommand{\qskew}[1]{[ #1 ]_{\otimes}}
+\newcommand{\qskewstar}[1]{[ #1 ]_{\otimes}^*}
+\newcommand{\qcross}[1]{ [ #1 ]_{\oslash}}
+\newcommand{\qcrossstar}[1]{ [ #1 ]_{\oslash}^*}
+\newcommand{\It}{\tilde{\bm{I}}_8}
+
+% Optimization & SCvx
+\newcommand{\Jthree}{J_{3-\text{DoF}}}
+\newcommand{\Jsix}{J_{6-\text{DoF}}}
+\newcommand{\Jpp}{J_{\text{pinpoint}}}
+\newcommand{\Jsoft}{J_{\text{soft-land}}}
+\newcommand{\Jminerr}[1]{J_{\text{min-error},#1}}
+\newcommand{\xxo}{\bar{\bm{x}}}
+\newcommand{\uuo}{\bar{\bm{u}}}
+\newcommand{\sso}{\bar{\sigma}}
+\newcommand{\wv}{w_{\nu}}
+
+%% theorems and stuff
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{definition}{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{remarks}[theorem]{Remarks}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}{Proposition}
+\newtheorem{constraint}{Constraint}
+\newtheorem{problem}{Problem}
+
+% Other
+\newcommand{\eqnref}[1]{(\ref{#1})}
+\newcommand{\class}[1]{\texttt{#1}}
+\newcommand{\package}[1]{\texttt{#1}}
+\newcommand{\file}[1]{\texttt{#1}}
+\newcommand{\BibTeX}{\textsc{Bib}\TeX}
+\definecolor{commentgreen}{RGB}{0, 153, 0}
+\newcommand{\todo}[1]{{\color{blue}(TODO: #1)}}
+\newcommand{\comment}[1]{{\color{commentgreen}(#1)}}
+\newcommand{\code}[1]{\texttt{#1}}

@@ -56,10 +56,10 @@ cvx_begin quiet
     % Variables
     variables x(OAC.Nx*OAC.N) u(OAC.Nu*OAC.N) v(OAC.Nx*OAC.N)
     variable s nonnegative
-    variable eta_s
+%     variable eta_s
     
     % Cost function
-    minimize( s + 1e-1*eta_s + 1e1*norm(v,1) )
+    minimize( s  + 1e1*norm(v,1) ) %+ 1e-1*eta_s
     
     subject to
     
@@ -72,7 +72,7 @@ cvx_begin quiet
     x(OAC.Nx*(OAC.N-1)+5:OAC.Nx*OAC.N) == wf;
     
     % Time trust region
-    (s-s0)'*(s-s0) <= eta_s;
+%     (s-s0)'*(s-s0) <= eta_s;
     0.5*sqrt((pi/180)*ang_err) <= s <= 4*sqrt((pi/180)*ang_err);
     
     % Dynamics

@@ -12,3 +12,13 @@ slprj/
 *.pyd
 *.pyo
 *.autosave
+
+# LaTeX files
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.pdf
+*.xml
+*.synctex.gz
