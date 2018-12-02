@@ -171,7 +171,7 @@ cvx_begin quiet
     
     % Check exit condition
     if( (norm(ve,1) < 1e-5) && (diff < 1e-5) )
-        fprintf('Converged.\n')
+        fprintf('Converged.\n\n')
         break;
     end
 end

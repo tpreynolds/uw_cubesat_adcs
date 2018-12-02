@@ -22,6 +22,16 @@ q_err   = quatmultiply(quatconj(q0'),qf')';
 ang_err = 2*acosd(q_err(1));
 OAC.N   = ceil(ang_err/10);
 
+% Constraints
+Hq      = [ eye(4) zeros(4,3) ];
+xI      = [ 1.0; 0.0; 0.0 ];        % Inertial vector
+yB      = [ 0.0; 0.0; -1.0 ];       % Body vector
+amax    = deg2rad(60);              % min. separating angle
+Me      = [ xI*yB'+yB*xI'-(xI'*yB)*eye(3)   skew(xI)*yB;
+            (skew(xI)*yB)'                  xI'*yB ] - cos(amax)*eye(4);
+ME      = Me + 2*eye(4);     % M_tilde
+% ME      = sqrtm(Mt);        % Exclusion constraint matrix
+
 % Initial trajectory
 x0      = zeros(7,OAC.N);
 u0      = zeros(3,OAC.N);
@@ -80,8 +90,9 @@ cvx_begin quiet
     
     % Constraints
     for k = 1:OAC.N        
-%         xk  = x(OAC.Nx*(k-1)+1:OAC.Nx*k);
+        xk  = x(OAC.Nx*(k-1)+1:OAC.Nx*k);
         norm(u(OAC.Nu*(k-1)+1:OAC.Nu*k),inf) <= OAC.T_max;
+        xk'*Hq'*Mt*Hq*xk <= 2;
 %         norm(xk(5:7),inf) <= 0.3;
     end
     
@@ -104,6 +115,7 @@ cvx_begin quiet
     
     % Check exit condition
     if( (norm(v,1) < 1e-5) && (diff < 1e-5) )
+        fprintf('Converged.\n\n')
         break;
     end
 end
