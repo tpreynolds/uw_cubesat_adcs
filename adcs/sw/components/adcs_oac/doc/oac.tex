@@ -23,6 +23,56 @@
  
 \maketitle
 
+\section{Convex Optimization}
+
+\subsection{Convex Cones}
+
+Each proper cone $\cone$ defines a \textit{generalized inequality} such that we may write $G \bm{z} \conleq h$ if and only if $h - G \bm{z} \in \cone$. In particular we shall care about two cones, the \textit{linear cones} and the \textit{quadratic cones}. Linear cones are denoted by the set 
+\begin{equation}
+\lcone{n} = \{ \bm{z}\in\real^n \,|\, \bm{z} \geq 0 \},
+\label{eq:lcone_set}
+\end{equation}
+where the inequality is understood pointwise. The linear cones are the nonnegative orthants in $\real^n$. The second cone that we will deal with are the second order cones, each of which are a set $\qcone{n+1}$ defined by
+\begin{equation}
+\qcone{n+1} = \big\{ (z_0,\bm{z}_n)\in\real\times\real^n \,|\, z_0 \geq \| \bm{z}_n \|_2 \big\}.
+\label{eq:soc_set}
+\end{equation}
+
+
+To see how these are used to express various constraints as second order cone constraints, first note that a standard quadratic form is expressed as
+\begin{equation}
+\bm{x}^T A ^T A \bm{x} + b^T \bm{x} + c \leq 0
+\label{eq:soc_quad}
+\end{equation}
+where $(A,b,c) \in \real^{n\times n} \times \real^n \times \real$ are constant constraint parameters. In standard form, this constraint is expressed by
+\begin{equation}
+\biggr\| \begin{bmatrix}
+A \bm{x} \\ \frac{1}{\sqrt{2}}( 1 + c + b^T \bm{x} )
+\end{bmatrix} \biggr\|_2 \leq \frac{1}{\sqrt{2}} ( 1 - b^T \bm{x} - c),
+\label{eq:soc_std}
+\end{equation} 
+The proof of which follows from some straight-forward algebra. Now observe that according to the definition in~\eqref{eq:soc_set} we would like
+\begin{equation*}
+\begin{bmatrix}
+\frac{1}{\sqrt{2}} ( 1 - b^T \bm{x} - c) \\
+A \bm{x} \\
+\frac{1}{\sqrt{2}} ( 1 + b^T \bm{x} + c)
+\end{bmatrix} \in \qcone{n+2}
+\end{equation*}
+It should be clear that the first entry in the vector about is equivalent to $z_0$ in~\eqref{eq:soc_set}, and the remaining rows are equivalent to $\bm{z}_n$. Now, ECOS would like the matrix-vector pair $(G,h)$ such that $h-G\bm{x}\in\qcone{n+2}$, and so we set
+\begin{equation}
+h \definedas \begin{bmatrix}
+\frac{1}{\sqrt{2}}( 1 - c ) \\ \zeros{n}{1} \\ \frac{1}{\sqrt{2}}(1+c)
+\end{bmatrix} \quad G \definedas \begin{bmatrix}
+\frac{b^T}{\sqrt{2}} \\ -A \\ -\frac{b^T}{\sqrt{2}}.
+\end{bmatrix}
+\end{equation}
+Now, the pair $(G,h)$ may be passed to ECOS to represent the quadratic constraint~\eqref{eq:soc_quad}.
+
+
+
+\section{Problem Formulation}
+
 The continuous time optimal control problem to be solved is as follows. 
 \begin{problem}\label{prob:prob1}
 Find the time $\tf\in(\ti,\tfmax]$ and torque commands $\uB : (\ti,\tfmax] \rightarrow \real^3$ such that

@@ -2,6 +2,7 @@
 %
 % T. Reynolds -- RAIN Lab
 clear variables; close all;
+global my_ECOS
 
 OAC         = struct;
 OAC.Nx      = 7;
@@ -13,14 +14,15 @@ OAC.T_max   = 1e-2;
 OAC.method  = 'linear';
 
 % q0  = Q_rand();
-q0  = [ cosd(60/2); sind(60/2); 0; 0 ];
+q0  = [ cosd(60/2); 0; sind(60/2); 0 ];
 w0  = [ 0.0; 0.0; 0.0 ];
 qf  = [ 1.0; 0.0; 0.0; 0.0 ];
 wf  = [ 0.0; 0.0; 0.0 ];
 
 q_err   = quatmultiply(quatconj(q0'),qf')';
 ang_err = 2*acosd(q_err(1));
-OAC.N   = ceil(ang_err/10);
+% OAC.N   = ceil(ang_err/10);
+OAC.N = 10;
 
 % Constraints
 Hq      = [ eye(4) zeros(4,3) ];
@@ -92,7 +94,7 @@ cvx_begin quiet
     for k = 1:OAC.N        
         xk  = x(OAC.Nx*(k-1)+1:OAC.Nx*k);
         norm(u(OAC.Nu*(k-1)+1:OAC.Nu*k),inf) <= OAC.T_max;
-        xk'*Hq'*Mt*Hq*xk <= 2;
+        xk'*Hq'*ME*Hq*xk <= 2;
 %         norm(xk(5:7),inf) <= 0.3;
     end
     
