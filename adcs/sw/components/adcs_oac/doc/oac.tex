@@ -104,13 +104,14 @@ First, we split the maneuver into $N$ evenly spaced temporal intervals. Since we
 \varphi_{err} = 2*\cos^{-1} \left( \big[ \q(\tf)^* \otimes \q(\ti) \big]_{\text{s}} \right),
 \label{eq:err_angle}
 \end{equation}
-where the operation $[\cdot]_{\text{s}}$ extracts the scalar part of a quaternion. Assuming that a linearization is valid over $\zeta$ degrees, the number of discretization nodes is computed as 
-\begin{equation}
-N = \lceil \frac{\varphi_{err}}{\zeta} \rceil.
-\label{eq:N}
-\end{equation}
+where the operation $[\cdot]_{\text{s}}$ extracts the scalar part of a quaternion. 
+% Assuming that a linearization is valid over $\zeta$ degrees, the number of discretization nodes is computed as 
+% \begin{equation}
+% N = \lceil \frac{\varphi_{err}}{\zeta} \rceil.
+% \label{eq:N}
+% \end{equation}
 
-We now discretize time into $N$ evenly spaced intervals 
+We now discretize time into $N$ evenly spaced intervals, where the size of each interval should be such that a linearization of our equations of motion remains roughly valid. For now we proceed with $N\in[5,10]$. 
 \begin{equation}
 \ti < t_1 < \ldots < t_{N-1} < \tf
 \end{equation}
@@ -118,40 +119,109 @@ and represent the discretized time using $k \definedas t_k$. Now, instead of the
 
 I'm leaving out a bunch of details for now, but the discretization method leads to
 \begin{equation}
-\bm{X} = A \bm{X} + B \bm{U} + S s + \bm{Z}
+\bm{X} = A \bm{X} + B \bm{U} + S s + \bm{R}
 \label{eq:discrete_dynamics}
 \end{equation}
-where $\{A,B,S,Z\}$ are computed in the code by either \code{zoh.m} or \code{foh.m}. The constraints are all ``discretized'' by simply applying them at the discrete temporal nodes only. 
+where $\{\bm{A},\bm{B},\bm{S},\bm{R}\}$ are computed in the code by either \code{zoh.m} or \code{foh.m}. The constraints are all ``discretized'' by simply applying them at the discrete temporal nodes only. 
 
 \paragraph{Virtual Control}
 
 To guide the convergence process, we introduce a new term to address the issue of \textit{artificial infeasibility}. This stems from the fact that the linearization may produce an infeasible interation if there does not exists some admissible control that satisfies~\eqref{eq:discrete_dynamics}. We augment the dynamics with a virtual control term that allows us to synthetically retain feasibility according to
 \begin{equation}
-\bm{X} = A \bm{X} + B \bm{U} + S s + \bm{Z} + \bm{V}
+\bm{X} = A \bm{X} + B \bm{U} + \bm{S} s + \bm{R} + \bm{V}
 \label{eq:VC_discrete_dynamics}
 \end{equation}
 where $\bm{V}$ can be thought of as an unconstrained input that needn't respect the physical dynamics of the problem. We heavily penalize the use of virtual control (so that we only use it when absolutely necessary) by augmenting the cost function to be $\tf + \wv \| \bm{V} \|_1$.
 
 After these modifications, we now have a convex parameter optimization problem that can be run on-board the spacecraft. 
 
-\begin{problem}
+\begin{problem}\label{prob:prob2}
 Find the final time $s$ and the control $\bm{U}\in\real^{3 \times N}$ such that
-\begin{subequations}
+\begin{subequations}\label{eq:prob2}
 \begin{align}
-\min_{s,\bm{U},\bm{X},\bm{V}} &\quad s + \wv \| \bm{V} \|_1 \\
-\text{subject to:} &\quad \bm{X} = A \bm{X} + B \bm{U} + S s + \bm{Z} + \bm{V} \\
-&\quad \| \Hw \bm{x}_k \|_{\infty} \leq \wmax, \quad k=0,\ldots,N \\ 
-&\quad \| \bm{u}_k \|_{\infty} \leq \umax, \quad k=0,\ldots,\{N \text{ or } N-1\} \\
-&\quad \bm{x}_k^T \Hq^T \ME \Hq \bm{x}_k < 2, \quad k=0,\ldots,N \\
-&\quad \bm{x}_k^T \Hq^T \MI \Hq \bm{x}_k < 2, \quad k=0,\ldots,N \\
-&\quad \tfmin \leq s \leq \tfmax \\
-&\quad \bm{x}_0 = \big[ \q_0^T \; 0^T \big]^T, \; \bm{x}_N = \big[ \q_f^T \; 0^T \big]^T
+\min_{s,\bm{U},\bm{X},\bm{V}} &\quad s + \wv \| \bm{V} \|_1 \label{eq:p2_a}\\
+\text{subject to:} &\quad \bm{X} = A \bm{X} + B \bm{U} + \bm{S} s + \bm{R} + \bm{V} \label{eq:p2_b}\\
+&\quad \| \Hw \bm{x}_k \|_{\infty} \leq \wmax, \quad k=0,\ldots,N \label{eq:p2_c}\\ 
+&\quad \| \bm{u}_k \|_{\infty} \leq \umax, \quad k=0,\ldots,\{N \text{ or } N-1\} \label{eq:p2_d}\\
+&\quad \bm{x}_k^T \Hq^T \ME \Hq \bm{x}_k < 2, \quad k=0,\ldots,N \label{eq:p2_e}\\
+&\quad \bm{x}_k^T \Hq^T \MI \Hq \bm{x}_k < 2, \quad k=0,\ldots,N \label{eq:p2_f}\\
+&\quad \tfmin \leq s \leq \tfmax \label{eq:p2_g}\\
+&\quad \bm{x}_0 = \big[ \q_0^T \; 0^T \big]^T, \; \bm{x}_N = \big[ \q_f^T \; 0^T \big]^T \label{eq:p2_h}
 \end{align}
 \end{subequations}
 where $\bm{X} = \big[ \bm{x}_0^T \; \bm{x}_1^T \; \ldots \; \bm{x}_{N}^T ]^T \in \real^{7 \times N}$ and similarly for $\bm{U}$. Moreover, $\Hq = \big[ \eye{4} \; \zeros{4}{3} \big]$ and $\Hw = \big[ \zeros{3}{4} \; \eye{3} \big]$.
 \end{problem}
 
 \paragraph{Standard Form of Constraints}
+
+Let us say that our combined \textit{solution vector} is 
+\begin{equation*}
+\bm{Z} = \begin{bmatrix}
+\bm{X}^T & \bm{U}^T & s & \bm{V}^T & \bm{\eta}_v^T
+\end{bmatrix} \in \real^{n_z}
+\end{equation*}
+where $n_z = N(3N_x + N_u)+1$. We will first map the cost function to standard form for second-order cone problems. The cost function must be linear, and so we will use the epigraph form to rewrite the cost function~\eqref{eq:p2_a} as
+\begin{equation}
+\bm{c}^T \bm{Z}, \quad \bm{c} = \big[ \zeros{1}{N n_x} \ \zeros{1}{N n_u} \ 1 \ \zeros{1}{N n_x} \ w_{\eta} \ones{1}{N n_x} \big]
+\label{eq:std_cost}
+\end{equation}
+and add the following linear constraint to Problem~\ref{prob:prob2}
+\begin{equation}
+- \bm{\eta}_v \leq \bm{V} \leq \bm{\eta}_v.
+\label{eq:p2_epi}
+\end{equation}
+
+We can thenwrite the equality constraints~\eqref{eq:p2_b} and~\eqref{eq:p2_h} as
+\begin{equation}
+\begin{bmatrix}
+\big[ \eye{n_x} \ \zeros{n_x}{(N-1)n_x}] & \zeros{n_x}{N n_u} & \zeros{n_x}{1} & \zeros{n_x}{N n_x} & \zeros{n_x}{N n_x} \\
+\bm{A} - \eye{N n_x} & \bm{B} & \bm{S} & \eye{N n_x} & \zeros{N n_x}{N n_x} \\
+\big[ \zeros{n_x}{(N-1)n_x} \ \eye{n_x} \big] & \zeros{n_x}{N n_u} & \zeros{n_x}{1} & \zeros{n_x}{Nn_x} & \zeros{n_x}{N n_x}
+\end{bmatrix} \bm{Z} = \begin{bmatrix}
+\bm{x}_0 \\ -\bm{R} \\ \bm{x}_f
+\end{bmatrix}.
+\label{eq:std_equality}
+\end{equation}
+The linear inequality constraints in~\eqref{eq:p2_c}, \eqref{eq:p2_d}, \eqref{eq:p2_g} and \eqref{eq:p2_epi} are expressed as
+\begin{equation}
+\begin{bmatrix}
+H_w^T \\ - H_w^T \\ H_u^T \\ - H_u^T \\ H_s^T \\ - H_s^T \\ H_v^T - H_{\eta_v}^T \\ -H_v - H_{\eta_v}^T
+\end{bmatrix} \bm{Z} \leq \begin{bmatrix}
+w_{\max} \ones{3N}{1} \\ w_{\max} \ones{3N}{1} \\ u_{\max} \ones{N n_u}{1} \\ u_{\max} \ones{N n_u}{1} \\ t_{f,\max} \\ -t_{f,\min} \\ \zeros{N n_x}{1} \\ \zeros{N n_x}{1}
+\end{bmatrix},
+\label{eq:std_ineq_lin}
+\end{equation}
+where,
+\begin{gather*}
+H_u = \begin{bmatrix}
+\zeros{N n_x}{N n_u} \\ \eye{N n_u} \\ \zeros{2 N n_x + 1}{N n_u}
+\end{bmatrix}, \quad H_s = \begin{bmatrix}
+\zeros{N(n_x+n_u)}{1} \\ 1 \\ \zeros{2N n_x}{1}
+\end{bmatrix}, \quad H_v = \begin{bmatrix}
+\zeros{N (n_x+n_u) + 1}{N n_x} \\ \eye{N n_x} \\ \zeros{N n_x}{N n_x} 
+\end{bmatrix}  \\
+H_{\eta_v} = \begin{bmatrix}
+\zeros{N(2n_x+n_u)+1}{N n_x} \\ \eye{N n_x}
+\end{bmatrix}
+\bar{H}_w = \begin{bmatrix}
+\big[ \zeros{3}{4} \ \eye{3} \big] & \zeros{3}{n_x} & \cdots & \zeros{3}{n_x} \\
+\vdots & \ddots & \ddots & \vdots \\
+\zeros{3}{n_x} & \zeros{3}{n_x} & \cdots & \big[ \zeros{3}{4} \ \eye{3} \big]
+\end{bmatrix} \quad H_w = \begin{bmatrix}
+\bar{H}_w \\ \zeros{N (2n_x+n_u)+1}{3N} 
+\end{bmatrix}
+\end{gather*}
+Without any quadratic constraints, we may now write Problem~\ref{prob:prob2} in standard form as
+\begin{problem}
+Find the vector $\bm{Z}\in\real^{n_z}$ such that
+\begin{subequations}\label{eq:prob2}
+\begin{align}
+\min_{\bm{Z}} &\quad \bm{c}^T \bm{Z} \tag{\ref{eq:std_cost}}\\
+\text{subject to:} &\quad A \bm{Z} = b \tag{\ref{eq:std_equality}} \\
+&\quad G_{lin} \bm{Z} \leq h_{lin} \tag{\ref{eq:std_ineq_lin}}
+\end{align}
+\end{subequations}
+\end{problem}
 
 
 \end{document}

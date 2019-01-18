@@ -21,12 +21,12 @@ M       = [ xI*yB'+yB*xI'-(xI'*yB)*eye(3)   skew(xI)*yB;
             (skew(xI)*yB)'                  xI'*yB ] - cos(amax)*eye(4);
 Mt      = M + 2*eye(4);     % M_tilde
 ME      = sqrtm(Mt);        % Exclusion constraint matrix
-smin    = 1;
-smax    = 5;
+smin    = 0.5;
+smax    = 15;
 
 q_err   = quatmultiply(quatconj(q0'),qf')';
 ang_err = 2*acosd(q_err(1));
-OAC.N   = ceil(ang_err/7.5);
+OAC.N   = 10;
 
 % Controller parameters
 OAC.Nx      = 7;
@@ -34,21 +34,25 @@ OAC.Nu      = 3;
 OAC.inertia = [ 0.0338    -4.884e-05 -7.393e-05;
                -4.884e-05  0.0346     7.124e-06;
                -7.393e-05  7.124e-06  0.0075 ];
-OAC.T_max   = 1e-2;
+OAC.T_max   = 1e-2; % 10mNm
+OAC.w_max   = 0.3;  % rad/s
+OAC.w_v     = 1e2; 
 OAC.method  = 'linear';     % discretization method
 % Indices
 OAC.id_x    = 1:OAC.N*OAC.Nx;
 OAC.id_u    = OAC.id_x(end) + (1:OAC.N*OAC.Nu);
 OAC.id_s    = OAC.id_u(end) + 1;
 OAC.id_v    = OAC.id_s(end) + (1:OAC.N*OAC.Nx);
-OAC.id_etas = OAC.id_v(end) + (1:OAC.N);
-Hx  = [ eye(OAC.N*OAC.Nx) zeros(OAC.N*OAC.Nx,OAC.N*(OAC.Nu+2*OAC.Nx)+2) ];
-Hu  = [ zeros(OAC.N*OAC.Nu,OAC.N*OAC.Nx) eye(OAC.N*OAC.Nu) zeros(OAC.N*OAC.Nu,2*OAC.N*OAC.Nx+2) ];
+% OAC.id_etas = OAC.id_v(end) + (1:OAC.N);
+OAC.id_etav = OAC.id_v(end) + (1:OAC.N*OAC.Nx);
+Hx  = [ eye(OAC.N*OAC.Nx) zeros(OAC.N*OAC.Nx,OAC.N*(OAC.Nu+2*OAC.Nx)+1) ];
+Hw  = [ kron(eye(OAC.N),[zeros(3,4) eye(3)]) zeros(3*OAC.N,OAC.N*(OAC.Nu+2*OAC.Nx)+1) ];
+Hu  = [ zeros(OAC.N*OAC.Nu,OAC.N*OAC.Nx) eye(OAC.N*OAC.Nu) zeros(OAC.N*OAC.Nu,2*OAC.N*OAC.Nx+1) ];
 Hv  = [ zeros(OAC.N*OAC.Nx) zeros(OAC.N*OAC.Nx,OAC.N*OAC.Nu) ...
-        zeros(OAC.N*OAC.Nx,1) eye(OAC.N*OAC.Nx) zeros(OAC.N*OAC.Nx,OAC.N*OAC.Nx+1) ];
-Hs  = [ zeros(1,OAC.N*(OAC.Nx+OAC.Nu)) 1 zeros(1,2*OAC.N*OAC.Nx+1) ];
-Hes = [ zeros(1,OAC.N*(OAC.Nx+OAC.Nu)) 0 zeros(1,OAC.N*OAC.Nx) 1 zeros(1,OAC.N*OAC.Nx) ];
-Hev = [ zeros(OAC.N*OAC.Nx,OAC.N*(2*OAC.Nx+OAC.Nu)+2) eye(OAC.N*OAC.Nx) ];
+        zeros(OAC.N*OAC.Nx,1) eye(OAC.N*OAC.Nx) zeros(OAC.N*OAC.Nx,OAC.N*OAC.Nx) ];
+Hs  = [ zeros(1,OAC.N*(OAC.Nx+OAC.Nu)) 1 zeros(1,2*OAC.N*OAC.Nx) ];
+% Hes = [ zeros(1,OAC.N*(OAC.Nx+OAC.Nu)) 0 zeros(1,OAC.N*OAC.Nx) 1 zeros(1,OAC.N*OAC.Nx) ];
+Hev = [ zeros(OAC.N*OAC.Nx,OAC.N*(2*OAC.Nx+OAC.Nu)+1) eye(OAC.N*OAC.Nx) ];
 W   = sqrt(Hs'*Hs);
 
 % Initial trajectory
@@ -68,6 +72,7 @@ x0 = reshape(x0,OAC.Nx*OAC.N,1);
 u0 = reshape(u0,OAC.Nu*OAC.N,1);
 ecos_time = 0.0;
 u_max = OAC.T_max * ones(OAC.N*OAC.Nu,1);
+w_max = OAC.w_max * ones(OAC.N*3,1);
 
 % Successive Loop
 for iter = 1:10
@@ -82,72 +87,42 @@ else
     [EH,BE,ES,ZE] = zoh(OAC);
 end
 
-% % Cost function
-c   = [ zeros(1,OAC.N*(OAC.Nx+OAC.Nu)) 1 zeros(1,OAC.N*OAC.Nx) 1e-1*1 1e2*ones(1,OAC.N*OAC.Nx) ];
-% % Equality constraints
-A   = sparse([ eye(OAC.Nx) repmat(zeros(OAC.Nx),1,OAC.N-1) zeros(OAC.Nx,OAC.N*OAC.Nu) zeros(OAC.Nx,1) zeros(OAC.Nx,OAC.N*OAC.Nx) zeros(OAC.Nx,1) zeros(OAC.Nx,OAC.N*OAC.Nx);
-        EH-eye(size(EH)) BE ES eye(OAC.Nx*OAC.N) zeros(OAC.N*OAC.Nx,OAC.N*OAC.Nx+1);
-        repmat(zeros(OAC.Nx),1,OAC.N-1) eye(OAC.Nx) zeros(OAC.Nx,OAC.N*OAC.Nu) zeros(OAC.Nx,1) zeros(OAC.Nx,OAC.N*OAC.Nx) zeros(OAC.Nx,1) zeros(OAC.Nx,OAC.N*OAC.Nx) ]);
+% Cost function
+c   = [ zeros(1,OAC.N*(OAC.Nx+OAC.Nu)) 1 zeros(1,OAC.N*OAC.Nx) OAC.w_v*ones(1,OAC.N*OAC.Nx) ];
+% Equality constraints
+A   = sparse([ eye(OAC.Nx) repmat(zeros(OAC.Nx),1,OAC.N-1) zeros(OAC.Nx,OAC.N*OAC.Nu) zeros(OAC.Nx,1) zeros(OAC.Nx,OAC.N*OAC.Nx) zeros(OAC.Nx,OAC.N*OAC.Nx);
+        EH-eye(size(EH)) BE ES eye(OAC.Nx*OAC.N) zeros(OAC.N*OAC.Nx,OAC.N*OAC.Nx);
+        repmat(zeros(OAC.Nx),1,OAC.N-1) eye(OAC.Nx) zeros(OAC.Nx,OAC.N*OAC.Nu) zeros(OAC.Nx,1) zeros(OAC.Nx,OAC.N*OAC.Nx) zeros(OAC.Nx,OAC.N*OAC.Nx) ]);
 b   = [xi; -ZE; xf];
-% % Inequality constraints
-Glin    = [ Hs; -Hs; Hu; -Hu; Hv-Hev; -Hv-Hev ];
+% Inequality constraints
+Glin    = [ Hw; -Hw; Hu; -Hu; Hs; -Hs; Hv-Hev; -Hv-Hev ];
 % Gquad   = [ -(2*s0*Hs+Hes); -W; (2*s0*Hs+Hes) ];
 % G       = sparse([ Glin; Gquad ]);
-hlin    = [ 4*sqrt((pi/180)*ang_err); -0.5*sqrt((pi/180)*ang_err); u_max; u_max; zeros(OAC.N*OAC.Nx,1); zeros(OAC.N*OAC.Nx,1) ];
+G       = sparse(Glin);
+hlin    = [ w_max; w_max; ...               % wmax sized right already
+            u_max; u_max; ...               % umax sized right already
+            smax; -smin; ...
+            zeros(OAC.N*OAC.Nx,1); zeros(OAC.N*OAC.Nx,1) ];
 % hquad   = [ 0.5; zeros(size(W,1),1); 0.5 ];
 % h       = [ hlin; hquad ];
+h   = hlin;
 % % Dimensions
-% dims    = struct;
-% dims.l  = size(Glin,1);
-% dims.q  = size(W,1)+2;
-% 
-% % Solve with ecos
-% [ze,ye,info,~,~] = ecos(c',G,h,dims,A,b,opts);
+dims    = struct;
+dims.l  = size(Glin,1);
+dims.q  = []; %size(W,1)+2;
 
-cvx_clear
-cvx_tic;
-cvx_begin quiet
-    cvx_solver('ecos')
-    cvx_precision('low')
-    
-    % Variables
-    variable ze(OAC.N*(3*OAC.Nx+OAC.Nu)+2)
-    
-    % Cost function
-    minimize( dot(c,ze) )
-    
-    subject to
-        
-    % Second order cones
-    norm([ 0.5*(1+s0^2-dot(2*s0*Hs+Hes,ze)); dot(Hs,ze) ]) <= 0.5*(1-s0^2+dot(2*s0*Hs+Hes,ze)); % time trust region
-    % Linear cones
-    Glin*ze <= hlin;
-   
-    % Dynamics
-    b == A * ze;
-    
-    % Quadratic constraints
-    for k = 1:OAC.N
-        qk  = ze(OAC.Nx*(k-1)+1:OAC.Nx*(k-1)+4);
-        norm( ME*qk ) <= 2;
-    end
-        
-    cvx_end
-    sol_time = cvx_toc;
+% Solve with ecos
+[ze,ye,info,~,~] = ecos(c',G,h,dims,A,b,opts);
     
     % Compute ECOS states
-    xe   = ze(1:OAC.N*OAC.Nx);
-    ue   = ze(OAC.N*OAC.Nx+1:OAC.N*(OAC.Nx+OAC.Nu));
-    se   = ze(OAC.N*(OAC.Nx+OAC.Nu)+1);
-    ve   = ze(OAC.N*(OAC.Nx+OAC.Nu)+2:OAC.N*(2*OAC.Nx+OAC.Nu)+1);
+    xe   = ze(OAC.id_x);
+    ue   = ze(OAC.id_u);
+    se   = ze(OAC.id_s);
+    ve   = ze(OAC.id_v);
     
     % Difference from last solution
-%     x   = z(1:OAC.N*OAC.Nx);
-%     u   = z(OAC.N*OAC.Nx+1:OAC.N*(OAC.Nx+OAC.Nu));
-%     s   = z(OAC.N*(OAC.Nx+OAC.Nu)+1);
-%     v   = z(OAC.N*(OAC.Nx+OAC.Nu)+2:OAC.N*(2*OAC.Nx+OAC.Nu)+1);
     diff        = norm(xe - x0,1);
-%     ecos_time   = ecos_time + info.timing.runtime;
+    ecos_time   = ecos_time + info.timing.runtime;
     x0 = full(xe);
     u0 = full(ue);
     s0 = se;
@@ -158,16 +133,6 @@ cvx_begin quiet
     fprintf(' HoG: %02.2e |',norm(ve,1))
     fprintf(' Diff: %02.2e |',diff)
     fprintf(' t_f: %2.2f \n',se)
-%     fprintf(' Solver Time: %2.2g s |',sol_time(5))
-%     fprintf(' HoG: %02.2e |',norm(v,1))
-%     fprintf(' Diff: %02.2e |',diff)
-%     fprintf(' t_f: %2.2f \n',s)
-%     fprintf(' ECOS differences: |')
-%     fprintf(' x: %2.2e',norm(x-xe))
-%     fprintf(' u: %2.2e',norm(u-ue))
-%     fprintf(' s: %2.2e',norm(s-se))
-%     fprintf(' v: %2.2e',norm(v-ve))
-%     fprintf(' Solver Time: %2.2g s \n',info.timing.runtime)
     
     % Check exit condition
     if( (norm(ve,1) < 1e-5) && (diff < 1e-5) )
@@ -206,6 +171,8 @@ title('Attitude Quaternion')
 subplot(2,1,2), hold on, grid on
 plot(T,X(:,5:7),'LineWidth',1)
 plot(OAC.t,xopt(5:7,:),'ko','MarkerSize',3)
+plot([0 se],[OAC.w_max OAC.w_max],'r--','LineWidth',1)
+plot([0 se],[-OAC.w_max -OAC.w_max],'r--','LineWidth',1)
 xlabel('Time [s]')
 title('Angular Velocity')
 
