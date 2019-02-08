@@ -160,9 +160,6 @@ static void mdlOutputs(SimStruct *S, int_T tid)
 		exitflag = ECOS_FATAL;
 	}
  
-	/* clean up memory */
-	ECOS_cleanup(mywork, 0);
-
 	int_T i;
 	InputRealPtrsType uPtrs = ssGetInputPortRealSignalPtrs(S,0);
 	real_T *y = ssGetOutputPortRealSignal(S,0);
@@ -174,6 +171,9 @@ static void mdlOutputs(SimStruct *S, int_T tid)
 		*y++ = 2.0 * (*uPtrs[i]);
 	}
 	*exitcode = exitflag;
+
+	/* clean up memory */
+	ECOS_cleanup(mywork, 0);
 }
 
 static void mdlTerminate(SimStruct *S)
