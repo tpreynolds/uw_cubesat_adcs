@@ -1,7 +1,7 @@
 % Constrained Attitude Guidance Proof of Concept
 %
 % T. Reynolds -- RAIN Lab
-clear variables; close all;
+% clear variables; close all;
 OAC     = struct;
 opts    = ecosoptimset('verbose',0);
 
@@ -64,7 +64,7 @@ OAC.tf  = s0;
 OAC.t   = linspace(OAC.t0,OAC.tf,OAC.N);
 OAC.tau = linspace(OAC.t0,1,OAC.N);
 [qb,flag] = Q_SLERP(q0,qf,OAC.t);
-for k = 1:OAC.N-1
+for k = 1:OAC.N
     x0(:,k)   = [ qb(:,k); zeros(3,1) ];
     u0(:,k)     = zeros(3,1);
 end
