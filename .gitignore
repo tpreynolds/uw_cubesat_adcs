@@ -6,6 +6,7 @@ slprj/
 *_rtw/
 *.original
 *.r2016a
+*.mat
 
 # Python
 *.pyc
@@ -22,3 +23,11 @@ slprj/
 *.pdf
 *.xml
 *.synctex.gz
+
+# C
+*.o
+*.a
+
+# MEX FILES
+*.mexmaci64
+*.tlc
