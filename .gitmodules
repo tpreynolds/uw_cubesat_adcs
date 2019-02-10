@@ -1,3 +1,1 @@
-[submodule "adcs/sw/components/adcs_oac/c/ecos"]
-	path = adcs/sw/components/adcs_oac/c/ecos
-	url = https://github.com/embotech/ecos
+

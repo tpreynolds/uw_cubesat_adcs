@@ -13,7 +13,7 @@
 clear variables; close all; clc
 addpath(genpath(pwd))
 addpath(genpath('../../adcs_fsw/matlab/'))
-% addpath(genpath('../../adcs_bdot/matlab/'))
+addpath(genpath('../../adcs_oac/'))
 
 % Load bus stub definitions
 load('bus_definitions.mat')
