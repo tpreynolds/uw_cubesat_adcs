@@ -4,12 +4,13 @@
 % clear variables; close all;
 OAC     = struct;
 opts    = ecosoptimset('verbose',0);
-
+rng(2)
 % Boundary Conditions
-q0  = [ cosd(60/2); sind(60/2); 0; 0 ];
-w0  = [ 0.0; 0.0; 0.0 ];
+n   = [1;1;1]./norm([1;1;1]);
+q0  = [ cosd(60/2); sind(60/2).*n ];
+w0  = 0.01.*randn(3,1);%[ 0.0; 0.0; 0.0 ];
 xi  = [ q0; w0 ];
-qf  = [ 1.0; 0.0; 0.0; 0.0 ];
+qf  = [ cosd(30/2); sind(30/2).*n ];
 wf  = [ 0.0; 0.0; 0.0 ];
 xf  = [ qf; wf ];
 
@@ -34,7 +35,7 @@ OAC.Nu      = 3;
 OAC.inertia = [ 0.0338    -4.884e-05 -7.393e-05;
                -4.884e-05  0.0346     7.124e-06;
                -7.393e-05  7.124e-06  0.0075 ];
-OAC.T_max   = 1e-2; % 10mNm
+OAC.T_max   = 1e-3; % 1mNm
 OAC.w_max   = 0.3;  % rad/s
 OAC.w_v     = 1e2; 
 OAC.method  = 'linear';     % discretization method

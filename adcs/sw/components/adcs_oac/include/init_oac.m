@@ -13,9 +13,9 @@
 % y_size   = 4;
 
 c_size   = 241;
-Air_size = 642;
+Air_size = 921;
 Ajc_size = 242;
-Apr_size = 642;
+Apr_size = 921;
 b_size  = 84;
 Gir_size = 402;
 Gjc_size = 242;
