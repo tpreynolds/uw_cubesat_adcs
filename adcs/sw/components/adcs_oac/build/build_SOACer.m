@@ -1,8 +1,12 @@
+%BUILD_SOACER
+%
 % Convex optimization call is written with the C API for the ECOS solver
 % This file converts this C code to a MEX file for use in Simulink as an 
 % S-function.
-
+%
 % Run this file from the BUILD directory
+%
+% Courtesy D. Malyuta
 
 %% Compilation parameters
 def = legacy_code('initialize');
