@@ -51,9 +51,9 @@ fprintf('===========================\n')
 fprintf('SOACer UNIT TEST RESULTS:\n')
 fprintf('===========================\n')
 fprintf('Over %d trials: \n',num_sims)
-fprintf('The mean total solution time is: %0.5f +/- %0.5f sec (3-sigma)\n',...
+fprintf('The mean total solution time is: %0.5f +/- %0.5f sec \n',...
             mean_time,threesig_time)
-fprintf('Able to call the function at: %0.2f Hz (3-sigma)\n\n',hertz)
+fprintf('Able to call the function at: %0.2f Hz \n\n',hertz)
 
 
 % Integrate through ODE
