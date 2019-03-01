@@ -50,6 +50,7 @@ fsw_params.control.p_dump           = init_momentum_dump(fsw_params);
 fsw_params.control.cmd_processing   = init_cmd_processing(fsw_params);
 fsw_params.control.sun_point        = init_sun_point(fsw_params);
 fsw_params.control.bdot             = init_bdot_controller(fsw_params);
+fsw_params.control.gnc2             = init_gnc2();
 % ----------------------------------------------------------------------- %
 
 % ----------------------- Ground Station Prediction --------------------- %
