@@ -1,6 +1,8 @@
 %INIT_SOACer
 %
-% Sets the static container size for optimization problem variables.
+% Sets the static container size for optimization problem variables. This
+% file is used only to build the S-function. These sizes MUST BE stored in
+% fsw_params.control.gnc2 as well.
 %
 % Courtesy of D. Malyuta
 
