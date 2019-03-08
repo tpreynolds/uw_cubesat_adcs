@@ -13,8 +13,8 @@ OAC.inertia = [ 0.0338    -4.884e-05 -7.393e-05;
 OAC.T_max   = 1e-2;
 OAC.method  = 'linear';
 
-% q0  = Q_rand();
-q0  = [ cosd(60/2); 0; sind(60/2); 0 ];
+q0  = Q_rand(4);
+% q0  = [ cosd(60/2); 0; sind(60/2); 0 ];
 w0  = [ 0.0; 0.0; 0.0 ];
 qf  = [ 1.0; 0.0; 0.0; 0.0 ];
 wf  = [ 0.0; 0.0; 0.0 ];
@@ -53,52 +53,54 @@ ecos_time = 0.0;
 
 % Successive Loop
 for iter = 1:10
-
-OAC.X   = x0;
-OAC.U   = u0;
-OAC.s   = s0;
-[EH,BE,ES,ZE] = foh(OAC);
-
-cvx_clear
-cvx_tic;
-cvx_begin quiet
-    cvx_solver('ecos')
-    cvx_precision('low')
     
-    % Variables
-    variables x(OAC.Nx*OAC.N) u(OAC.Nu*OAC.N) v(OAC.Nx*OAC.N)
-    variable s nonnegative
-%     variable eta_s
+    OAC.X   = x0;
+    OAC.U   = u0;
+    OAC.s   = s0;
+    [EH,BE,ES,ZE] = foh(OAC);
     
-    % Cost function
-    minimize( s  + 1e1*norm(v,1) ) %+ 1e-1*eta_s
+    cvx_clear
+    cvx_tic;
+        cvx_begin quiet
+        cvx_solver('ecos')
+        cvx_precision('low')
     
-    subject to
+        % Variables
+        variables x(OAC.Nx*OAC.N) u(OAC.Nu*OAC.N) v(OAC.Nx*OAC.N)
+        variable s nonnegative
+        variable g nonnegative
     
-    % Initial conditions
-    x(1:4) == q0;
-    x(5:7) == w0;
+        % Cost function
+        minimize( g + 1e1*norm(v,1) ) %+ 1e-1*eta_s
     
-    % Final conditions
-    x(OAC.Nx*(OAC.N-1)+1:OAC.Nx*(OAC.N-1)+4) == qf;
-    x(OAC.Nx*(OAC.N-1)+5:OAC.Nx*OAC.N) == wf;
+        subject to
     
-    % Time trust region
-%     (s-s0)'*(s-s0) <= eta_s;
-    0.5*sqrt((pi/180)*ang_err) <= s <= 4*sqrt((pi/180)*ang_err);
+        % Initial conditions
+        x(1:4) == q0;
+        x(5:7) == w0;
     
-    % Dynamics
-    x == EH*x + BE*u + ES*s + ZE + v;
+        % Final conditions
+        x(OAC.Nx*(OAC.N-1)+1:OAC.Nx*(OAC.N-1)+4) == qf;
+        x(OAC.Nx*(OAC.N-1)+5:OAC.Nx*OAC.N) == wf;
     
-    % Constraints
-    for k = 1:OAC.N        
-        xk  = x(OAC.Nx*(k-1)+1:OAC.Nx*k);
-        norm(u(OAC.Nu*(k-1)+1:OAC.Nu*k),inf) <= OAC.T_max;
-        xk'*Hq'*ME*Hq*xk <= 2;
-%         norm(xk(5:7),inf) <= 0.3;
-    end
+        % Time trust region
+        0.5*sqrt((pi/180)*ang_err) <= s <= 10;%4*sqrt((pi/180)*ang_err);
+    
+        % Dynamics
+        x == EH*x + BE*u + ES*s + ZE + v;
+    
+        % Constraints
+        for k = 1:OAC.N
+            xk  = x(OAC.Nx*(k-1)+1:OAC.Nx*k);
+            uk = u(OAC.Nu*(k-1)+1:OAC.Nu*k);
+            norm(u(OAC.Nu*(k-1)+1:OAC.Nu*k),inf) <= OAC.T_max;
+            %         xk'*Hq'*ME*Hq*xk <= 2;
+            norm(xk(5:7),inf) <= 0.3;
+        end
+        u'*u <= g;
     
     cvx_end
+    
     sol_time = cvx_toc;
     
     % Difference from last solution
@@ -116,7 +118,7 @@ cvx_begin quiet
     fprintf(' t_f: %2.2f \n',s)
     
     % Check exit condition
-    if( (norm(v,1) < 1e-5) && (diff < 1e-5) )
+    if( (norm(v,1) < 1e-5) && (diff < 1e-1) )
         fprintf('Converged.\n\n')
         break;
     end
@@ -126,7 +128,7 @@ end
 fprintf('Total Solver time: %g s\n',ecos_time)
 
 % Integrate through ODE
-T = linspace(0,s,100);
+T       = linspace(0,s,100);
 OAC.tf  = s;
 OAC.t   = linspace(OAC.t0,OAC.tf,OAC.N);
 xopt    = reshape(full(x),OAC.Nx,OAC.N);
@@ -151,5 +153,3 @@ figure(2), hold on, grid on
 plot(OAC.t,uopt,'LineWidth',1)
 xlabel('Time [s]')
 title('Control Signal')
-
-
