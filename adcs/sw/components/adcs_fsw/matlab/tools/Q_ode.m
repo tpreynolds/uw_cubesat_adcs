@@ -18,6 +18,7 @@ q   = q./norm(q);
 q0  = q(1);
 qv  = q(2:4);
 w   = x(5:7);
+hw  = x(8:10);
 
 % Get control
 if( nargin < 5 )
@@ -29,10 +30,11 @@ end
 % Kinematics
 dq  = 0.5 * [ -qv'; skew(qv)+q0*eye(3) ] * w;
 % Dynamics
-dw  = P.inertia\(uu - skew(w)*P.inertia*w);
+dw  = P.inertia\(uu - skew(w)* (P.inertia*w + hw) );
+dhw = -uu;
 
 % Output
-dx  = [ dq; dw ];
+dx  = [ dq; dw; dhw ];
 
 end
 

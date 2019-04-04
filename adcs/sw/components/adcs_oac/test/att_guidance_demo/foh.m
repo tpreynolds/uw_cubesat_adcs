@@ -1,4 +1,4 @@
-function [ EH,BE,ES,ZE ] = foh( OAC )
+function [ EH,BE,ES,ZE,R ] = foh( OAC )
 % ----------------------------------------------------------------------- %
 %FOH   first order hold discretization
 %
@@ -50,6 +50,7 @@ EH(1:szeA,1:szeA)   = eye(szeA);
 BE                  = zeros(szeA*(len+1),szeB2*(len+1));
 ES                  = zeros(szeA*(len+1),1);
 ZE                  = zeros(szeA*(len+1),1);
+R                   = zeros(N,1);
 
 % Initial conditions
 A0      = eye(szeA);
@@ -67,7 +68,7 @@ for k = 1:len
     
     F   = rk4(@(t,X)deriv(t,X,u,tspan,s,OAC),tspan,P0(:));
     
-    xF      = X(szeA*k+1:szeA*(k+1)); 
+    xF      = F(end,1:szeA);
     AF      = F(end,szeA+1:szeA*(szeA+1));
     BFp     = F(end,szeA*(szeA+1)+1:szeA*(szeA+1)+szeB1*szeB2);
     BFm     = F(end,szeA*(szeA+1)+szeB1*szeB2+1:szeA*(szeA+1)+2*szeB1*szeB2);
@@ -75,6 +76,7 @@ for k = 1:len
     ZF      = F(end,szeA*(szeA+1)+2*szeB1*szeB2+szeS+1:end);
     
     % Reshape to matrices
+    xd   = reshape(xF,szeA,1);
     Ad   = reshape(AF,szeA,szeA);
     Bdp  = Ad*reshape(BFp,szeB1,szeB2);
     Bdm  = Ad*reshape(BFm,szeB1,szeB2);
@@ -82,7 +84,8 @@ for k = 1:len
     Zd   = Ad*reshape(ZF,szeZ,1);
     
     % Redefine initial condition
-    P0 = [xF(:); A0(:); B0p(:); B0m(:); S0(:); Z0(:)];
+    x0 = X(szeA*k+1:szeA*(k+1));
+    P0 = [x0(:); A0(:); B0p(:); B0m(:); S0(:); Z0(:)];
     
 %     % Fill up matrices
 %     EH(:,:,k)   = Ad;
@@ -97,6 +100,7 @@ for k = 1:len
     BE(szeA*(k)+1:szeA*(k+1),szeB2*(k)+1:szeB2*(k+1))   = Bdp;
     ES(szeA*(k)+1:szeA*(k+1))                           = Sd;
     ZE(szeA*(k)+1:szeA*(k+1))                           = Zd;
+    R(k+1)                                              = norm(xd-x0,2);
 end
 
 
