@@ -146,6 +146,8 @@ end
 fprintf('Total Solver time: %g s\n',ecos_time)
 
 % Integrate through ODE
+Jw  = diag([2.9382e-05,2.9382e-05,2.9382e-05]);
+Om0 = 0.10471975511966 * [ 1000;1000;1000 ]; % initial wheel speeds [rad/s]
 T = linspace(0,se,100);
 OAC.tf  = se;
 OAC.t   = linspace(OAC.t0,OAC.tf,OAC.N);
@@ -154,7 +156,8 @@ uopt    = reshape(full(ue),OAC.Nu,OAC.N);
 if( strcmp(OAC.method,'previous') )
    uopt = [ uopt(:,2:end) uopt(:,end) ]; 
 end
-X = rk4(@(t,y)Q_ode(OAC,t,y,uopt,OAC.t),T,full(xe(1:OAC.Nx)));
+x0 = [ full(xe(1:OAC.Nx)); Jw*Om0 ];
+X  = rk4(@(t,y)Q_ode_p(OAC,t,y,uopt,OAC.t),T,x0);
 
 for k = 1:OAC.N
     qk          = X(k,1:4);
@@ -177,7 +180,8 @@ plot([0 se],[-OAC.w_max -OAC.w_max],'r--','LineWidth',1)
 xlabel('Time [s]')
 title('Angular Velocity')
 
-figure(2), hold on, grid on
+figure(2)
+subplot(2,1,1), hold on, grid on
 if( strcmp(OAC.method,'linear') )
     plot(OAC.t,uopt,'LineWidth',1)
 else
@@ -185,11 +189,15 @@ else
 end
 xlabel('Time [s]')
 title('Control Signal')
+subplot(2,1,2), hold on, grid on
+plot(T,X(:,8:10),'LineWidth',1)
+xlabel('Time [s]')
+title('Wheel Momentum')
 
-figure(3), hold on, grid on
-plot(OAC.t,E_val,'LineWidth',1)
-plot([0 OAC.t(end)],[2 2],'r--','LineWidth',1)
-xlabel('Time [s]') 
-title('Exclusion constraint')
+% figure(3), hold on, grid on
+% plot(OAC.t,E_val,'LineWidth',1)
+% plot([0 OAC.t(end)],[2 2],'r--','LineWidth',1)
+% xlabel('Time [s]') 
+% title('Exclusion constraint')
 
 

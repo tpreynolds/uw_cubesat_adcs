@@ -1,4 +1,4 @@
-function [ EH,BE,ES,ZE,R ] = foh( OAC )
+function [ EH,BE,ES,ZE,R ] = foh_p( OAC )
 % ----------------------------------------------------------------------- %
 %FOH   first order hold discretization
 %

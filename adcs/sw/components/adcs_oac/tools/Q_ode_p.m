@@ -1,4 +1,4 @@
-function [ dx ] = Q_ode( P,t,x,u,ut )
+function [ dx ] = Q_ode_p( P,t,x,u,ut )
 %F_ROT  Rotational equations of motion
 %
 % f_rot(P,t,x,u) outputs the RHS of the quaternion based attitude
@@ -17,7 +17,8 @@ q   = x(1:4);
 q   = q./norm(q);
 q0  = q(1);
 qv  = q(2:4);
-w   = x(5:7);
+hb  = x(5:7);
+hw  = x(8:10);
 
 % Get control
 if( nargin < 5 )
@@ -27,12 +28,13 @@ else
 end
     
 % Kinematics
-dq  = 0.5 * [ -qv'; skew(qv)+q0*eye(3) ] * w;
+dq  = 0.5 * [ -qv'; skew(qv)+q0*eye(3) ] * (P.inertia\hb);
 % Dynamics
-dw  = P.inertia\( uu - skew(w) * (P.inertia*w) );
+dhb = -uu + skew(hb + hw) * (P.inertia\hb);
+dhw = uu;
 
 % Output
-dx  = [ dq; dw ];
+dx  = [ dq; dhb; dhw ];
 
 end
 

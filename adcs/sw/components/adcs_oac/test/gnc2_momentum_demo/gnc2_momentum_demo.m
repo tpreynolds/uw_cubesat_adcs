@@ -14,22 +14,22 @@ OAC.inertia = [ 0.0338    -4.884e-05 -7.393e-05;
 OAC.Jw      = diag([2.9382e-05,2.9382e-05,2.9382e-05]);
 OAC.Om0     = 0.10471975511966 * [ 1000;1000;1000 ]; % initial wheel speeds [rad/s]
 OAC.T_max   = 3.2e-3; % Nm
-OAC.s_min   = 10; % s
+OAC.s_min   = 15; % s
 OAC.s_max   = 20; % s
 OAC.method  = 'linear';
 
-q0  = Q_rand(4);
-% q0  = [ cosd(60/2); 0; sind(60/2); 0 ];
-w0  = [ 0.0; 0.0; 0.0 ];
+% q0  = Q_rand(4);
+q0  = [ cosd(60/2); 0; sind(60/2); 0 ];
+hb0  = [ 0.0; 0.0; 0.0 ];
 hw0 = OAC.Jw * OAC.Om0;
 qf  = [ 1.0; 0.0; 0.0; 0.0 ];
-wf  = [ 0.0; 0.0; 0.0 ];
+hbf  = [ 0.0; 0.0; 0.0 ];
 
 % Constraints
 Hq      = [ eye(4) zeros(4,6) ];
 xI      = [ 1.0; 0.0; 0.0 ];        % Inertial vector
 yB      = [ 0.0; 0.0; -1.0 ];       % Body vector
-yyB      = [ 0.5*sqrt(2); 0.5*sqrt(2); 0.0 ]; % Body vector
+yyB     = [ 0.5*sqrt(2); 0.5*sqrt(2); 0.0 ]; % Body vector
 amin    = deg2rad(60);              % min. separating angle
 amax    = deg2rad(90);              % max. separating angle
 Me      = [ xI*yB'+yB*xI'-(xI'*yB)*eye(3)   skew(xI)*yB;
@@ -58,7 +58,7 @@ u0 = reshape(u0,OAC.Nu*OAC.N,1);
 ecos_time = 0.0;
 
 % initial trust region
-% W = 1e-1 * ones(OAC.N,1);
+W = 1e-1 * ones(OAC.N,1);
 % Rmin = 0.01;
 
 % Successive Loop
@@ -67,7 +67,7 @@ for iter = 1:10
     OAC.X   = x0;
     OAC.U   = u0;
     OAC.s   = s0;
-    [EH,BE,ES,ZE,~] = foh(OAC);
+    [EH,BE,ES,ZE,~] = foh_p(OAC);
     
     % update trust region
 %     for k = 2:OAC.N
@@ -88,21 +88,22 @@ for iter = 1:10
         variables x(OAC.Nx*OAC.N) u(OAC.Nu*OAC.N) v(OAC.Nx*OAC.N)
         variable s nonnegative
         variable g nonnegative
-%         variable ee(OAC.N,1)
+%         variable ee(OAC.N) nonnegative
     
         % Cost function
-        minimize( g + 1e1*norm(v,1) ) %+ 1e0*(W'*ee) )
+        minimize( g + 1e2*norm(v,1) )% + 5e0*sum(ee) )
     
         subject to
     
         % Initial conditions
         x(1:4)  == q0;
-        x(5:7)  == w0;
+        x(5:7)  == hb0;
         x(8:10) == hw0;
     
         % Final conditions
         x(OAC.Nx*(OAC.N-1)+(1:4)) == qf;
-        x(OAC.Nx*(OAC.N-1)+(5:7)) == wf;
+        x(OAC.Nx*(OAC.N-1)+(5:7)) == hbf;
+%         x(OAC.Nx*(OAC.N-1)+(8:10)) == hw0;
     
         % Time bound
         OAC.s_min <= s <= OAC.s_max;
@@ -113,10 +114,10 @@ for iter = 1:10
         % Constraints
         for k = 1:OAC.N
             xk = x(OAC.Nx*(k-1)+1:OAC.Nx*k);
-            uk = u(OAC.Nu*(k-1)+1:OAC.Nu*k);
+%             uk = u(OAC.Nu*(k-1)+1:OAC.Nu*k);
             norm(u(OAC.Nu*(k-1)+1:OAC.Nu*k),inf) <= OAC.T_max;
 %             xk'*Hq'*ME*Hq*xk <= 2;
-%             xk'*Hq'*MI*Hq*xk <= 2;
+            xk'*Hq'*MI*Hq*xk <= 2;
             norm(xk(5:7),inf) <= 0.3;
             % Trust region
 %             (uk-u0(OAC.Nu*(k-1)+1:OAC.Nu*k))'*(uk-u0(OAC.Nu*(k-1)+1:OAC.Nu*k)) <= ee(k);
@@ -158,7 +159,7 @@ OAC.tf  = s;
 OAC.t   = linspace(OAC.t0,OAC.tf,OAC.N);
 xopt    = reshape(full(x),OAC.Nx,OAC.N);
 uopt    = reshape(full(u),OAC.Nu,OAC.N);
-X = rk4(@(t,y)Q_ode(OAC,t,y,uopt,OAC.t),T,full(x(1:OAC.Nx)));
+X = rk4(@(t,y)Q_ode_p(OAC,t,y,uopt,OAC.t),T,full(x(1:OAC.Nx)));
 
 % Plot
 close all
