@@ -5,14 +5,32 @@
 OAC     = struct;
 opts    = ecosoptimset('verbose',0);
 rng(2)
+
+% Controller parameters
+N = 10; OAC.N = N; 
+Nx = 10; OAC.Nx = Nx;
+Nu = 3; OAC.Nu = Nu; 
+OAC.inertia = [ 0.0338    -4.884e-05 -7.393e-05;
+               -4.884e-05  0.0346     7.124e-06;
+               -7.393e-05  7.124e-06  0.0075 ];
+OAC.Jw      = diag([2.9382e-05,2.9382e-05,2.9382e-05]);
+OAC.Om0     = 0.10471975511966 * [ 1000;1000;1000 ]; % initial wheel speeds [rad/s]
+OAC.T_max   = 3.2e-3; % 1mNm
+OAC.w_max   = 0.3;  % rad/s
+OAC.s_min   = 15;   % s
+OAC.s_max   = 20;   % s
+OAC.w_v     = 1e4;  % weight
+OAC.method  = 'linear';     
+
 % Boundary Conditions
 n   = [1;1;1]./norm([1;1;1]);
 q0  = [ cosd(60/2); sind(60/2).*n ];
-w0  = 0.01.*randn(3,1);%[ 0.0; 0.0; 0.0 ];
-xi  = [ q0; w0 ];
-qf  = [ cosd(30/2); sind(30/2).*n ];
-wf  = [ 0.0; 0.0; 0.0 ];
-xf  = [ qf; wf ];
+hb0 = OAC.inertia * [ 0.0; 0.0; 0.0 ];
+hw0 = OAC.Jw * OAC.Om0;
+xi  = [ q0; hb0; hw0 ];
+qf  = [ 1.0; 0.0; 0.0; 0.0 ];
+hbf = OAC.inertia * [ 0.0; 0.0; 0.0 ];
+xf  = [ qf; hbf; hwf ];
 
 % Constraints
 xI      = [ 1.0; 0.0; 0.0 ];        % Inertial vector
@@ -22,47 +40,33 @@ M       = [ xI*yB'+yB*xI'-(xI'*yB)*eye(3)   skew(xI)*yB;
             (skew(xI)*yB)'                  xI'*yB ] - cos(amax)*eye(4);
 Mt      = M + 2*eye(4);     % M_tilde
 ME      = sqrtm(Mt);        % Exclusion constraint matrix
-smin    = 0.5;
-smax    = 10;
+smin    = 15;
+smax    = 20;
 
 q_err   = quatmultiply(quatconj(q0'),qf')';
 ang_err = 2*acosd(q_err(1));
-OAC.N   = 10;
 
-% Controller parameters
-OAC.Nx      = 7;
-OAC.Nu      = 3;
-OAC.inertia = [ 0.0338    -4.884e-05 -7.393e-05;
-               -4.884e-05  0.0346     7.124e-06;
-               -7.393e-05  7.124e-06  0.0075 ];
-OAC.T_max   = 1e-3; % 1mNm
-OAC.w_max   = 0.3;  % rad/s
-OAC.w_v     = 1e2; 
-OAC.method  = 'linear';     % discretization method
 % Indices
 OAC.id_x    = 1:OAC.N*OAC.Nx;
 OAC.id_u    = OAC.id_x(end) + (1:OAC.N*OAC.Nu);
-OAC.id_s    = OAC.id_u(end) + 1;
+OAC.id_g    = OAC.id_u(end) + 1;
+OAC.id_s    = OAC.id_g(end) + 1;
 OAC.id_v    = OAC.id_s(end) + (1:OAC.N*OAC.Nx);
-% OAC.id_etas = OAC.id_v(end) + (1:OAC.N);
 OAC.id_etav = OAC.id_v(end) + (1:OAC.N*OAC.Nx);
-OAC.id_g    = OAC.id_etav(end) + 1;
 
-Hx  = [ eye(OAC.N*OAC.Nx) zeros(OAC.N*OAC.Nx,OAC.N*(OAC.Nu+2*OAC.Nx)+2) ];
-Hw  = [ kron(eye(OAC.N),[zeros(3,4) eye(3)]) zeros(3*OAC.N,OAC.N*(OAC.Nu+2*OAC.Nx)+2) ];
-Hu  = [ zeros(OAC.N*OAC.Nu,OAC.N*OAC.Nx) eye(OAC.N*OAC.Nu) zeros(OAC.N*OAC.Nu,2*OAC.N*OAC.Nx+2) ];
-Hv  = [ zeros(OAC.N*OAC.Nx) zeros(OAC.N*OAC.Nx,OAC.N*OAC.Nu) ...
-        zeros(OAC.N*OAC.Nx,1) eye(OAC.N*OAC.Nx) zeros(OAC.N*OAC.Nx,OAC.N*OAC.Nx+1) ];
-Hs  = [ zeros(1,OAC.N*(OAC.Nx+OAC.Nu)) 1 zeros(1,2*OAC.N*OAC.Nx+1) ];
-% Hes = [ zeros(1,OAC.N*(OAC.Nx+OAC.Nu)) 0 zeros(1,OAC.N*OAC.Nx) 1 zeros(1,OAC.N*OAC.Nx) ];
-Hev = [ zeros(OAC.N*OAC.Nx,OAC.N*(2*OAC.Nx+OAC.Nu)+1) eye(OAC.N*OAC.Nx) zeros(OAC.N*OAC.Nx,1) ];
-Hg  = [ zeros(1,OAC.N*(3*OAC.Nx+OAC.Nu)+1) 1 ];
-W   = sqrtm(Hu'*Hu);
+Hx  = [ eye(N*Nx) zeros(N*Nx,N*(Nu+2*Nx)+2) ];
+Hw  = [ kron(eye(N),[zeros(3,4) inv(OAC.inertia)]) zeros(3*N,N*(Nu+2*Nx)+2) ];
+Hu  = [ zeros(N*Nu,N*Nx) eye(N*Nu) zeros(N*Nu,2*N*Nx+2) ];
+Hv  = [ zeros(N*Nx) zeros(N*Nx,N*Nu) ...
+        zeros(N*Nx,1) zeros(N*Nx,1) eye(N*Nx) zeros(N*Nx) ];
+Hg  = [ zeros(1,N*(Nx+Nu)) 1 0 zeros(1,2*N*Nx) ];
+Hs  = [ zeros(1,N*(Nx+Nu)) 0 1 zeros(1,2*N*Nx) ];
+Hev = [ zeros(N*Nx,N*(2*Nx+Nu)+1) eye(N*Nx) zeros(N*Nx,1) ];
 
 % Initial trajectory
-x0      = zeros(7,OAC.N);
-u0      = zeros(3,OAC.N);
-s0      = 2*sqrt((pi/180)*ang_err);
+x0      = zeros(Nx,N);
+u0      = zeros(Nu,N);
+s0      = OAC.s_max;
 OAC.t0  = 0;
 OAC.tf  = s0; 
 OAC.t   = linspace(OAC.t0,OAC.tf,OAC.N);

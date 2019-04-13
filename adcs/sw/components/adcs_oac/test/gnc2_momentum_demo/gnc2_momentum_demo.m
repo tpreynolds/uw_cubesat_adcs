@@ -18,8 +18,8 @@ OAC.s_min   = 15; % s
 OAC.s_max   = 20; % s
 OAC.method  = 'linear';
 
-% q0  = Q_rand(4);
-q0  = [ cosd(60/2); 0; sind(60/2); 0 ];
+q0  = Q_rand(4);
+% q0  = [ cosd(60/2); 0; sind(60/2); 0 ];
 hb0  = [ 0.0; 0.0; 0.0 ];
 hw0 = OAC.Jw * OAC.Om0;
 qf  = [ 1.0; 0.0; 0.0; 0.0 ];
@@ -38,7 +38,8 @@ Mi      = [ xI*yyB'+yyB*xI'-(xI'*yyB)*eye(3)   skew(xI)*yyB;
             (skew(xI)*yyB)'                  xI'*yyB ] - cos(amax)*eye(4);
 ME      = Me + 2*eye(4);     % M_tilde
 MI      = 2*eye(4) - Mi;     % M_tilde
-% ME      = sqrtm(Mt);        % Exclusion constraint matrix
+% ME      = sqrtm(ME);        % Exclusion constraint matrix
+% MI      = sqrtm(MI);
 
 % Initial trajectory
 x0      = zeros(OAC.Nx,OAC.N);
@@ -97,13 +98,12 @@ for iter = 1:10
     
         % Initial conditions
         x(1:4)  == q0;
-        x(5:7)  == hb0;
+        x(5:7)  == w0;
         x(8:10) == hw0;
     
         % Final conditions
         x(OAC.Nx*(OAC.N-1)+(1:4)) == qf;
         x(OAC.Nx*(OAC.N-1)+(5:7)) == hbf;
-%         x(OAC.Nx*(OAC.N-1)+(8:10)) == hw0;
     
         % Time bound
         OAC.s_min <= s <= OAC.s_max;
@@ -118,12 +118,13 @@ for iter = 1:10
             norm(u(OAC.Nu*(k-1)+1:OAC.Nu*k),inf) <= OAC.T_max;
 %             xk'*Hq'*ME*Hq*xk <= 2;
             xk'*Hq'*MI*Hq*xk <= 2;
-            norm(xk(5:7),inf) <= 0.3;
+            norm(OAC.inertia\xk(5:7),inf) <= 0.3;
             % Trust region
 %             (uk-u0(OAC.Nu*(k-1)+1:OAC.Nu*k))'*(uk-u0(OAC.Nu*(k-1)+1:OAC.Nu*k)) <= ee(k);
         end
         % Control effort
         u'*u <= g;
+%         -g <= u <= g;
     
     cvx_end
     
@@ -170,8 +171,8 @@ plot(OAC.t,xopt(1:4,:),'ko','MarkerSize',3)
 xlabel('Time [s]')
 title('Attitude Quaternion')
 subplot(3,1,2), hold on, grid on
-plot(T,X(:,5:7),'LineWidth',1)
-plot(OAC.t,xopt(5:7,:),'ko','MarkerSize',3)
+plot(T,OAC.inertia\X(:,5:7)','LineWidth',1)
+plot(OAC.t,OAC.inertia\xopt(5:7,:),'ko','MarkerSize',3)
 xlabel('Time [s]')
 title('Angular Velocity')
 subplot(3,1,3), hold on, grid on

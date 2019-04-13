@@ -139,11 +139,7 @@ function [f,A,Bp,Bm,Z] = get_f_vals(t,x,u,tspan,OAC)
     end
 
     % compute jacobian matrices
-    if (OAC.Nx == 10)
-        [A,B,f] = Q_linearize_p(t,x,uu,OAC);
-    else
-        [A,B,f] = Q_linearize(t,x,uu,OAC);
-    end
+    [A,B,f] = Q_linearize(t,x,uu,OAC);
     
     Bp  = lam_kp*B;
     Bm  = lam_km*B;
