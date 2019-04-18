@@ -18,8 +18,9 @@ OAC.s_min   = 15; % s
 OAC.s_max   = 20; % s
 OAC.method  = 'linear';
 
-q0  = Q_rand(4);
-% q0  = [ cosd(60/2); 0; sind(60/2); 0 ];
+% q0  = Q_rand(4);
+n   = [1;1;1]./norm([1;1;1]);
+q0  = [ cosd(60/2); sind(60/2).*n ];
 hb0  = [ 0.0; 0.0; 0.0 ];
 hw0 = OAC.Jw * OAC.Om0;
 qf  = [ 1.0; 0.0; 0.0; 0.0 ];
@@ -98,7 +99,7 @@ for iter = 1:10
     
         % Initial conditions
         x(1:4)  == q0;
-        x(5:7)  == w0;
+        x(5:7)  == hb0;
         x(8:10) == hw0;
     
         % Final conditions
