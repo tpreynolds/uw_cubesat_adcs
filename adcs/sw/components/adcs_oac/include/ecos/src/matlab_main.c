@@ -9,7 +9,6 @@ void callecos(int n, int m, int p, int l, int ncones, double *c, int *Gjc, int *
 	/* Extract optimal solution */
 	int i;
     int N=332; // c_size
-//     int N=241;
 	// Save optimal decision vector
 	for(i=0;i<N;i++) {
 		y[i] = mywork->x[i];
