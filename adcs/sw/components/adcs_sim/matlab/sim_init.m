@@ -1,4 +1,4 @@
-% ----------------------------------------------------------------------- %
+% ----0------------------------------------------------------------------- %
 %SIM_INIT   Initialize the RAIN-SAT Simulator
 %
 % Initializes all simulation parameters for 'adcs_sim_main.slx'. This is

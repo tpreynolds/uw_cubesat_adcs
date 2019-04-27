@@ -8,7 +8,8 @@ void callecos(int n, int m, int p, int l, int ncones, double *c, int *Gjc, int *
 	idxint exitflag = ECOS_solve(mywork);
 	/* Extract optimal solution */
 	int i;
-    int N=241; // c_size
+    int N=332; // c_size
+//     int N=241;
 	// Save optimal decision vector
 	for(i=0;i<N;i++) {
 		y[i] = mywork->x[i];

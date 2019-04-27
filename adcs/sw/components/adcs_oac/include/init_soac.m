@@ -28,16 +28,28 @@ soac.N = 10;
 soac.dt = 1/(soac.N-1);
 
 % Problem sizes (must match init_SOACer.m)
-soac.c_size   = 241;
-soac.Air_size = 921;
-soac.Ajc_size = 242;
-soac.Apr_size = 921;
-soac.b_size   = 84;
-soac.Gir_size = 402;
-soac.Gjc_size = 242;
-soac.Gpr_size = 402;
-soac.h_size   = 262;
+% soac.c_size      = 241;
+% soac.Air_size    = 921;
+% soac.Ajc_size    = 242;
+% soac.Apr_size    = 921;
+% soac.b_size      = 84;
+% soac.Gir_size    = 402;
+% soac.Gjc_size    = 242;
+% soac.Gpr_size    = 402;
+% soac.h_size      = 262;
+% soac.q_size      = 1;
+% soac.y_size      = 243;
+
+soac.c_size   = 332;
+soac.Air_size = 1278;
+soac.Ajc_size = 333;
+soac.Apr_size = 1278;
+soac.b_size   = 117;
+soac.Gir_size = 674;
+soac.Gjc_size = 333;
+soac.Gpr_size = 674;
+soac.h_size   = 354;
 soac.q_size   = 1;
-soac.y_size   = 243;
+soac.y_size   = 334;
 
 end
