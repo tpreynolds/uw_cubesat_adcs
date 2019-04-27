@@ -4,16 +4,22 @@
 
 % problem parameters stored in init_SOACer
 N = 10; % number of discretization nodes
-w_max = 0.3;
-T_max = 1e-3;
+w_max = 0.1;
+T_max = 2.3e-3;
+Jw    = diag([2.9382e-5,2.9382e-5,2.9382e-5]);
+J     = [ 0.0338    -4.884e-05 -7.393e-05;
+          -4.884e-05  0.0346     7.124e-06;
+          -7.393e-05  7.124e-06  0.0075 ]; % kg m2
 
 rng(2) % for repeatability of random IC
 
 % initial conditions
 ax  = [1;1;1]./norm([1;1;1]);
-ang = 30*randn;
+ang = 60*randn;
 q0  = [ cosd(ang/2); sind(ang/2).*ax ];
 w0  = 0.01.*randn(3,1);
+Om0 = 0.10471975511966 * [ 1000; 1000; 1000 ]; % rad/s
+hw0 = Jw * Om0;
 
 % final conditions
 qf  = [ 1.0; 0.0; 0.0; 0.0 ];
@@ -58,7 +64,7 @@ fprintf('Able to call the function at: %0.2f Hz \n\n',hertz)
 
 % Integrate through ODE
 T       = linspace(0,sopt,100);
-xopt    = reshape(full(xopt),7,N);
+xopt    = reshape(full(xopt),10,N);
 uopt    = reshape(full(uopt),3,N);
 ut      = linspace(0,sopt,N);
 P.method  = 'linear';
@@ -67,23 +73,28 @@ P.inertia = [ 0.0338    -4.884e-05 -7.393e-05;
               -7.393e-05  7.124e-06  0.0075 ];
 
 % integrate solution through nonlinear dynamics
-X = rk4(@(t,y)Q_ode(P,t,y,uopt,ut),T,full(xopt(1:7)));
+X = rk4(@(t,y)Q_ode_p(P,t,y,uopt,ut),T,full(xopt(1:10)));
 
 % Plot
 close all
 figure(1)
-subplot(2,1,1), hold on, grid on
+subplot(3,1,1), hold on, grid on
 plot(T,X(:,1:4),'LineWidth',1)
 plot(ut,xopt(1:4,:),'k*','MarkerSize',3)
 xlabel('Time [s]')
 title('Attitude Quaternion')
-subplot(2,1,2), hold on, grid on
-plot(T,X(:,5:7),'LineWidth',1)
-plot(ut,xopt(5:7,:),'k*','MarkerSize',3)
+subplot(3,1,2), hold on, grid on
+plot(T,J\X(:,5:7)','LineWidth',1)
+plot(ut,J\xopt(5:7,:),'k*','MarkerSize',3)
 plot([0 sopt],[w_max w_max],'r--','LineWidth',1)
 plot([0 sopt],[-w_max -w_max],'r--','LineWidth',1)
 xlabel('Time [s]')
 title('Angular Velocity')
+subplot(3,1,3), hold on, grid on
+plot(T,X(:,8:10),'LineWidth',1)
+plot(ut,xopt(8:10,:),'k*','MarkerSize',3)
+xlabel('Time [s]')
+title('Wheel Momentum')
 
 figure(2), hold on, grid on
 plot(ut,uopt,'LineWidth',1)
