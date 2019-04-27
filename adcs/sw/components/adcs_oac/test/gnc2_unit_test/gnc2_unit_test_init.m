@@ -53,9 +53,9 @@ std_time        = std(total_time);
 max_time        = max(total_time);
 threesig_time   = 3*std_time;
 hertz           = 1/(mean_time+threesig_time);
-fprintf('===========================\n')
-fprintf('SOACer UNIT TEST RESULTS:\n')
-fprintf('===========================\n')
+fprintf('========================\n')
+fprintf('SOAC UNIT TEST RESULTS:\n')
+fprintf('========================\n')
 fprintf('Over %d trials: \n',num_sims)
 fprintf('The mean total solution time is: %0.5f +/- %0.5f sec \n',...
             mean_time,threesig_time)
