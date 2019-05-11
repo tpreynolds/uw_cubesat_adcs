@@ -11,15 +11,17 @@ function soac = init_soac_params( )
 
 % Initial Conditions
 soac.ic.sc_mode             = 0.0;
-soac.ic.quat_in             = zeros(4,1);
+soac.ic.quat_in             = [1.0;0.0;0.0;0.0];
 soac.ic.w_body_radps        = zeros(3,1);
 soac.ic.hw_Nms              = zeros(3,1);
-soac.ic.quat_cmd            = zeros(4,1);
+soac.ic.quat_cmd            = [1.0;0.0;0.0;0.0];
 soac.ic.w_body_cmd_radps    = zeros(3,1);
 soac.ic.sun_inertial_unit   = zeros(3,1);
 soac.ic.gps_epoch_s         = zeros(2,1);
 soac.ic.gps_time_s          = zeros(2,1);
 soac.ic.cmd_torque          = zeros(3,1);
+soac.ic.cmd_state           = [ soac.ic.quat_cmd; soac.ic.w_body_cmd_radps;
+                                soac.ic.hw_Nms ];
 
 % Sample time
 soac.sample_time_s = 1; % sample at 1 Hz

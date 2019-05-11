@@ -4,21 +4,24 @@
 
 % problem parameters stored in init_SOACer
 N = 10; % number of discretization nodes
-w_max = 0.3;
-T_max = 1e-3;
+w_max = 0.1;
+T_max = 2.3e-3;
+Jw    = diag([2.9382e-5,2.9382e-5,2.9382e-5]);
+J     = [ 0.0338    -4.884e-05 -7.393e-05;
+          -4.884e-05  0.0346     7.124e-06;
+          -7.393e-05  7.124e-06  0.0075 ]; % kg m2
 
 rng(2) % for repeatability of random IC
 
-% sc mode
 sc_mode = 1;
 
 % initial conditions
 ax  = [1;1;1]./norm([1;1;1]);
-ang = 30*randn;
+ang = 60*randn;
 quat_in  = [ cosd(ang/2); sind(ang/2).*ax ];
-omega_in = 0.01.*randn(3,1);
-Om_in = 0.10471975511966 * [ 1000; 1000; 1000 ]; % rad/s
-hw_in = fsw_params.bus.inertia * Om_in;
+omega_in  = 0.01.*randn(3,1);
+Om0 = 0.10471975511966 * [ 1000; 1000; 1000 ]; % rad/s
+hw_in = Jw * Om0;
 
 % final conditions
 quat_cmd  = [ 1.0; 0.0; 0.0; 0.0 ];
