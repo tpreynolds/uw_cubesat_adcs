@@ -19,9 +19,13 @@ sc_mode = 33;
 ax  = [1;1;1]./norm([1;1;1]);
 ang = 60;
 quat_in  = [ cosd(ang/2); sind(ang/2).*ax ];
-omega_in  = zeros(3,1);%0.01.*randn(3,1);
+omega_in = zeros(3,1);%0.01.*randn(3,1);
 Om0 = 0.10471975511966 * [ 1000; 1000; 1000 ]; % rad/s
 hw_in = Jw * Om0;
+sim_params.dynamics.ic.quat_init = quat_in;
+sim_params.dynamics.ic.rate_init = omega_in;
+sim_params.actuators.reaction_wheel.ic.rpm = 1000 * ones(3,1);
+fsw_params.control.cmd_processing.ic.momentum = hw_in;
 
 % final conditions
 quat_cmd  = [ 1.0; 0.0; 0.0; 0.0 ];
