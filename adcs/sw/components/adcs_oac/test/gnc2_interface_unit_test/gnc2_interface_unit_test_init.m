@@ -38,7 +38,7 @@ sI_unit  = [ 1.0; 0.0; 0.0 ];
 GPS_epoch = sim_params.environment.sgp4.gps_time;
 
 % Load sim and set run time
-run_time    = 25;%soac_params.s_max;
+run_time    = 60;%soac_params.s_max;
 mdl         = 'gnc2_interface_unit_test';
 load_system(mdl);
 set_param(mdl,'StopTime', num2str(run_time));
@@ -61,14 +61,16 @@ close all
 figure
 subplot(3,1,1), hold on, grid on
 % plot(T,X(:,1:4),'LineWidth',1)
-plot(tout,x_opt(:,1:4),'LineWidth',1)
+plot(tout,x_opt(:,1),'LineWidth',1)
+plot(tout,sc_quat(:,1),'LineWidth',1)
 xlabel('Time [s]')
 title('Attitude Quaternion')
 subplot(3,1,2), hold on, grid on
-plot(tout,x_opt(:,5:7),'LineWidth',1)
+plot(tout,x_opt(:,5),'LineWidth',1)
+plot(tout,body_rates_radps(:,1),'LineWidth',1)
 % plot(OAC.t,OAC.inertia\xopt(5:7,:),'ko','MarkerSize',3)
-plot([0 tout(end)],[OAC.w_max OAC.w_max],'r--','LineWidth',1)
-plot([0 tout(end)],[-OAC.w_max -OAC.w_max],'r--','LineWidth',1)
+% plot([0 tout(end)],[OAC.w_max OAC.w_max],'r--','LineWidth',1)
+% plot([0 tout(end)],[-OAC.w_max -OAC.w_max],'r--','LineWidth',1)
 xlabel('Time [s]')
 title('Angular Velocity')
 subplot(3,1,3), hold on, grid on

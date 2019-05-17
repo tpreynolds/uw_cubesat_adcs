@@ -24,7 +24,7 @@ soac.ic.cmd_state           = [ soac.ic.quat_cmd; soac.ic.w_body_cmd_radps;
                                 soac.ic.hw_Nms ];
 
 % Sample time
-soac.sample_time_s = 1; % sample at 1 Hz
+soac.sample_time_s = 0.1; % sample at 10 Hz
 
 % Number of discretization points
 soac.N = 10;

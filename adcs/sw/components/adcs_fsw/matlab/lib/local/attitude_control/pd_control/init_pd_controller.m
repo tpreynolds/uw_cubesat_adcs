@@ -23,7 +23,7 @@ J  = fsw_params.bus.inertia;
 
 % Choose damping ratio and natural frequency
 z   = 1;            % Critically damped
-wn  = 0.02*2*pi;    % Small natural frequency
+wn  = 0.2*2*pi;    % Small natural frequency
 
 pd_controller.p_gain  = wn^2.*J;
 pd_controller.d_gain  = 2*wn*z.*J;
