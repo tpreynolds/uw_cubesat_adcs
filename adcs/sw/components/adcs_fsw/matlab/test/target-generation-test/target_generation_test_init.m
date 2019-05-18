@@ -19,21 +19,14 @@
 %               - T. Reynolds 9.20.18
 
 % Start fresh
-clear variables; close all; clc;
-set(0,'defaulttextinterpreter','latex');
+% clear variables; close all; clc;
+% set(0,'defaulttextinterpreter','latex');
 
 run_test    = 1;
 
 %% Test 1
 
 if run_test == 1
-
-% Load bus stub definitions
-load('bus_definitions.mat')
-
-% Load parameters for both flight software and simulation
-fsw_params = init_fsw_params();
-[sim_params,fsw_params] = init_sim_params(fsw_params);
 
 % Overrides
 t_end               = 1;
@@ -115,12 +108,12 @@ xlabel('Time [s]','FontSize',12)
 
 elseif run_test == 3
 
-% Load bus stub definitions
-load('bus_definitions.mat')
-
-% Load parameters for both flight software and simulation
-fsw_params = init_fsw_params();
-[sim_params,fsw_params] = init_sim_params(fsw_params);
+% % Load bus stub definitions
+% load('bus_definitions.mat')
+% 
+% % Load parameters for both flight software and simulation
+% fsw_params = init_fsw_params();
+% [sim_params,fsw_params] = init_sim_params(fsw_params);
 
 % Overrides
 t_end               = 1;
