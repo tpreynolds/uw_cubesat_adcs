@@ -1,4 +1,4 @@
-function soac = init_soac_params( )
+function soac = init_soac_params(fsw_params)
 % ----------------------------------------------------------------------- %
 % AACT SOCi Optimal Attitude Controller Init File
 %
@@ -24,7 +24,7 @@ soac.ic.cmd_state           = [ soac.ic.quat_cmd; soac.ic.w_body_cmd_radps;
                                 soac.ic.hw_Nms ];
 
 % Sample time
-soac.sample_time_s = 0.1; % sample at 10 Hz
+soac.sample_time_s = (1/10); % sample at 10 Hz
 
 % Number of discretization points
 soac.N = 10;
@@ -45,5 +45,8 @@ soac.y_size   = 334;
 % dimensions of cones
 soac.l_dim    = 322;
 soac.soc_dim  = 32;
+
+% Parameters
+soac.inertia = fsw_params.bus.inertia;
 
 end

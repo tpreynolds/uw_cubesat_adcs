@@ -44,9 +44,15 @@ load_system(mdl);
 set_param(mdl,'StopTime', num2str(run_time));
 
 % run test case
-% sim(mdl);
+sim(mdl);
 
 %% analyze results
+
+% write input file
+flag = write_testinput_file('gnc2_interface_test_inputs.txt',...
+            sc_mode_.Data,quat_in_.Data,omega_in_.Data,hw_in_.Data,...
+            quat_cmd_.Data,omega_cmd_.Data,sI_unit_.Data,...
+            GPS_epoch_.Data,GPS_time_.Data);
 
 u_opt = command_torque;
 x_opt = command_state;
@@ -60,28 +66,25 @@ hwf = xf(8:10);
 close all
 figure
 subplot(3,1,1), hold on, grid on
-% plot(T,X(:,1:4),'LineWidth',1)
 plot(tout,x_opt(:,1),'LineWidth',1)
 plot(tout,sc_quat(:,1),'LineWidth',1)
 xlabel('Time [s]')
-title('Attitude Quaternion')
+title('Attitude Quaternion (Scalar part)')
+legend('Commanded','Realized')
 subplot(3,1,2), hold on, grid on
 plot(tout,x_opt(:,5),'LineWidth',1)
 plot(tout,body_rates_radps(:,1),'LineWidth',1)
-% plot(OAC.t,OAC.inertia\xopt(5:7,:),'ko','MarkerSize',3)
-% plot([0 tout(end)],[OAC.w_max OAC.w_max],'r--','LineWidth',1)
-% plot([0 tout(end)],[-OAC.w_max -OAC.w_max],'r--','LineWidth',1)
 xlabel('Time [s]')
-title('Angular Velocity')
+title('Angular Velocity (x axis only)')
+legend('Commanded','Realized')
 subplot(3,1,3), hold on, grid on
-% plot(T,X(:,8:10),'LineWidth',1)
 plot(tout,x_opt(:,8:10),'LineWidth',1)
 xlabel('Time [s]')
-title('Wheel Momentum')
+title('Commanded Wheel Momentum')
 
 figure, hold on, grid on
 plot(tout,u_opt,'LineWidth',1)
 xlabel('Time [s]')
-title('Control Signal')
+title('Feedforward Control Signal')
 
 

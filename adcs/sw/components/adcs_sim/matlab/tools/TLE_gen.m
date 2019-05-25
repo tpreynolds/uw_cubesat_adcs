@@ -1,14 +1,10 @@
-% UW HuskySat-1, ADCS Subsystem
-%   S. Rice 5/21/18
-%   updated: T. Reynolds
+function [orbit_tle,JD_UTC_epoch] = TLE_gen(YMDHMS, INC, RAAN, ECC, AOP, MNA, MNM, varargin)
+%TLE_GEN
 %
-% Script for generating our TLE format. Will need to be updated to get a
-% full TLE.
-% S.Rice 5/22/18
+% Script that generates a formatted TLE.
+% S.Rice & T.Reynolds 5/22/18
 %
 % Assumes sim_init.m has been run to set paths
-
-function [orbit_tle,JD_UTC_epoch] = TLE_gen(YMDHMS, INC, RAAN, ECC, AOP, MNA, MNM, varargin)
 
 % Run checks
 if( nargin < 7 )
@@ -87,7 +83,7 @@ switch nz
 end
 
 % Output a text file with this TLE
-fID = fopen('include/TLEs/ourTLE.tle','w');
+fID = fopen('ourTLE.txt','w');
 fprintf(fID,'1 00000U 18001Z   %02.0f%012.8f %s  00000-0 %+5.0f%2.0f 0  0017\n',year,day_dec,sMNM_dot,B_star,B_star_ex);
 fprintf(fID,'2 00000  %7.4f %08.4f %s %08.4f %08.4f %10.8f563537',INC,RAAN,sECC,AOP,MNA,MNM);
 fclose(fID);
