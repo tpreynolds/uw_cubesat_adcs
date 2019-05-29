@@ -39,7 +39,7 @@ GPS_epoch = sim_params.environment.sgp4.gps_time;
 
 % Load sim and set run time
 run_time    = 60;%soac_params.s_max;
-mdl         = 'gnc2_interface_unit_test';
+mdl         = 'soac_interface_unit_test';
 load_system(mdl);
 set_param(mdl,'StopTime', num2str(run_time));
 
@@ -49,7 +49,7 @@ sim(mdl);
 %% analyze results
 
 % write input file
-flag = write_testinput_file('gnc2_interface_test_inputs.txt',...
+flag = write_testinput_file('soac_interface_test_inputs.txt',...
             sc_mode_.Data,quat_in_.Data,omega_in_.Data,hw_in_.Data,...
             quat_cmd_.Data,omega_cmd_.Data,sI_unit_.Data,...
             GPS_epoch_.Data,GPS_time_.Data);

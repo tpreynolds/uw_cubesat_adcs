@@ -23,7 +23,7 @@ if( nargin > 7 )
     end
 else
     % Assumed values from SWISSCUBE
-    B_star      = 32923;
+    B_star      = 0.32923;
     B_star_ex   = -4;
     sMNM_dot     = strcat('+.','00000',num2str(145));
 end
