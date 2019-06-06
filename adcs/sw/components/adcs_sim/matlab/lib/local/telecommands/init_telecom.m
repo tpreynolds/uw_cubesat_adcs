@@ -35,7 +35,7 @@ telecom.sample_time_s = fsw_params.sample_time_s;
 telecom.override     = 0;
 telecom.LowPowerMode = 0;
 telecom.pointing     = 1;
-telecom.science      = 1;
+telecom.science      = 0;
 telecom.sync_pulse_s = 2;
 telecom.MET_epoch    = sim_params.MET.epoch;
 

@@ -159,7 +159,7 @@ if( strcmp(OAC.method,'previous') )
    uopt = [ uopt(:,2:end) uopt(:,end) ]; 
 end
 % x0 = full(xe(1:OAC.Nx));
-x0 = [full(xe(1:4));full(J\xe(5:7));full(xe(8:10))];
+x0 = [full(xe(1:4));full(OAC.inertia\xe(5:7));full(xe(8:10))];
 % X = rk4(@(t,y)Q_ode_p(OAC,t,y,uopt,OAC.t),T,x0);
 X = rk4(@(t,y)Q_ode(OAC,t,y,uopt,OAC.t),T,x0);
 

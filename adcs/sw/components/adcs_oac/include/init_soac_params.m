@@ -11,10 +11,10 @@ function soac = init_soac_params(fsw_params)
 
 % Initial Conditions
 soac.ic.sc_mode             = 0.0;
-soac.ic.quat_in             = [1.0;0.0;0.0;0.0];
+soac.ic.quat_in             = [1;0;0;0];
 soac.ic.w_body_radps        = zeros(3,1);
 soac.ic.hw_Nms              = zeros(3,1);
-soac.ic.quat_cmd            = [1.0;0.0;0.0;0.0];
+soac.ic.quat_cmd            = [0.86603;0.28868;0.28868;0.28868];
 soac.ic.w_body_cmd_radps    = zeros(3,1);
 soac.ic.sun_inertial_unit   = zeros(3,1);
 soac.ic.gps_epoch_s         = zeros(2,1);
