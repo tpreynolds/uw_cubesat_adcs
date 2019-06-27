@@ -2,7 +2,7 @@
 %
 % T. Reynolds -- RAIN Lab
 clear variables; close all;
-% global my_ECOS
+global my_ECOS
 
 OAC         = struct;
 OAC.N       = 10;
@@ -33,14 +33,12 @@ yB      = [ 0.0; 0.0; -1.0 ];       % Body vector
 yyB     = [ 0.5*sqrt(2); 0.5*sqrt(2); 0.0 ]; % Body vector
 amin    = deg2rad(60);              % min. separating angle
 amax    = deg2rad(90);              % max. separating angle
-Me      = [ xI*yB'+yB*xI'-(xI'*yB)*eye(3)   skew(xI)*yB;
-            (skew(xI)*yB)'                  xI'*yB ] - cos(amin)*eye(4);
-Mi      = [ xI*yyB'+yyB*xI'-(xI'*yyB)*eye(3)   skew(xI)*yyB;
-            (skew(xI)*yyB)'                  xI'*yyB ] - cos(amax)*eye(4);
-ME      = Me + 2*eye(4);     % M_tilde
-MI      = 2*eye(4) - Mi;     % M_tilde
-% ME      = sqrtm(ME);        % Exclusion constraint matrix
-% MI      = sqrtm(MI);
+Me      = [ xI'*yB              (skew(xI)*yB)';
+            skew(xI)*yB   xI*yB'+yB*xI'-(xI'*yB)*eye(3) ] - cos(amin)*eye(4);
+Mi      = [ xI'*yyB             (skew(xI)*yyB)';
+            skew(xI)*yyB  xI*yyB'+yyB*xI'-(xI'*yyB)*eye(3) ] - cos(amax)*eye(4);
+ME      = sqrtm(Me + 2*eye(4));     % exclusion constraint matrix
+MI      = sqrtm(2*eye(4) - Mi);     % inclusion constraint matrix
 
 % Initial trajectory
 x0      = zeros(OAC.Nx,OAC.N);
@@ -125,8 +123,6 @@ for iter = 1:10
         end
         % Control effort
         u'*u <= g;
-%         -g <= u <= g;
-    
     cvx_end
     
     sol_time = cvx_toc;
@@ -146,7 +142,7 @@ for iter = 1:10
     fprintf(' t_f: %2.2f \n',s)
     
     % Check exit condition
-    if( (norm(v,1) < 1e-5) && (diff < 1e-1) )
+    if( (norm(v,1) < 1e-5) && (diff < 5e-2) )
         fprintf('Converged.\n\n')
         break;
     end
@@ -162,6 +158,12 @@ OAC.t   = linspace(OAC.t0,OAC.tf,OAC.N);
 xopt    = reshape(full(x),OAC.Nx,OAC.N);
 uopt    = reshape(full(u),OAC.Nu,OAC.N);
 X = rk4(@(t,y)Q_ode_p(OAC,t,y,uopt,OAC.t),T,full(x(1:OAC.Nx)));
+
+E_val = zeros(size(X,1),1);
+for k = 1:size(X,1)
+    qk          = X(k,1:4);
+    E_val(k)    = qk*Me*qk';
+end
 
 % Plot
 close all
@@ -186,3 +188,9 @@ figure(2), hold on, grid on
 plot(OAC.t,uopt,'LineWidth',1)
 xlabel('Time [s]')
 title('Control Signal')
+
+figure(3), hold on, grid on
+plot(T,E_val,'LineWidth',1)
+plot([0 T(end)],[2 2],'r--','LineWidth',1)
+xlabel('Time [s]') 
+title('Exclusion constraint')
