@@ -1,0 +1,585 @@
+% THESIS VERSION
+
+%%%% PACKAGES %%%%
+\usepackage{graphicx}
+% \usepackage{epstopdf}
+\usepackage{array}
+\newcommand{\PreserveBackslash}[1]{\let\temp=\\#1\let\\=\temp}
+\newcolumntype{C}[1]{>{\PreserveBackslash\centering}p{#1}}
+\newcolumntype{R}[1]{>{\PreserveBackslash\raggedleft}p{#1}}
+\newcolumntype{L}[1]{>{\PreserveBackslash\raggedright}p{#1}}
+\usepackage{lastpage}
+\usepackage{fancyhdr}
+\let\openbox\relax
+\usepackage{amsmath}
+\usepackage{amssymb,amsthm,amsfonts}
+\allowdisplaybreaks
+\usepackage{upgreek}
+\usepackage{bm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{relsize}
+% \usepackage{dashbox}%
+\usepackage{wasysym}
+
+\usepackage[utf8]{inputenc}
+
+% Tables
+\usepackage{hhline}
+\usepackage[version=4]{mhchem}
+\usepackage{siunitx}
+\usepackage{longtable,tabularx}
+\setlength\LTleft{0pt} 
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=black, 
+    citecolor=black,     
+    urlcolor=blue,
+}
+\usepackage{float}
+\usepackage{adjustbox}
+\usepackage{subfig}
+\usepackage{mathtools}
+% \usepackage{units}
+% \usepackage{enumitem}
+
+% Colors
+\usepackage{xcolor}
+% \definecolor{brickred}{rgb}{0.8, 0.25, 0.33}
+\definecolor{alizarin}{rgb}{0.82, 0.1, 0.26}
+
+% For shaded boxes
+% \usepackage{framed}
+% \usepackage[svgnames]{xcolor}
+% %\colorlet{shadecolor}{LavenderBlush3}
+% %\colorlet{shadecolor}{gray!20}
+% \colorlet{shadecolor}{blue!12}
+
+\makeatletter
+\newcommand{\leqnomode}{\tagsleft@true\let\veqno\@@leqno}
+\newcommand{\reqnomode}{\tagsleft@false\let\veqno\@@eqno}
+\makeatother
+
+\newcommand\blfootnote[1]{%
+  \begingroup
+  \renewcommand\thefootnote{}\footnote{#1}%
+  \addtocounter{footnote}{-1}%
+  \endgroup
+}
+
+%%%% COMMANDS %%%%
+
+% Editing
+\definecolor{commentgreen}{RGB}{0, 153, 0}
+\definecolor{highlightred}{RGB}{153,0,0}
+\newcommand{\todo}[1]{{\color{blue}(TODO: #1)}}
+\newcommand{\comment}[1]{{\color{blue} #1}}
+\newcommand{\remove}[1]{{\color{red} \sout #1 }}
+\newcommand{\addin}[1]{{\color{commentgreen} #1}}
+\newcommand{\highlight}[1]{{\color{highlightred} #1}}
+\newcommand{\sref}[1]{\S\ref{#1}}
+\newcommand{\pref}[1]{Problem~\ref{#1}}
+\newcommand{\fref}[1]{Figure~\ref{#1}}
+\newcommand{\chref}[1]{Chapter~\ref{#1}}
+\newcommand{\aref}[1]{Appendix~\ref{#1}}
+\newcommand{\thmref}[1]{Theorem~\ref{#1}}
+\newcommand{\tabref}[1]{Table~\ref{#1}}
+
+% Tables
+\newcommand{\tabspace}{\hspace{-0.35cm}}
+\newcommand{\tabsep}{\null\hspace{0.5cm}\null}
+
+% Number/Set stuff
+\newcommand{\real}{{\mathbb{R}}}
+\newcommand{\realp}{\real_+}
+\newcommand{\realpp}{\real_{++}}
+\newcommand{\complex}{{\mathbb{C}}}
+\newcommand{\field}{{\mathbb{F}}}
+\newcommand{\realpart}{\mathrm{Re}}
+\newcommand{\impart}{\mathrm{Im}}
+\newcommand{\psd}[1]{\mathbb{S}^{#1}_+}
+\newcommand{\pd}[1]{\mathbb{S}^{#1}_{++}}
+\newcommand{\ispd}{\succ~0}
+\newcommand{\ispsd}{\succeq~0}
+\newcommand{\setdom}{\mathcal{D}}
+\newcommand{\coneK}{\mathcal{K}}
+\newcommand{\lcone}[1]{\real_+^{#1}}
+\newcommand{\qcone}[1]{\mathcal{Q}^{#1}}
+\newcommand{\conleq}{\preceq_{\coneK}}
+\newcommand{\congeq}{\succeq_{\coneK}}
+\newcommand\something[1][H]{\setlength{\fboxsep}{0pt}\setlength{\dashlength}{2.2pt}\setlength{\dashdash}{1.1pt} \dbox{\phantom{#1}}}
+% \newcommand{\something}{\dashedph}
+
+% Derivatives & Optimization
+\newcommand{\argmin}{\operatorname{argmin}}
+\newcommand{\der}[2]{\frac{d #1}{d #2}}
+\newcommand{\pder}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\sproc}{$\mathcal{S}$-procedure }
+\newcommand{\scvx}{\texttt{SCvx}}
+
+% Optimal Control
+\newcommand{\lj}{\lambda^0}
+\newcommand{\lm}{\lambda_m}
+\newcommand{\lr}{\bm{\lambda}_r}
+\newcommand{\lv}{\bm{\lambda}_v}
+\newcommand{\lt}{\lambda_{\theta}}
+\newcommand{\lw}{\lambda_{\omega}}
+\newcommand{\costate}{\bm{\lambda}}
+\newcommand{\p}{\hat{\costate}}
+\newcommand{\dlm}{\dot{\lambda}_m}
+\newcommand{\dlr}{\dot{\bm{\lambda}}_r}
+\newcommand{\dlv}{\dot{\bm{\lambda}}_v}
+\newcommand{\dlt}{\dot{\lambda}_{\theta}}
+\newcommand{\dlw}{\dot{\lambda}_{\omega}}
+\newcommand{\cw}{c_{\omega}}
+\newcommand{\lri}{\bm{\lambda}_{r,0}}
+\newcommand{\lvi}{\bm{\lambda}_{v,0}}
+\newcommand{\setB}{\mathcal{B}}
+\newcommand{\setU}{\mathcal{U}}
+\newcommand{\setX}{\mathcal{X}}
+\newcommand{\setI}{\mathcal{I}}
+\newcommand{\setGen}{\mathcal{C}}
+\newcommand{\term}{M}
+\newcommand{\runn}{L}
+\newcommand{\primer}{\bm{p}}
+
+% Coordinate frames
+\newcommand{\inertial}{\mathcal{I}}
+\newcommand{\body}{\mathcal{B}}
+\newcommand{\landing}{\mathcal{L}}
+\newcommand{\fixed}{\mathcal{F}}
+\newcommand{\cframe}[1]{\mathcal{F}_{#1}}
+\newcommand{\Fbody}{\cframe{\body}}
+\newcommand{\Finertial}{\cframe{\inertial}}
+\newcommand{\Fecef}{\cframe{\fixed}}
+\newcommand{\Flanding}{\cframe{\landing}}
+\newcommand{\DCM}[2]{C_{{#2} \leftarrow {#1}}}
+\newcommand{\cIB}{C_{\body \leftarrow \inertial}}
+\newcommand{\cBI}{C_{\inertial \leftarrow \body}}
+\newcommand{\cLB}{C_{\body \leftarrow \landing}}
+\newcommand{\cBL}{C_{\landing \leftarrow \body}}
+\newcommand{\cBO}{C_{\landing\,\body}}
+\newcommand{\cIF}{C_{\inertial\,\fixed}}
+\newcommand{\cFI}{C_{\fixed\,\inertial}}
+\newcommand{\xI}{\bm{x}_{\inertial}}
+\newcommand{\yI}{\bm{y}_{\inertial}}
+\newcommand{\zI}{\bm{z}_{\inertial}}
+\newcommand{\xF}{\bm{x}_{\fixed}}
+\newcommand{\yF}{\bm{y}_{\fixed}}
+\newcommand{\zF}{\bm{z}_{\fixed}}
+\newcommand{\xB}{\bm{x}_{\body}}
+\newcommand{\yB}{\bm{y}_{\body}}
+\newcommand{\zB}{\bm{z}_{\body}}
+\newcommand{\xL}{\bm{x}_{\landing}}
+\newcommand{\yL}{\bm{y}_{\landing}}
+\newcommand{\zL}{\bm{z}_{\landing}}
+\newcommand{\ex}{\bm{e}_x}
+\newcommand{\ey}{\bm{e}_y}
+\newcommand{\ez}{\bm{e}_z}
+\newcommand{\eu}{\bm{e}_u}
+
+% General math
+\newcommand{\eps}{\epsilon}
+\newcommand{\dg}{^{\circ}}
+\newcommand{\blkdiag}{\mathop{\bf blkdiag}}
+\newcommand{\spec}[1]{\mathop{\bf spec}\left\lbrace #1 \right\rbrace}
+\newcommand{\diag}[1]{\mathop{\bf diag}\left\lbrace #1 \right\rbrace}
+\newcommand{\eye}[1]{I_{#1}}
+\newcommand{\zeros}[2]{0_{#1 \times #2}}
+\newcommand{\ones}[1]{\bm{1}_{#1}}
+\newcommand{\dom}[1]{\mathop{\bf dom} #1}
+\newcommand{\eig}[1]{\mathop{\bf eig}\left\lbrace #1 \right\rbrace}
+\newcommand{\hamil}{\mathcal{H}}
+\newcommand{\sign}[1]{\mathop{sign}\left( #1 \right)}
+\newcommand{\inv}[1]{ #1^{-1}}
+\newcommand{\definedas}{\coloneqq}
+\newcommand{\unit}[1]{\mathrm{#1}}
+\newcommand{\tran}{^{\top}}
+\newcommand{\jacob}[2]{\nabla_{#2}{#1}}
+\newcommand{\jacobev}[3]{\jacob{#1}{#2}\big(#3\big)}
+\newcommand{\hess}[3]{\nabla_{#2#3}{#1}}
+\newcommand{\ip}{\boldsymbol{\cdot}}
+\newcommand{\ipQ}{\boldsymbol{\cdot}}
+\newcommand{\ipDQ}{\mathrel{\raisebox{1pt}{\scalebox{0.6}{$\circ$}}}}
+\newcommand{\twonorm}[1]{\|#1\|_2}
+\newcommand{\onenorm}[1]{\|#1\|_1}
+\newcommand{\infnorm}[1]{\|#1\|_{\infty}}
+\newcommand{\pnorm}[1]{\|#1\|_p}
+
+% Time
+\newcommand{\tpu}{t_{\text{pu}}}
+\newcommand{\tf}{t_f}
+\newcommand{\tfmin}{t_{f,\min}}
+\newcommand{\tfmax}{t_{f,\max}}
+\newcommand{\ti}{t_0}
+\newcommand{\tc}{t_c}
+\newcommand{\tb}{t_b}
+
+% Physical parameters
+\newcommand{\gI}{\bm{g}_{\inertial}}
+\newcommand{\gB}{\bm{g}_{\body}}
+\newcommand{\gL}{\bm{g}_{\landing}}
+\newcommand{\dqgI}{\dq{g}_{\inertial}}
+\newcommand{\dqgB}{\dq{g}_{\body}}
+\newcommand{\J}{\bm{J}}
+\newcommand{\Ca}{C_{A}}
+\newcommand{\CaI}{C_{A,\inertial}}
+\newcommand{\Sa}{S_{A}}
+\newcommand{\setaero}{\mathcal{A}(V)}
+\newcommand{\rCPB}{\bm{r}_{\textit{cp}}}
+\newcommand{\density}{\rho}
+\newcommand{\Pamb}{P_{\textit{amb}}}
+\newcommand{\mell}{\bm{\ell}}
+
+% MASS
+% continuous
+\newcommand{\m}{m}
+\newcommand{\mf}{\m(\tf)}
+\newcommand{\mic}{\m_{\textit{ic}}}
+% discrete
+\newcommand{\mk}{\m_{k}}
+\newcommand{\mi}{\m_0}
+\newcommand{\mN}{\m_N}
+\newcommand{\cv}{{c^*}}
+
+% continuous
+\newcommand{\rI}{\bm{r}_{\inertial}}
+\newcommand{\rIb}{\bar{\bm{r}}_{\inertial}}
+\newcommand{\rB}{\bm{r}_{\body}}
+\newcommand{\rL}{\bm{r}_{\landing}}
+\newcommand{\rBb}{\bar{\bm{r}}_{\body}}
+\newcommand{\rIdot}{\dot{\bm{r}}_{\inertial}}
+\newcommand{\rLdot}{\dot{\bm{r}}_{\landing}}
+\newcommand{\ric}[1]{\bm{r}_{#1,\textit{ic}}}
+% discrete
+\newcommand{\rk}[1]{\bm{r}_{#1,\ind}}
+\newcommand{\ri}[1]{\bm{r}_{#1,0}}
+\newcommand{\rf}[1]{\bm{r}_{#1,f}}
+\newcommand{\rN}[1]{\bm{r}_{#1,N}}
+\newcommand{\prig}{\bm{b}_{\bm{r},0}}
+
+% VELOCITY
+% continuous
+\newcommand{\vI}{\bm{v}_{\inertial}}
+\newcommand{\vB}{\bm{v}_{\body}}
+\newcommand{\vL}{\bm{v}_{\landing}}
+\newcommand{\vBdot}{\dot{\bm{v}}_{\body}}
+\newcommand{\vIb}{\bar{\bm{v}}_{\inertial}}
+\newcommand{\vBb}{\bar{\bm{v}}_{\body}}
+\newcommand{\vIdot}{\dot{\bm{v}}_{\inertial}}
+\newcommand{\vLdot}{\dot{\bm{v}}_{\landing}}
+\newcommand{\vic}[1]{\bm{v}_{#1,\textit{ic}}}
+% discrete
+\newcommand{\vk}[1]{\bm{v}_{#1,\ind}}
+\newcommand{\vi}[1]{\bm{v}_{#1,0}}
+\newcommand{\vf}[1]{\bm{v}_{#1,f}}
+\newcommand{\vN}[1]{\bm{v}_{#1,N}}
+\newcommand{\pvig}{\bm{b}_{\bm{v},0}}
+
+% ANGULAR VELOCITY
+% continuous
+\newcommand{\w}{\bm{\omega}}
+\newcommand{\wB}{\w_{\body}}
+\newcommand{\wBdot}{\dot{\w}_{\body}}
+\newcommand{\wBb}{\bar{\w}_{\body}}
+\newcommand{\wic}{\w_{\body,\textit{ic}}}
+%discrete
+\newcommand{\wk}{\w_{\body,\ind}}
+\newcommand{\wi}{\w_{\body,0}}
+\newcommand{\wf}{\w_{\body,f}}
+\newcommand{\wN}{\w_{\body,N}}
+
+% CONTROLS
+\newcommand{\FI}{\bm{F}_{\inertial}}
+\newcommand{\FB}{\bm{F}_{\body}}
+\newcommand{\MB}{\bm{M}_{\body}}
+
+\newcommand{\uB}{\bm{u}_{\body}}
+\newcommand{\uI}{\bm{u}_{\inertial}}
+\newcommand{\uL}{\bm{u}_{\landing}}
+\newcommand{\ui}[1]{\bm{u}_{#1,0}}
+\newcommand{\uk}[1]{\bm{u}_{#1,\ind}}
+\newcommand{\uf}[1]{\bm{u}_{#1,f}}
+\newcommand{\uBb}{\bar{\bm{u}}_{\body}}
+\newcommand{\duB}{\dot{\bm{u}}_{\body}}
+\newcommand{\duBk}{\dot{\bm{u}}_{\body,\ind}}
+
+\newcommand{\tauI}{\bm{\tau}_{\inertial}}
+\newcommand{\tauIb}{\bar{\bm{\tau}}_{\inertial}}
+\newcommand{\tauB}{\bm{\tau}_{\body}}
+\newcommand{\tauBb}{\bar{\bm{\tau}}_{\body}}
+\newcommand{\taui}[1]{\bm{\tau}_{#1,0}}
+\newcommand{\tauk}[1]{\bm{\tau}_{#1,k}}
+\newcommand{\tauf}[1]{\bm{\tau}_{#1,f}}
+
+% FORCES
+\newcommand{\aero}{\bm{A}}
+\newcommand{\aeroB}{\aero_{\body}}
+\newcommand{\aeroI}{\aero_{\inertial}}
+\newcommand{\aeroL}{\aero_{\landing}}
+
+\newcommand{\ru}{\bm{r}_{u}}
+\newcommand{\umag}{\Gamma}
+\newcommand{\udir}{\bm{d}}
+\newcommand{\Isp}{I_{\text{sp}}}
+
+% DERIVATIVES
+\newcommand{\dFdx}[3]{\pder{F}{\bm{x}}\biggr|_{#1,#2,#3}}
+\newcommand{\dFdu}[3]{\pder{F}{\bm{u}}\biggr|_{#1,#2,#3}}
+\newcommand{\dFds}[3]{\pder{F}{\sigma}\biggr|_{#1,#2,#3}}
+\newcommand{\mdot}{\dot{m}}
+\newcommand{\rdot}{\dot{\bm{r}}_{\inertial}}
+\newcommand{\vdot}{\dot{\bm{v}}_{\inertial}}
+\newcommand{\thetadot}{\dot{\theta}}
+\newcommand{\dw}{\dot{\omega}}
+\newcommand{\wdot}{\dot{\bm{\omega}}_{\body}}
+
+% constraints
+\newcommand{\mwet}{m_{\text{wet}}}
+\newcommand{\mdry}{m_{\text{dry}}}
+\newcommand{\vmax}{v_{\max}}
+\newcommand{\wmax}{\omega_{\max}}
+\newcommand{\gimbal}{\delta}
+\newcommand{\gimbalmax}{\delta_{\max}}
+\newcommand{\los}{\xi}
+\newcommand{\losmax}{\los_{\max}}
+\newcommand{\losf}{c_l}
+\newcommand{\losvec}{\bm{p}_{\body}}
+\newcommand{\rLoSI}{\bm{r}_{d,\inertial}}
+\newcommand{\rLoSB}{\bm{r}_{d,\body}}
+\newcommand{\gs}{\gamma}
+\newcommand{\gsmax}{\gamma_{\max}}
+\newcommand{\gsvec}{\zI}
+\newcommand{\gsf}{c_g}
+\newcommand{\gsM}{M_g}
+\newcommand{\tiltmax}{\theta_{\max}}
+\newcommand{\tilt}{\theta}
+\newcommand{\tiltf}{c_t}
+\newcommand{\tiltM}{M_t}
+\newcommand{\aoa}{\alpha}
+\newcommand{\aoamax}{\alpha_{\max}}
+\newcommand{\Gmin}{\Gamma_{\min}}
+\newcommand{\Gmax}{\Gamma_{\max}}
+\newcommand{\umin}{u_{\min}}
+\newcommand{\umax}{u_{\max}}
+\newcommand{\taumax}{\tau_{\max}}
+\newcommand{\dTmax}{\dot{T}_{\max}}
+\newcommand{\dumax}{\dot{\bm{u}}_{\max}}
+\newcommand{\dgimmax}{\dot{\gimbal}_{\max}}
+
+% State-triggered Constraints
+\newcommand{\stcz}{\bm{z}}
+\newcommand{\stcnz}{n_z}
+\newcommand{\stcs}{\sigma}
+\newcommand{\stcshat}{\hat{\stcs}}
+\newcommand{\stcg}{g}
+\newcommand{\stcng}{n_g}
+\newcommand{\stcc}{c}
+\newcommand{\stcnc}{n_c}
+\newcommand{\stch}{h}
+\newcommand{\stca}{\varepsilon}
+\newcommand{\gaoa}{g_{\aoa}}
+\newcommand{\caoa}{c_{\aoa}}
+\newcommand{\haoa}{h_{\aoa}}
+\newcommand{\vlim}{V_{\text{lim}}}
+\newcommand{\modeset}{\mathcal{A}}
+
+% Quaternions & dual quaternions
+\newcommand{\setq}{\mathbb{Q}}
+\newcommand{\setuq}{\setq_u}
+\newcommand{\setuqR}{\real_{u}^4}
+\newcommand{\setqv}{\setq_v}
+\newcommand{\setdq}{\widetilde{\setq}}
+\newcommand{\setudq}{\setdq_u}
+\newcommand{\setudqR}{\real_{u}^8}
+\newcommand{\quat}[1]{\bm{#1}}
+\newcommand{\quatv}[1]{\bm{#1}_v}
+\newcommand{\quats}[1]{{#1}_4}
+\newcommand{\q}{\bm{q}}
+\newcommand{\qid}{\q_{\text{id}}}
+\newcommand{\qv}{\q_v}
+\newcommand{\qs}{q_4}
+\newcommand{\qi}{\q_0}
+\newcommand{\qk}{\q_{\ind}}
+\newcommand{\qN}{\q_N}
+\newcommand{\qIB}{\q_{\body \leftarrow \inertial}}
+\newcommand{\qic}{\q_\textit{ic}}
+\newcommand{\qf}{\q_\textit{f}}
+\newcommand{\qb}{\bar{\q}}
+\newcommand{\qbi}{\bar{\q}_0}
+\newcommand{\qdot}{\dot{\q}}
+\newcommand{\dq}[1]{\tilde{\bm{#1}}}
+\newcommand{\dqq}{\dq{q}}
+\newcommand{\dqb}{\bar{\dqq}}
+\newcommand{\dqw}{\dq{\omega}}
+\newcommand{\dqwdot}{\dot{\dq{\omega}}}
+\newcommand{\dqqic}{\dqq_{\textit{ic}}}
+\newcommand{\dqqi}{\dqq_0}
+\newcommand{\dqqk}{\dqq_{\ind}}
+\newcommand{\dqqN}{\dqq_N}
+\newcommand{\dqqf}{\dqq_f}
+\newcommand{\dqwic}{\dqw_{\textit{ic}}}
+\newcommand{\dqwi}{\dqw_0}
+\newcommand{\dqwk}{\dqw_{\ind}}
+\newcommand{\dqwN}{\dqw_{N}}
+\newcommand{\dqwf}{\dqw_f}
+\newcommand{\dqx}{\dq{x}}
+\newcommand{\dqu}{\dq{u}}
+\newcommand{\dqdot}[1]{\dot{\tilde{\bm{#1}}}}
+\newcommand{\qskew}[1]{[ #1 ]_{\otimes}}
+\newcommand{\qskewstar}[1]{[ #1 ]_{\otimes}^*}
+\newcommand{\qcross}[1]{ [ #1 ]_{\oslash}}
+\newcommand{\qcrossstar}[1]{ [ #1 ]_{\oslash}^*}
+\newcommand{\It}{\tilde{\bm{I}}_8}
+\newcommand{\dqqig}{\bm{b}_{\dqq}}
+\newcommand{\dqwig}{\bm{b}_{\dqw}}
+\newcommand{\dqaero}{\dq{\aero}}
+
+% Optimization & successive
+\newcommand{\ind}{i}
+\newcommand{\Jthree}{J_{3-\text{DoF}}}
+\newcommand{\Jsix}{J_{6-\text{DoF}}}
+\newcommand{\Jpp}{J_{\text{pinpoint}}}
+\newcommand{\Jsoft}{J_{\text{soft-land}}}
+\newcommand{\Jminerr}[1]{J_{\text{min-error},#1}}
+\newcommand{\Jtr}{J_{\text{tr}}}
+\newcommand{\Jvc}{J_{\text{vc}}}
+\newcommand{\xx}{\bm{x}}
+\newcommand{\XX}{\bm{X}}
+\newcommand{\uu}{\bm{u}}
+\newcommand{\UU}{\bm{U}}
+\renewcommand{\ss}{s}
+\renewcommand{\SS}{S}
+\newcommand{\zz}{\bm{z}}
+\newcommand{\sig}{\sigma}
+\newcommand{\xb}{\bar{\xx}}
+\newcommand{\ub}{\bar{\uu}}
+\newcommand{\sigb}{\bar{\sig}}
+\renewcommand{\sb}{\bar{s}}
+\newcommand{\zb}{\bar{\zz}}
+\newcommand{\ww}{R}
+\newcommand{\dummy}{\zeta}
+\newcommand{\ee}{\bm{\eta}}
+\newcommand{\eek}{\eta_{\ind}}
+\newcommand{\eet}{\eta_{s}}
+\newcommand{\vv}{\bm{\nu}}
+\newcommand{\VV}{\bm{V}}
+\newcommand{\wtr}{\bm{w}_{\text{tr}}}
+\newcommand{\wtrk}{\bm{w}_{\text{tr},\ind}}
+\newcommand{\wvc}{w_{\text{vc}}}
+\newcommand{\res}{\Delta}
+\newcommand{\resk}{\res_\ind}
+\newcommand{\reskp}{\res_{\ind+1}}
+\newcommand{\resmin}{\res_{\min}}
+\newcommand{\setK}{\mathsf{N}}
+\newcommand{\setKb}{\bar{\mathsf{N}}}
+\newcommand{\dxtol}{\delta x_{\text{tol}}}
+\newcommand{\err}{\varepsilon}
+\newcommand{\wv}{w_{\nu}}
+\newcommand{\xxic}{\xx_{\textit{ic}}}
+\newcommand{\xxf}{\xx_{\textit{f}}}
+
+% Scaling
+\newcommand{\Px}{P_x}
+\newcommand{\Pu}{P_u}
+\newcommand{\qx}{\bm{p}_x}
+\newcommand{\qu}{\bm{p}_u}
+\newcommand{\Pt}{p_t}
+\newcommand{\Pz}{P_z}
+\newcommand{\qz}{\bm{p}_z}
+\newcommand{\scale}[1]{\hat{#1}}
+\newcommand{\xxs}{\scale{\xx}}
+\newcommand{\xxbs}{\scale{\xb}}
+\newcommand{\uubs}{\scale{\ub}}
+\newcommand{\uus}{\scale{\uu}}
+\newcommand{\sss}{\scale{\ss}}
+\newcommand{\ees}{\scale{\ee}}
+\newcommand{\eets}{\hat{\eta}_{s}}
+\newcommand{\eeks}{\scale{\eta}_{\ind}}
+\newcommand{\XXs}{\scale{\XX}}
+\newcommand{\UUs}{\scale{\UU}}
+\newcommand{\VVs}{\scale{\VV}}
+\newcommand{\zzs}{\scale{\zz}}
+
+% LOCAL FEASIBILITY
+\newcommand{\sigI}{\Sigma_0}
+\newcommand{\sigF}{\Sigma_f}
+\newcommand{\xe}{\bm{\upchi}}
+\newcommand{\xek}{\xe_{\ind}}
+\newcommand{\xeic}{\xe_{\textit{ic}}}
+\newcommand{\xef}{\xe_f}
+\newcommand{\xeN}{\xe_N}
+\newcommand{\ue}{\bm{\mu}}
+\newcommand{\uek}{\ue_{\ind}}
+\newcommand{\se}{\varsigma}
+\newcommand{\expt}[1]{\mathbb{E}\big[#1\big]}
+
+% SATELLITE GNC
+\newcommand{\sI}{\bm{s}_{\inertial}}
+\newcommand{\bB}{\bm{b}_{\body}}
+\newcommand{\bI}{\bm{b}_{\inertial}}
+\newcommand{\pang}{\theta}
+\newcommand{\hB}{\bm{h}_{\body}}
+\newcommand{\dhB}{\dot{\bm{h}}_{\body}}
+\newcommand{\hBic}{\bm{h}_{\body,\textit{ic}}}
+\newcommand{\hBf}{\bm{h}_{\body,\textit{f}}}
+\newcommand{\hw}{\bm{h}_w}
+\newcommand{\dhw}{\dot{\bm{h}}_w}
+\newcommand{\hwic}{\bm{h}_{w,\textit{ic}}}
+\newcommand{\hwf}{\bm{h}_{w,\textit{f}}}
+\newcommand{\Hq}{H_{\q}}
+\newcommand{\Hw}{H_{\omega}}
+\newcommand{\ME}{\tilde{M}_e}
+\newcommand{\MI}{\tilde{M}_i}
+
+% astrodynamics
+\renewcommand{\sun}{\astrosun}
+\renewcommand{\earth}{\oplus}
+\newcommand{\moon}{\leftmoon}
+
+%% theorems and stuff
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{assumption}[theorem]{Assumption}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{proposition}{Proposition}
+\newtheorem{constraint}{Constraint}
+\newtheorem{assume}{Assumption}
+\newtheorem{problem}{Problem}
+
+% \newtheorem{theorem}{Theorem}[section]
+% \newtheorem{definition}{Definition}
+% \newtheorem{assumption}[theorem]{Assumption}
+% \newtheorem{lemma}[theorem]{Lemma}
+% \newtheorem{claim}[theorem]{Claim}
+% \newtheorem{remarks}[theorem]{Remarks}
+% \newtheorem{remark}[theorem]{Remark}
+% \newtheorem{example}[theorem]{Example}
+% \newtheorem{corollary}[theorem]{Corollary}
+% \newtheorem{proposition}{Proposition}
+% \newtheorem{constraint}{Constraint}
+% \newtheorem{problem}{Problem}
+% \newtheorem{assume}{Assumption}
+
+% Other
+\newcommand*\samethanks[1][\value{footnote}]{\footnotemark[#1]}
+\newcommand{\eqnref}[1]{(\ref{#1})}
+\newcommand{\class}[1]{\texttt{#1}}
+\newcommand{\package}[1]{\texttt{#1}}
+\newcommand{\file}[1]{\texttt{#1}}
+\newcommand{\BibTeX}{\textsc{Bib}\TeX}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\ttt}[1]{\texttt{#1}}
+
+\newcommand{\quotebox}[1]{
+	\begin{shaded*}
+	\vspace{-3pt}
+	\begin{center}
+	\textit{#1}
+	\end{center}
+	\vspace{-3pt}
+	\end{shaded*}
+}

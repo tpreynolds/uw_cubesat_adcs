@@ -1,29 +1,82 @@
 \documentclass[12pt]{article}
 
 % Load commands & pakcages
-\input{packages.tex}
-\input{commands.tex}
-%\input{mikz.tex}
-\newcommand{\ttt}[1]{\texttt{#1}}
+\input{preamble.tex}
+\input{my_tikz.tex}
 
-\addbibresource{PDG.bib}
+% \addbibresource{PDG.bib}
 
-\title{\textsc{\textbf{SOACer} \\ \textbf{S}OC-i \textbf{O}ptimal \textbf{A}ttitude \textbf{C}ontroll\textbf{er}}}
+\title{\textsc{SOAC Interface Control Document \\ {\small \textbf{S}attelite for \textbf{O}ptimal \textbf{C}ontrol and \textbf{I}maging}}}
 
  \author{
   Taylor P. Reynolds%
-  \thanks{Ph.D. Student, W.E. Boeing Department of Aeronautics \& Astronautics: \texttt{tpr6@uw.edu} } 
-\\
-  {\normalsize\itshape
-  RAIN Lab -- University of Washington}
- }
+  \thanks{Ph.D. Candidate, RAIN Lab, W.E. Boeing Department of Aeronautics \& Astronautics, University of Washington: \texttt{tpr6@uw.edu} } }
  \date{\today}
 
 \begin{document}
  
 \maketitle
 
-\section{Convex Optimization}
+This document is the interface control document for the primary payload of the SOCi mission. The payload is SOCi's Optimal Attitude Controller (SOAC), and uses convex optimization techniques to compute guidance trajectories that steers the spacecraft to a desired orientation while satisfying numerous constraints of interest. Specifically, trajectories are generated that respect angular rate bounds, torque bounds, and attitude inclusion and exclusion zone constraints. 
+
+This document provides a summary of the system, technical details on how the controller works, the interfaces to other parts of the spacecraft, and the verification and validation procedure used to ensure proper operation. 
+
+\section{Summary of System}\label{sec:summary}
+
+The SOAC payload is a software component within the Guidance, Navigation, and Control (GNC) subsystem and is the primary payload of the mission. The SOAC payload will produce feedforward reaction wheel torque commands and a reference state vector in order to control the orientation of the spacecraft. All reorientations will be performed starting from the spacecraft’s current attitude, and will terminate at a ground-specified attitude. The maneuver begins at a time that is pre-specified and steers the spacecraft to a desired final attitude, both of which are given as inputs; see~\sref{sec2:cmd_interface}.
+
+A block diagram of the SOAC control system is provided in Figure~\ref{fig:soac_loop}. It must be coupled with a feedback controller (shown as $C(s)$) to compensate for small errors that accumulate during the execution of a feedforward maneuver. Note that the ``difference'' junction used to compute the state errors is not a subtraction since quaternions are used; however the same symbol is overloaded for ease of understanding.
+
+\begin{figure}[tbh!]
+\centering
+\input{figs/tikz_soac_loop.tex}
+\caption{Abstract control loop for the SOAC payload. The controller represented by $C(s)$ is not designed as part of the payload.}
+\label{fig:soac_loop}
+\end{figure}
+
+\section{System Interfaces}\label{sec:interfaces}
+
+\subsection{System Overview}\label{sec2:sys_overview} 
+
+Provide a functional block diagram of the system here. What is the main function of this system, what does it do? What are the inputs/outputs? How does information/power/etc. flow from input to output? What are the operating modes of your system, and how do they relate to the operating modes described in the Concept of Operations? You can break it down as much as you need here to give sufficient detail as to how your system operates. This is your chance to go into detail about how you have organized things to solve the problem you formulated in the summary section.  You should produce a state diagram (example here) detailing in plain english how your system will operate in every possible scenario.
+
+\subsection{Mechanical Interface}\label{sec2:mech_interface}
+
+How will your system be connected to the spacecraft? How will components be connected to your system? This must be as detailed as you can make it. If your system is “homeless” in the sense that you need to be mounted on a PC104 board, then this section must detail how you plan to accomplish that. Every detachable component of your system must be included here.
+
+\subsection{Electrical Interface}\label{sec2:elec_interface}
+How will your system receive power? What is the operating voltage, expected power draw during ALL operating modes. How will it be connected to the appropriate power rail on the spacecraft stack? This must include pinouts for all the electrical interfaces.\newline
+
+For example:
+
+\vspace{3pt}\hrule\vspace{3pt}
+System X will be connected the 3.3V rail located in pin 34 of the stack header (see SOCI-CDH-XXX for pin definitions). Table Y details the expected current consumption across all operating modes identified in Section 2.1. 
+\vspace{3pt}\hrule\vspace{3pt}
+
+\subsection{Command and Data Interface}\label{sec2:cmd_interface}
+What data does your system need from other systems on the spacecraft to function? Can your system be commanded from the ground, or from another system on the spacecraft to do something? What data does your system output, and where will it go? You need to indicate specifically which subsystem and/or spacecraft component will receive the data.  Anything intended to be transmitted to the ground must be part of the measurement budget as well.
+
+Also, specifically identify the communication protocol (I2C, SPI, UART or other) between the system and CDH. Moreover, identify the data information that should be send to / received from CDH(or via CDH to other subsystems). Identify the commands you’ll need from CDH such as setting operating mode or performing some actions(i.e. Taking a picture, orienting the device, communicate etc.)
+
+\subsection{Thermal Interface}\label{sec2:thermal_interface}
+
+What are the thermal limits of your system? Will it produce heat, or will it generally be cold? How does the operation of the system vary with temperature? Is it located near something that will produce heat? Does it need a temperature sensor? For each board, include a table giving the power dissipation of high-power components and their location on the board. 
+
+\section{System Operation}\label{sec:sys_operation}
+
+How does your system work? From power up to performing its function, what are the steps that somebody would need to take? Write this like a recipe book for somebody new who is knowledgeable in the area but did not create the system. You need to be detailed here, remember nobody knows what you know about your system! 
+
+\section{Verification and Validation}\label{sec:v_and_v}
+
+This section will detail your testing campaign. The test campaign must be designed to prove beyond doubt that your system meets all mission requirements and all risks are minimized. You can point to different documents where you have a more thorough explanation of the results, but you must at least
+
+Cover what was tested, and how. What specific system responses did you test for? What were the limitations (i.e. what did you not test)? Have you tested every scenario/operating condition that we expect to see in our operations?  What were the pass/fail criteria and why?
+Data that proves that the tests were passed and/or failed. 
+Any other details that you think our reviewers would ask about. (Ask yourself the question: If I were reviewing this system, what are the weaknesses? How would I poke holes in the design, and how would this thing fail? What have I missed?)
+
+
+\clearpage
+\section*{Appendix: Technical Details}
 
 A general convex optimization problem is expressed
 \begin{subequations}
@@ -37,12 +90,12 @@ where $\bm{z}\in\real^{n_z}$ denotes the \textit{solution variable}, $f_0$ is th
 
 \subsection{Convex Cones}
 
-Each proper cone $\cone$ defines a \textit{generalized inequality} such that we may write $G \bm{z} \conleq h$ if and only if $h - G \bm{z} \in \cone$. In particular we shall care about two cones, the \textit{linear cones} and the \textit{quadratic cones}. Linear cones are denoted by the set 
+Each proper cone $\coneK$ defines a \textit{generalized inequality} such that we may write $G \bm{z} \conleq h$ if and only if $h - G \bm{z} \in \coneK$. In particular we shall care about two cones, the \textit{linear cones} and the \textit{quadratic cones}. Linear cones are denoted by the set 
 \begin{equation}
 \lcone{n} = \{ \bm{z}\in\real^n \,|\, \bm{z} \geq 0 \},
 \label{eq:lcone_set}
 \end{equation}
-where the inequality is understood pointwise. The linear cones are the nonnegative orthants in $\real^n$. The second cone that we will deal with are the second order cones, each of which are a set $\qcone{n+1}$ defined by
+where the inequality is understood elementwise. The other type of convex cones that we use are the second order cones, each of which are a set $\qcone{n+1}$ defined by
 \begin{equation}
 \qcone{n+1} = \big\{ (z_0,\bm{z}_n)\in\real\times\real^n \,|\, z_0 \geq \| \bm{z}_n \|_2 \big\}.
 \label{eq:soc_set}
@@ -77,9 +130,7 @@ h \definedas \begin{bmatrix}
 \frac{b^T}{\sqrt{2}} \\ -A \\ -\frac{b^T}{\sqrt{2}}.
 \end{bmatrix}
 \end{equation}
-Now, the pair $(G,h)$ may be passed to ECOS to represent the quadratic constraint~\eqref{eq:soc_quad}.
-
-
+The pair $(G,h)$ may be passed to ECOS to represent the quadratic constraint~\eqref{eq:soc_quad}.
 
 \section{Problem Formulation}
 

@@ -1,0 +1,40 @@
+% \documentclass{standalone}
+% \input{../preamble.tex}
+% \input{../my_tikz.tex}
+
+% \begin{document}
+
+\begin{tikzpicture}
+\tikzmath{
+	\x1=-3; \y=0; \wdth=2;
+	\x2=\x1+1.5*\wdth; 
+	\x3=\x2+\wdth;
+	\x4=\x3+\wdth;
+	\x5=\x4+\wdth;
+}
+
+% draw blocks
+\node[block_blank,name=soac] at (\x1,\y) {SOAC};
+\node[sum_blank,name=sum1] at (\x2,\y) {};
+\node[block_blank,name=ctrl] at (\x3,\y) {C(s)};
+\node[sum_blank,name=sum2] at (\x4,\y) {};
+\node[block_blank,name=sc] at (\x5,\y) {P(s)};
+\node[output,name=out] at (\x5+\wdth,\y) {};
+\node[input,name=in] at (\x1-\wdth,\y) {};
+
+% connect blocks
+\draw[thick,->] (in) -- (soac) node[pos=0.1,below] {};
+\draw[thick,->] (soac) -- (sum1) node[pos=0.5,above] {\footnotesize ref. state};
+\draw[thick,->] (sum1) -- (ctrl);
+\draw[thick,->] (ctrl) -- (sum2);
+\draw[thick,->] (sum2) -- (sc);
+\draw[thick,->] (sc) -- (out);
+\draw[thick,->] (soac.north) -- ($(soac.north)+(0,0.5)$) -| node[pos=0.25,above] {\footnotesize feedforward control} (sum2.north) node[pos=0.96,anchor=east] {$+$};
+\draw[thick,->] ($(sc.east)+(0.25*\wdth,0)$) -- ($(sc.east)+(0.25*\wdth,-1)$) -| node[pos=0.25,below] {\footnotesize actual state} (sum1.south) node[pos=0.9,anchor=east] {$-$};
+
+% \draw[help lines] (-5,-5) grid (5,5);
+% \filldraw[red!100] (0,0) circle (2pt);
+
+\end{tikzpicture}
+
+% \end{document}
