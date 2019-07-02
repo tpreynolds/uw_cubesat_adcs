@@ -1,8 +1,8 @@
-\documentclass{standalone}
-\input{../preamble.tex}
-\input{../my_tikz.tex}
+% \documentclass{standalone}
+% \input{../preamble.tex}
+% \input{../my_tikz.tex}
 
-\begin{document}
+% \begin{document}
 
 \begin{tikzpicture}
 \tikzmath{
@@ -21,9 +21,9 @@
 }
 
 % draw main blocks
-\node[draw, thick, rectangle, minimum height=10cm, minimum width=8cm] at (0,0) {};
+\node[draw, thick, rectangle, minimum height=10cm, minimum width=8cm,align=flush right,text depth=9cm,text width=7cm] at (0,0) {SOAC};
 \node[draw, thick, rectangle, minimum height=4cm, minimum width=2.75cm, text width=2.5cm,align=flush left,name=soac] at (-1.75,0) {\begin{tabular}{l}
-SOAC \\ \begin{tikzpicture}[baseline=-\the\dimexpr\fontdimen22\textfont2\relax]
+SOLVE \\ \begin{tikzpicture}[baseline=-\the\dimexpr\fontdimen22\textfont2\relax]
   \filldraw[black!100] (0,0) circle (1pt);
 \end{tikzpicture} {\footnotesize defines params} \\
 \begin{tikzpicture}[baseline=-\the\dimexpr\fontdimen22\textfont2\relax]
@@ -96,4 +96,4 @@ INTERP \\
 
 \end{tikzpicture}
 
-\end{document}
+% \end{document}

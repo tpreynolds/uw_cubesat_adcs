@@ -1,4 +1,4 @@
-\documentclass[12pt]{article}
+\documentclass[10pt]{article}
 
 % Load commands & pakcages
 \input{preamble.tex}
@@ -25,9 +25,9 @@ This document provides a summary of the system, technical details on how the con
 
 The SOAC payload is a software component within the Guidance, Navigation, and Control (GNC) subsystem and is the primary payload of the mission. The SOAC payload will produce feedforward reaction wheel torque commands and a reference state vector in order to control the orientation of the spacecraft. All reorientations will be performed starting from the spacecraft’s current attitude, and will terminate at a ground-specified attitude. The maneuver begins at a time that is pre-specified and steers the spacecraft to a desired final attitude, both of which are given as inputs; see~\sref{sec2:cmd_interface}.
 
-A block diagram of the SOAC control system is provided in Figure~\ref{fig:soac_loop}. It must be coupled with a feedback controller (shown as $C(s)$) to compensate for small errors that accumulate during the execution of a feedforward maneuver. Note that the ``difference'' junction used to compute the state errors is not a subtraction since quaternions are used; however the same symbol is overloaded for ease of understanding.
+A block diagram of the SOAC control system is provided in~\fref{fig:soac_loop}. It must be coupled with a feedback controller (shown as $C(s)$) to compensate for small errors that accumulate during the execution of a feedforward maneuver. Note that the ``difference'' junction used to compute the state errors is not a subtraction since quaternions are used; however the same symbol is overloaded for ease of understanding.
 
-\begin{figure}[tbh!]
+\begin{figure}[bth]
 \centering
 \input{figs/tikz_soac_loop.tex}
 \caption{Abstract control loop for the SOAC payload. The controller represented by $C(s)$ is not designed as part of the payload.}
@@ -38,33 +38,81 @@ A block diagram of the SOAC control system is provided in Figure~\ref{fig:soac_l
 
 \subsection{System Overview}\label{sec2:sys_overview} 
 
-Provide a functional block diagram of the system here. What is the main function of this system, what does it do? What are the inputs/outputs? How does information/power/etc. flow from input to output? What are the operating modes of your system, and how do they relate to the operating modes described in the Concept of Operations? You can break it down as much as you need here to give sufficient detail as to how your system operates. This is your chance to go into detail about how you have organized things to solve the problem you formulated in the summary section.  You should produce a state diagram (example here) detailing in plain english how your system will operate in every possible scenario.
+\begin{figure}[tbh]
+\centering
+\input{figs/tikz_soac_inner.tex}
+\caption{A representation of the input/output structure of the SOAC payload and its two primary functional components. The input \code{gnc\_mode} triggers the execution of the \textit{SOLVE} block which pulls in all unconnected inputs.}
+\label{fig:soac_inner}
+\end{figure}
+
+A block diagram representation of the overall system is given in~\fref{fig:soac_inner}. The SOAC library takes 9 inputs and provides 3 outputs; details of each are provided in Table~\ref{tab:inputs_outputs}. The main function of the library is to use inputs $2-7$ to define a point-to-point attitude reorientation problem, and then to solve for a feedforward trajectory (state, control and maneuver time) that will reorient the satellite while respecting:
+\begin{enumerate}
+\item the nonlinear dynamics of the spacecraft when modelled as a rigid body,
+\item an angular rate limit of $\omega_{\max} = 0.1~\unit{rad/s}$,
+\item a torque limit of $\tau_{\max} = 3.2~\unit{mNm}$,
+\item a final time between $t_{f,\min}=15~\unit{s}$ and $t_{f,\max}=25~\unit{s}$,
+\item the inertial sun vector remains within a $\theta_{\max}=60\unit{\dg}$ degree cone (half-angle) centered around the sun sensor boresight direction,
+\item the inertial sun vector remains outside of a $\theta_{\min}=60\unit{\dg}$ degree cone (half-angle) centered around the camera boresight direction. 
+\end{enumerate}
+In addition, the maneuvers will be computed such that they minimize the power consumed by the reaction wheels to perform the maneuver. The details and specific formulae used to achieve the computation of such trajectories are provided in an Appendix to this document, and will soon be replaced by a publication. 
+
+\begin{table}[tbh]
+\caption{Description of the SOAC payload's inputs and outputs}
+\label{tab:inputs_outputs}
+\centering
+\begin{tabular}{ccccL{8cm}}
+\multicolumn{5}{l}{\textbf{Inputs}}\\\hline\hline
+\null & \textbf{Name} & \textbf{Size} & \textbf{Type} & \textbf{Description} \\ \hline
+1 & \ttt{gnc\_mode} & \textit{scalar} & \code{int8} & The current GNC system operating mode. \\
+2 & \ttt{quat\_ic}  & $4 \times 1$ & \code{double} & The current estimated attitude of the s/c. \\ 
+3 & \ttt{w\_ic\_radps}  & $3 \times 1$ & \code{double} & The current estimated angular velocity of the s/c.\\
+4 & \ttt{hw\_ic\_Nms} & $3 \times 1$ & \code{double} & The current momentum vector of the reaction wheels. \\
+5 & \ttt{quat\_cmd} & $4 \times 1$ & \code{double} & The desired attitude at the end of the maneuver \\
+6 & \ttt{w\_cmd\_radps} & $3 \times 1$ & \code{double} & The desired angular velocity at the end of the maneuver \\
+7 & \ttt{sun\_inertial\_unit} & $3 \times 1$ & \code{double} & The inertial sun direction at the current time. This is assumed to be constant over the duration of the maneuver. \\
+8 & \ttt{MET\_epoch} & \textit{scalar} & \code{double} & The maneuver epoch time in units of mission elapsed time (MET) provided via ground command prior to maneuver execution. \\
+9 & \ttt{MET\_current} & \textit{scalar} & \code{double} & The current value of MET. \\
+\multicolumn{5}{l}{\textbf{Outputs}}\\\hline\hline
+\null & \textbf{Name} & \textbf{Size} & \textbf{Type} & \textbf{Description} \\ \hline
+1 & \ttt{soac\_solution} & ? & double & The entire output from the SOAC iterations. This should all be routed to ground for post-processing.\\
+2 & \ttt{command\_state} & $10\times 1$ & \code{double} & The interpolated state vector to be used as a reference for the feedback control system.\\
+3 & \ttt{command\_torque} & $3\times 1$ & \code{double} & The interpolated control vector to be used as a feedforward actuator command.
+\end{tabular}
+\end{table}
+
+\subsubsection{SOAC Operating Modes}\label{sec3:op_modes}
+There are effectively two operating modes of the SOAC payload: in-use and idle. The trigger attached to the \code{gnc\_mode} shown in~\fref{fig:soac_inner} is the arbiter between the two modes. The output of the trigger goes high when the following conditions are met:
+\begin{enumerate}
+\item The value of \code{gnc\_mode = 33},
+\item The previous value of \code{gnc\_mode != 33}.
+\end{enumerate}
+The SOAC payload can be commanded to its in-use mode by the primary GNC mode manager by switching the value of \code{gnc\_mode} to $33$. The conditions upon which the primary GNC operating mode is set to $33$ are provided in the \todo{link main GNC ICD}. Maintaining the primary GNC mode at this value will not continuously trigger the payload due to the second clause. As a result, the primary GNC mode must be toggled back to some value that is not $33$ prior to requesting another solution. \todo{should a re-solve command be implemented whereby SOAC could re-solve the remainder of the trajectory?} 
+
+\todo{add a diagram showing the behaviour across 4 time steps? First GNC MODE!=33 and outputs all zeros; then GNC MODE==33, SOLVE grabs inputs and provides a solution, INTERP outputs something; still GNC MODE==33, SOLVE is now idle, INTERP provides updated something until $t_f$ seconds have passed.}
+
+% Provide a functional block diagram of the system here. What is the main function of this system, what does it do? What are the inputs/outputs? How does information/power/etc. flow from input to output? What are the operating modes of your system, and how do they relate to the operating modes described in the Concept of Operations? You can break it down as much as you need here to give sufficient detail as to how your system operates. This is your chance to go into detail about how you have organized things to solve the problem you formulated in the summary section.  You should produce a state diagram (example here) detailing in plain english how your system will operate in every possible scenario.
 
 \subsection{Mechanical Interface}\label{sec2:mech_interface}
 
-How will your system be connected to the spacecraft? How will components be connected to your system? This must be as detailed as you can make it. If your system is “homeless” in the sense that you need to be mounted on a PC104 board, then this section must detail how you plan to accomplish that. Every detachable component of your system must be included here.
+The SOAC payload is a software function that will be run on the main flight computer. There is no separate mechanical interface.
 
 \subsection{Electrical Interface}\label{sec2:elec_interface}
-How will your system receive power? What is the operating voltage, expected power draw during ALL operating modes. How will it be connected to the appropriate power rail on the spacecraft stack? This must include pinouts for all the electrical interfaces.\newline
 
-For example:
-
-\vspace{3pt}\hrule\vspace{3pt}
-System X will be connected the 3.3V rail located in pin 34 of the stack header (see SOCI-CDH-XXX for pin definitions). Table Y details the expected current consumption across all operating modes identified in Section 2.1. 
-\vspace{3pt}\hrule\vspace{3pt}
+The SOAC payload is a software function that will be run on the main flight computer. There is no separate electrical interface. \todo{it may be worth characterizing the expected increase in current draw when we are calling the solver. Is this something we can measure? Is it useful?}
 
 \subsection{Command and Data Interface}\label{sec2:cmd_interface}
-What data does your system need from other systems on the spacecraft to function? Can your system be commanded from the ground, or from another system on the spacecraft to do something? What data does your system output, and where will it go? You need to indicate specifically which subsystem and/or spacecraft component will receive the data.  Anything intended to be transmitted to the ground must be part of the measurement budget as well.
 
-Also, specifically identify the communication protocol (I2C, SPI, UART or other) between the system and CDH. Moreover, identify the data information that should be send to / received from CDH(or via CDH to other subsystems). Identify the commands you’ll need from CDH such as setting operating mode or performing some actions(i.e. Taking a picture, orienting the device, communicate etc.)
+All inputs listed in~\tabref{tab:inputs_outputs} will come from the main GNC flight software. Refer to \todo{link main GNC ICD}. 
+
+The output \ttt{soac\_solution} must be saved for future downlink to the ground station. This has been included in the COM system's measurement budget, and shall be maintained by CDH immediately once it is made available by SOAC. The two remaining outputs are to be provided as the GNC guidance solution and feed forward to the feedback controller that is used during primary GNC mode $33$. 
 
 \subsection{Thermal Interface}\label{sec2:thermal_interface}
 
-What are the thermal limits of your system? Will it produce heat, or will it generally be cold? How does the operation of the system vary with temperature? Is it located near something that will produce heat? Does it need a temperature sensor? For each board, include a table giving the power dissipation of high-power components and their location on the board. 
+The SOAC payload is a software component that will be run on the main flight computer. There is no separate thermal interface. However, running the SOAC payload may cause an marked increase in the flight computer's computational load, and therefore it may produce more heat than nominal operating conditions. By calling SOAC only once (instead of repeatedly, see~\sref{sec3:op_modes}) it is hoped that SOAC will not create a large difference in thermal properties than what is expected for the main flight computer.
 
-\section{System Operation}\label{sec:sys_operation}
+% \section{System Operation}\label{sec:sys_operation}
 
-How does your system work? From power up to performing its function, what are the steps that somebody would need to take? Write this like a recipe book for somebody new who is knowledgeable in the area but did not create the system. You need to be detailed here, remember nobody knows what you know about your system! 
+% How does your system work? From power up to performing its function, what are the steps that somebody would need to take? Write this like a recipe book for somebody new who is knowledgeable in the area but did not create the system. You need to be detailed here, remember nobody knows what you know about your system! 
 
 \section{Verification and Validation}\label{sec:v_and_v}
 
@@ -88,7 +136,7 @@ A general convex optimization problem is expressed
 \end{subequations}
 where $\bm{z}\in\real^{n_z}$ denotes the \textit{solution variable}, $f_0$ is the cost function, the $h_i$ are the \textit{equality constraints} and the $f_j$ are the \textit{inequality constraints}. The functions $f_j$ for $j=0,1,\ldots,n_{iq}$ must be \textit{convex functions} of the variable $\bm{z}$, while the functions $h_i$ for $i=1,\ldots,n_{eq}$ must be \textit{affine} functions of the variable $\bm{z}$.
 
-\subsection{Convex Cones}
+\subsection*{Convex Cones}
 
 Each proper cone $\coneK$ defines a \textit{generalized inequality} such that we may write $G \bm{z} \conleq h$ if and only if $h - G \bm{z} \in \coneK$. In particular we shall care about two cones, the \textit{linear cones} and the \textit{quadratic cones}. Linear cones are denoted by the set 
 \begin{equation}
@@ -132,25 +180,30 @@ h \definedas \begin{bmatrix}
 \end{equation}
 The pair $(G,h)$ may be passed to ECOS to represent the quadratic constraint~\eqref{eq:soc_quad}.
 
-\section{Problem Formulation}
+\subsection*{Continuous Problem Formulation}
 
-The continuous time optimal control problem to be solved is as follows. 
+The continuous time optimal control problem to be solved is as follows. \todo{define ME and MI.}
 \begin{problem}\label{prob:prob1}
-Find the time $\tf\in(\ti,\tfmax]$ and torque commands $\uB : (\ti,\tfmax] \rightarrow \real^3$ such that
+Find the time $\tf^*\in\realpp$ and torque commands $\bm{\tau} : [\ti,\tf^*] \rightarrow \real^3$ such that
 \begin{subequations}
 \begin{align}
-\min_{\tf,\uB(\cdot)} &\quad \tf \label{eq:prob_cost}\\
+\min_{\tf,\bm{\tau}(\cdot)} &\quad \int_{\ti}^{\tf^*} \bm{\tau}\tran\bm{\tau} dt \label{eq:prob_cost}\\
 \text{subject to} &\quad \qdot = \frac{1}{2} \q \otimes \wB \label{eq:prob_b}\\
-&\quad J \wdot = \uB - \wB^{\times} J \wB \label{eq:prob_c}\\
+&\quad \dhB = \bm{\tau} + (\hB+\hw)^{\times} \left( \inv{J} \hB \right)\label{eq:prob_c}\\
+&\quad \dhw = -\bm{\tau} \\
 &\quad \| \wB \|_{\infty} \leq \wmax \label{eq:prob_d}\\
 &\quad \| \uB \|_{\infty} \leq \umax \label{eq:prob_e}\\
 &\quad \q^T \ME \q < 2 \label{eq:prob_f}\\
 &\quad \q^T \MI \q < 2 \label{eq:prob_g}\\
 &\quad \tfmin \leq \tf \leq \tfmax \label{eq:prob_h}\\
-&\quad \q(\ti) = \q_0,\, \q(\tf) = \q_f,\,\wB(\ti) = \wB(\tf) = 0.\label{eq:prob_i}
+&\quad \q(\ti) = \qic,\quad \wB(\ti)=\wic,\quad \hw(\ti)=\hwic, \\
+&\quad \q(\tf) = \q_f,\,\wB(\tf) = 0.\label{eq:prob_i}
 \end{align}
 \end{subequations}
 \end{problem} 
+
+\subsection*{Transcription to Second-Order Cone Program}
+This section details the steps necessary to obtain a convex second-order cone approximation of~\ref{prob:prob1} that is solved repeatedly, until convergence, within the SOLVE block of~\fref{fig:soac_inner}.
 
 \paragraph{Time Normalization}
 We define our \textit{state} to be $\bm{x} = \big[ \q \; \wB \big]^T \in \real^7$ and our \textit{control} to be $\bm{u} = \uB \in \real^3$. The dynamics in~\eqref{eq:prob_b} and~\eqref{eq:prob_c} can then be expressed in general using
@@ -167,7 +220,7 @@ where $s \definedas \der{t}{\tau}$ is called the \textit{time-scaling factor}. B
 
 \paragraph{Linearization}
 
-
+\todo{Provide the Jacobians.}
 
 \paragraph{Discretization}
 
@@ -225,6 +278,9 @@ Find the final time $s$ and the control $\bm{U}\in\real^{3 \times N}$ such that
 \end{subequations}
 where $\bm{X} = \big[ \bm{x}_0^T \; \bm{x}_1^T \; \ldots \; \bm{x}_{N}^T ]^T \in \real^{7 \times N}$ and similarly for $\bm{U}$. Moreover, $\Hq = \big[ \eye{4} \; \zeros{4}{3} \big]$ and $\Hw = \big[ \zeros{3}{4} \; \eye{3} \big]$.
 \end{problem}
+
+\paragraph{Scaling}
+\todo{add scaling method}
 
 \paragraph{Standard Form of Constraints}
 
