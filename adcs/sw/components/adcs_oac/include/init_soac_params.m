@@ -40,6 +40,7 @@ soac.dt = 1/(soac.N-1);
 switch soac.config
     case 'b'
         soac.sample_time_s = (1/10); % sample time [s]
+        soac.interp_sample_time_s = (1/10); % interp sample time [s]
         % problem sizes (must match build_soac.m)
         soac.c_size   = 332;
         soac.Air_size = 1278;
@@ -57,6 +58,7 @@ switch soac.config
         soac.soc_dim  = 32;
     case 'bi'
         soac.sample_time_s = (1/10); % sample time [s]
+        soac.interp_sample_time_s = (1/10); % interp sample time [s]
         % problem sizes (must match build_soac.m)
         soac.c_size   = 332;
         soac.Air_size = 1278;
@@ -73,7 +75,8 @@ switch soac.config
         soac.l_dim    = 322;
         soac.soc_dim  = [32;6;6;6;6;6;6;6;6;6;6];
     case 'bie'
-        soac.sample_time_s = (1/2); % sample time [s]
+        soac.sample_time_s = (1/10); % sample time [s]
+        soac.interp_sample_time_s = (1/10); % interp sample time [s]
         % problem sizes (must match build_soac.m)
         soac.c_size   = 332;
         soac.Air_size = 1278;
