@@ -34,6 +34,41 @@ A block diagram of the SOAC control system is provided in~\fref{fig:soac_loop}. 
 \label{fig:soac_loop}
 \end{figure}
 
+\subsection{Problem Statement}
+
+The problem that is solved by the SOAC payload can be summarized as follows. Define the state and control vectors to be
+\begin{equation}
+\bm{x}(t) = \begin{bmatrix}
+\q(t) \\ \hB(t) \\ \hw(t)
+\end{bmatrix}_{10\times 1}, \quad \text{and} \quad \bm{\tau}(t) = \begin{bmatrix}
+\tau_x(t) \\ \tau_y(t) \\ \tau_z(t)
+\end{bmatrix} \in \real^3,
+\label{eq:state_control}
+\end{equation}
+where $\tau_x,\,\tau_y,\,\tau_z$ are the components of the net torque vector about the spacecraft's body axes, $\q\in\real^4$ is the attitude quaternion, $\hB\in\real^3$ is the spacecraft bus angular momentum (in the body frame) and $\hw\in\real^3$ is the net reaction wheel angular momentum about the spacecraft body axes. 
+
+The equations of motion are assumed to be (supressing the argument of time)
+\begin{equation}
+\dot{\bm{x}} = \begin{bmatrix}
+\dot{\q} \\ \dhB \\ \dhw
+\end{bmatrix} = \begin{bmatrix}
+\tfrac{1}{2} \q \otimes \left(\inv{J} \hB \right) \\
+-\bm{\tau} + \left( \hB + \hw \right)^{\times} \left( J^{-1} \hB \right) \\
+\bm{\tau}
+\end{bmatrix}.
+\label{eq:eqms}
+\end{equation}
+
+The problem statement is given below. See the Appendix for an explanation of the constraints and how they are formulated. The cost function aims to minimize the control energy in the wheels.
+
+\begin{equation}\tag{Problem 1}\label{prob:prob1}
+\begin{alignedat}{1}
+\min_{t_f,\,\bm{\tau}(\cdot)} &\quad \int_{\ti}^{\tf} \bm{\tau}\tran\bm{\tau}(t) dt \\
+\text{subject to:} &\quad \eqref{eq:eqms} \\
+&\quad \todo{add constraints}
+\end{alignedat}
+\end{equation}
+
 \section{System Interfaces}\label{sec:interfaces}
 
 \subsection{System Overview}\label{sec2:sys_overview} 
@@ -74,7 +109,7 @@ In addition, the maneuvers will be computed such that they minimize the power co
 9 & \ttt{MET\_current} & \textit{scalar} & \code{double} & The current value of MET. \\
 \multicolumn{5}{l}{\textbf{Outputs}}\\\hline\hline
 \null & \textbf{Name} & \textbf{Size} & \textbf{Type} & \textbf{Description} \\ \hline
-1 & \ttt{soac\_solution} & ? & double & The entire output from the SOAC iterations. This should all be routed to ground for post-processing.\\
+1 & \ttt{soac\_solution} & $152\times 1$ & double & The entire output from the SOAC iterations. This should all be routed to ground for post-processing.\\
 2 & \ttt{command\_state} & $10\times 1$ & \code{double} & The interpolated state vector to be used as a reference for the feedback control system.\\
 3 & \ttt{command\_torque} & $3\times 1$ & \code{double} & The interpolated control vector to be used as a feedforward actuator command.
 \end{tabular}
@@ -89,6 +124,49 @@ There are effectively two operating modes of the SOAC payload: in-use and idle. 
 The SOAC payload can be commanded to its in-use mode by the primary GNC mode manager by switching the value of \code{gnc\_mode} to $33$. The conditions upon which the primary GNC operating mode is set to $33$ are provided in the \todo{link main GNC ICD}. Maintaining the primary GNC mode at this value will not continuously trigger the payload due to the second clause. As a result, the primary GNC mode must be toggled back to some value that is not $33$ prior to requesting another solution. \todo{should a re-solve command be implemented whereby SOAC could re-solve the remainder of the trajectory?} 
 
 \todo{add a diagram showing the behaviour across 4 time steps? First GNC MODE!=33 and outputs all zeros; then GNC MODE==33, SOLVE grabs inputs and provides a solution, INTERP outputs something; still GNC MODE==33, SOLVE is now idle, INTERP provides updated something until $t_f$ seconds have passed.}
+
+\subsubsection{Control Torque Allocation}\label{sec3:allocation}
+
+The equations of motion used in the SOAC system are given in the Appendix. Since we are using a four-wheel system, a note is needed on what assumptions are being made about how the torques computed by SOAC should be allocated to the wheels. The SOAC payload computes the \textbf{net} torque about the spacecraft body axes that should be applied to perform the maneuver, while accounting for the \textbf{net} momentum in the wheels using these same axes. 
+
+Let $\bm{H}\in\real^4$ be the vector whose components are the angular momenta stored in each wheel and let $\bm{T}\in\real^4$ be the vector whose components are the torques delivered by each wheel. Assuming that the net angular momentum of the wheels, $\hw$, is related to the momentum of each wheel, $\bm{H}$, according to some map $g : \real^4 \rightarrow \real^3$, we have
+\begin{equation}
+\hw = g(\bm{H}).
+\end{equation}
+It should be clear that the net torque, $\bm{\tau}$, is related to the torque given by each wheel, $\bm{T}$, according to the same relationship. 
+
+This section sets some ground rules for how the map $g$ is chosen, and offers a possible choice. The equations of motion~\eqref{eq:eqms} should actually read 
+\begin{equation}
+\dot{\bm{x}} = \begin{bmatrix}
+\dot{\q} \\ \dhB \\ \dot{\bm{H}}
+\end{bmatrix} = \begin{bmatrix}
+\tfrac{1}{2} \q \otimes \left(\inv{J} \hB \right) \\
+-g(\bm{T}) + \left( \hB + g(\bm{H}) \right)^{\times} \left( J^{-1} \hB \right) \\
+\bm{T}
+\end{bmatrix},
+\label{eq:new_eqms}
+\end{equation}
+for an \textit{eleven-dimensional state} $\bm{x} = \left[ \q\tran \ \hB\tran \ \bm{H}\tran \right]\tran$. These equations of motion come from the conservation of momentum combined with the four-wheel geometry. The equations in~\eqref{eq:new_eqms} \textit{are equivalent to} those in~\eqref{eq:eqms} if and only if
+\begin{enumerate}
+\item There exists a map $g^{\dagger} : \real^4 \rightarrow \real^3$ such that $\bm{z} = g\big( g^{\dagger}(\bm{z})\big)$ for any $\bm{z}\in\real^3$. 
+\item $\der{}{t}g(\bm{z}(t)) = g(\dot{\bm{z}}(t))$ for any $\bm{z}(t)\in\real^4$.
+\end{enumerate}
+Together these conditions should ensure that no matter what allocation scheme is used downstream of the SOAC payload, the intended behaviour will be recovered. 
+
+\paragraph{An Example Allocation Method:} Suppose that the net momentum is related to the momentum in each wheel by
+\begin{equation}
+\hw = \begin{bmatrix}
+\cos\beta & 0 & -\cos\beta & 0 \\ 0 & \cos\beta & 0 & -\cos\beta \\ \sin\beta & \sin\beta & \sin\beta & \sin\beta
+\end{bmatrix} \bm{H} = A_w \bm{H}
+\end{equation}
+The $3\times 4$ matrix $A_w$ is singular, but following~\cite[\S 7.3.4]{Sidi1997} the pseudo-inverse can be used to write 
+\begin{equation}
+\bm{T} = A_w^{\dagger} \bm{\tau} \quad \text{and} \quad \bm{H} = A_w^{\dagger} \hw
+\end{equation}
+where $A_w^{\dagger} = A_w\tran \inv{\left(A_w A_w\tran\right)} \in \real^{4\times 3}$
+is such that $A_w A_w^{\dagger} = \eye{3}$. Thus the mapping $g(T) = A_w$ satisfies the first condition required above (existence of an "inverse" like function). Next, it is clear that the second condition is satisfied because the matrix $A_w$ is constant. So this allocation scheme will ensure that SOAC produces the expected behaviour. This was verified in simulation by mapping an optimal set of controls $\bm{\tau}(t)$ to $\bm{T}(t)$ for $t\in[0,\tf]$ and then integrating the equations of motion~\eqref{eq:new_eqms} using the \code{Q\_ode\_4p} function. The resulting state vector matched exactly the output of SOAC.
+
+
 
 % Provide a functional block diagram of the system here. What is the main function of this system, what does it do? What are the inputs/outputs? How does information/power/etc. flow from input to output? What are the operating modes of your system, and how do they relate to the operating modes described in the Concept of Operations? You can break it down as much as you need here to give sufficient detail as to how your system operates. This is your chance to go into detail about how you have organized things to solve the problem you formulated in the summary section.  You should produce a state diagram (example here) detailing in plain english how your system will operate in every possible scenario.
 

@@ -4,6 +4,7 @@
 % clear variables; close all;
 OAC     = struct;
 opts    = ecosoptimset('verbose',0);
+RPM2RADPS = 2*pi/60;
 rng(2)
 
 % Controller parameters
@@ -14,8 +15,9 @@ Nz = N*(3*Nx+Nu)+2;
 OAC.inertia = [ 0.0338    -4.884e-05 -7.393e-05;
                -4.884e-05  0.0346     7.124e-06;
                -7.393e-05  7.124e-06  0.0075 ];
-OAC.Jw      = diag([2.9382e-05,2.9382e-05,2.9382e-05]);
-OAC.Om0     = 0.10471975511966 * [ 1000;1000;1000 ]; % initial wheel speeds [rad/s]
+OAC.Jw      = diag([2.9382e-05,2.9382e-05,2.9382e-05,2.9382e-05]);
+OAC.Om0     = RPM2RADPS * [ 1000;-1000;1000;-1000 ]; % initial wheel speeds [rad/s]
+OAC.Aw      = [ 1 0 -1 0; 0 1 0 -1; 1 1 1 1 ];
 OAC.T_max   = 3.2e-3; % 1mNm
 OAC.w_max   = 0.1;  % rad/s
 OAC.s_min   = 15;   % s
@@ -27,7 +29,7 @@ OAC.method  = 'linear';
 n   = [1;1;1]./norm([1;1;1]);
 q0  = [ cosd(60/2); sind(60/2).*n ];
 hb0 = OAC.inertia * [ 0.0; 0.0; 0.0 ];
-hw0 = OAC.Jw * 0.10471975511966 * [ 1000; 1000; 1000 ]; % rad/s
+hw0 = OAC.Aw * OAC.Jw * OAC.Om0;
 xi  = [ q0; hb0; hw0 ];
 qf  = [ 1.0; 0.0; 0.0; 0.0 ];
 hbf = OAC.inertia * [ 0.0; 0.0; 0.0 ];
@@ -195,10 +197,15 @@ uopt    = reshape(full(ue),OAC.Nu,OAC.N);
 if( strcmp(OAC.method,'previous') )
    uopt = [ uopt(:,2:end) uopt(:,end) ]; 
 end
+uopt4 = zeros(4,OAC.N);
+for k = 1:OAC.N
+   uopt4(:,k) = pinv(OAC.Aw) * uopt(:,k); 
+end
 % x0 = full(xe(1:OAC.Nx));
-x0 = [full(xe(1:4));full(OAC.inertia\xe(5:7));full(xe(8:10))];
-% X = rk4(@(t,y)Q_ode_p(OAC,t,y,uopt,OAC.t),T,x0);
-X = rk4(@(t,y)Q_ode(OAC,t,y,uopt,OAC.t),T,x0);
+x0 = [full(xe(1:4));full(OAC.inertia\xe(5:7));OAC.Jw*OAC.Om0];
+% using this integrator is proof that the allocation scheme can be used
+X = rk4(@(t,y)Q_ode_4p(OAC,t,y,uopt4,OAC.t),T,x0);
+% X = rk4(@(t,y)Q_ode(OAC,t,y,uopt,OAC.t),T,x0);
 
 E_val = zeros(size(X,1),1);
 for k = 1:size(X,1)
@@ -218,14 +225,14 @@ title('Attitude Quaternion')
 subplot(3,1,2), hold on, grid on
 % plot(T,OAC.inertia\X(:,5:7)','LineWidth',1)
 % plot(OAC.t,OAC.inertia\xopt(5:7,:),'ko','MarkerSize',3)
-plot(T,X(:,5:7)','LineWidth',1)
+plot(T,OAC.inertia\X(:,5:7)','LineWidth',1)
 plot(OAC.t,OAC.inertia\xopt(5:7,:),'ko','MarkerSize',3)
 plot([0 se],[OAC.w_max OAC.w_max],'r--','LineWidth',1)
 plot([0 se],[-OAC.w_max -OAC.w_max],'r--','LineWidth',1)
 xlabel('Time [s]')
 title('Angular Velocity')
 subplot(3,1,3), hold on, grid on
-plot(T,X(:,8:10),'LineWidth',1)
+plot(T,OAC.Aw*X(:,8:11)','LineWidth',1)
 plot(OAC.t,xopt(8:10,:),'ko','MarkerSize',3)
 xlabel('Time [s]')
 title('Wheel Momentum')
