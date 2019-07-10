@@ -19,7 +19,7 @@
 
 This document is the interface control document for the primary payload of the SOCi mission. The payload is SOCi's Optimal Attitude Controller (SOAC), and uses convex optimization techniques to compute guidance trajectories that steers the spacecraft to a desired orientation while satisfying numerous constraints of interest. Specifically, trajectories are generated that respect angular rate bounds, torque bounds, and attitude inclusion and exclusion zone constraints. 
 
-This document provides a summary of the system, technical details on how the controller works, the interfaces to other parts of the spacecraft, and the verification and validation procedure used to ensure proper operation. 
+This document provides a summary of the system, technical details on how the controller works, the interfaces to other parts of the spacecraft, and the verification and validation procedure used to ensure proper operation. I have stashed all of the data tables at the back to keep the document readable.
 
 \section{Summary of System}\label{sec:summary}
 
@@ -59,15 +59,22 @@ The equations of motion are assumed to be (supressing the argument of time)
 \label{eq:eqms}
 \end{equation}
 
-The problem statement is given below. See the Appendix for an explanation of the constraints and how they are formulated. The cost function aims to minimize the control energy in the wheels.
+The problem statement is given below. See the Appendix for an explanation of the constraints and how they are formulated. The cost function aims to minimize the power consumed by the reaction wheels to perform the maneuver. The $\mathcal{L}_2$ norm of the net torque signal is used to model their power consumption. The details and specific formulae used to achieve the computation of such trajectories are provided in an Appendix to this document, and will soon be replaced by a publication.
 
 \begin{equation}\tag{Problem 1}\label{prob:prob1}
 \begin{alignedat}{1}
 \min_{t_f,\,\bm{\tau}(\cdot)} &\quad \int_{\ti}^{\tf} \bm{\tau}\tran\bm{\tau}(t) dt \\
 \text{subject to:} &\quad \eqref{eq:eqms} \\
-&\quad \todo{add constraints}
+&\quad \| \inv{J}\hB \|_{\infty} \leq \wmax \\
+&\quad \| \bm{\tau} \|_{\infty} \leq \taumax \\
+&\quad \q^T \ME \q \leq 2 \\
+&\quad \q^T \MI \q \leq 2 \\
+&\quad \tfmin \leq \tf \leq \tfmax\\
+&\quad \q(\ti) = \qic,\quad \hB(\ti)=\hBic,\quad \hw(\ti)=\hwic, \\
+&\quad \q(\tf) = \q_f,\quad \hB(\tf) = 0.
 \end{alignedat}
 \end{equation}
+Note that the fourth and fifth constraints define the attitude exclusion zone (due to the camera) and the attitude inclusion zone (due to the sun sensor) respectively. Details on how this constraint is formulated can be found in~\cite{Lee2015}. They are each a second-order cone constraint due to their quadratic nature. All other inequality constraints are linear. Hence all inequality constraints are convex, as are the boundary conditions (the final two lines of constraints) and the cost function. The nonlinear dynamics represent the sole non-convexity of the problem.
 
 \section{System Interfaces}\label{sec:interfaces}
 
@@ -80,50 +87,30 @@ The problem statement is given below. See the Appendix for an explanation of the
 \label{fig:soac_inner}
 \end{figure}
 
-A block diagram representation of the overall system is given in~\fref{fig:soac_inner}. The SOAC library takes 9 inputs and provides 3 outputs; details of each are provided in Table~\ref{tab:inputs_outputs}. The main function of the library is to use inputs $2-7$ to define a point-to-point attitude reorientation problem, and then to solve for a feedforward trajectory (state, control and maneuver time) that will reorient the satellite while respecting:
+A block diagram representation of the overall system is given in~\fref{fig:soac_inner}. The SOAC library takes nine inputs and provides outpus outputs; details of each are provided in Table~\ref{tab:inputs_outputs}. The main function of the library is to use inputs 2-7 to define a point-to-point attitude reorientation problem, and then to solve for a feedforward trajectory (state, control and maneuver time) that will reorient the satellite while respecting each constraint. 
+
+The SOLVE function contains the custom-written parser and interface to the ECOS solver. When called upon, it will parse the data (inputs 2-7) into a series of convex optimization problems that approximate the non-convex optimal control problem given in~\ref{prob:prob1}. The solution that is computed then gets passed to the INTERP function so that it may be transformed to a set of reference state and control vectors with the same sampling time as the primary GNC flight software. Since the discretization scheme used in the SOLVE function will necessarily be a much coarser one, this is effectively a discrete-to-continuous transformation. It uses a fixed step-size RK4 integration scheme to do so. 
+
+The components of the \code{soac\_telemetry} struct are given in Table~\ref{tab:soac_telemetry}. The first three are the converged solution from the SOLVE function. The first ten entries in \code{exitcode} are the ECOS solver return values for each of the (maximum) ten iterations. The $11$th is a custom signal to provide additional information about the computed solution. The possible values are given in Table~\ref{tab:exitcodes}. The \code{slv\_time\_s} is the ECOS-reported time taken to solve each iteration's convex optimization problem. This time is \textit{setup and solve} time, and is computed in the \code{matlab\_main.c} function. Finally, the \code{soac\_count} is an integer that indicates how many times (in total) the SOLVE function has been called.
+
+\subsubsection{Constraint Boundary Values}
+
+The constraint boundaries have the following values, each of which are configurable parameters:
 \begin{enumerate}
-\item the nonlinear dynamics of the spacecraft when modelled as a rigid body,
 \item an angular rate limit of $\omega_{\max} = 0.1~\unit{rad/s}$,
 \item a torque limit of $\tau_{\max} = 3.2~\unit{mNm}$,
 \item a final time between $t_{f,\min}=15~\unit{s}$ and $t_{f,\max}=25~\unit{s}$,
 \item the inertial sun vector remains within a $\theta_{\max}=60\unit{\dg}$ degree cone (half-angle) centered around the sun sensor boresight direction,
 \item the inertial sun vector remains outside of a $\theta_{\min}=60\unit{\dg}$ degree cone (half-angle) centered around the camera boresight direction. 
-\end{enumerate}
-In addition, the maneuvers will be computed such that they minimize the power consumed by the reaction wheels to perform the maneuver. The details and specific formulae used to achieve the computation of such trajectories are provided in an Appendix to this document, and will soon be replaced by a publication. 
-
-\begin{table}[tbh]
-\caption{Description of the SOAC payload's inputs and outputs}
-\label{tab:inputs_outputs}
-\centering
-\begin{tabular}{ccccL{8cm}}
-\multicolumn{5}{l}{\textbf{Inputs}}\\\hline\hline
-\null & \textbf{Name} & \textbf{Size} & \textbf{Type} & \textbf{Description} \\ \hline
-1 & \ttt{gnc\_mode} & \textit{scalar} & \code{int8} & The current GNC system operating mode. \\
-2 & \ttt{quat\_ic}  & $4 \times 1$ & \code{double} & The current estimated attitude of the s/c. \\ 
-3 & \ttt{w\_ic\_radps}  & $3 \times 1$ & \code{double} & The current estimated angular velocity of the s/c.\\
-4 & \ttt{hw\_ic\_Nms} & $3 \times 1$ & \code{double} & The current momentum vector of the reaction wheels. \\
-5 & \ttt{quat\_cmd} & $4 \times 1$ & \code{double} & The desired attitude at the end of the maneuver \\
-6 & \ttt{w\_cmd\_radps} & $3 \times 1$ & \code{double} & The desired angular velocity at the end of the maneuver \\
-7 & \ttt{sun\_inertial\_unit} & $3 \times 1$ & \code{double} & The inertial sun direction at the current time. This is assumed to be constant over the duration of the maneuver. \\
-8 & \ttt{MET\_epoch} & \textit{scalar} & \code{double} & The maneuver epoch time in units of mission elapsed time (MET) provided via ground command prior to maneuver execution. \\
-9 & \ttt{MET\_current} & \textit{scalar} & \code{double} & The current value of MET. \\
-\multicolumn{5}{l}{\textbf{Outputs}}\\\hline\hline
-\null & \textbf{Name} & \textbf{Size} & \textbf{Type} & \textbf{Description} \\ \hline
-1 & \ttt{soac\_solution} & $152\times 1$ & double & The entire output from the SOAC iterations. This should all be routed to ground for post-processing.\\
-2 & \ttt{command\_state} & $10\times 1$ & \code{double} & The interpolated state vector to be used as a reference for the feedback control system.\\
-3 & \ttt{command\_torque} & $3\times 1$ & \code{double} & The interpolated control vector to be used as a feedforward actuator command.
-\end{tabular}
-\end{table}
+\end{enumerate} 
 
 \subsubsection{SOAC Operating Modes}\label{sec3:op_modes}
-There are effectively two operating modes of the SOAC payload: in-use and idle. The trigger attached to the \code{gnc\_mode} shown in~\fref{fig:soac_inner} is the arbiter between the two modes. The output of the trigger goes high when the following conditions are met:
+There are effectively two operating modes of the SOAC payload: operational and idle. The trigger attached to the \code{gnc\_mode} shown in~\fref{fig:soac_inner} is the arbiter between the two modes. The output of the trigger goes high when the following conditions are met:
 \begin{enumerate}
 \item The value of \code{gnc\_mode = 33},
 \item The previous value of \code{gnc\_mode != 33}.
 \end{enumerate}
-The SOAC payload can be commanded to its in-use mode by the primary GNC mode manager by switching the value of \code{gnc\_mode} to $33$. The conditions upon which the primary GNC operating mode is set to $33$ are provided in the \todo{link main GNC ICD}. Maintaining the primary GNC mode at this value will not continuously trigger the payload due to the second clause. As a result, the primary GNC mode must be toggled back to some value that is not $33$ prior to requesting another solution. \todo{should a re-solve command be implemented whereby SOAC could re-solve the remainder of the trajectory?} 
-
-\todo{add a diagram showing the behaviour across 4 time steps? First GNC MODE!=33 and outputs all zeros; then GNC MODE==33, SOLVE grabs inputs and provides a solution, INTERP outputs something; still GNC MODE==33, SOLVE is now idle, INTERP provides updated something until $t_f$ seconds have passed.}
+The SOAC payload can be commanded to its operational mode by the primary GNC mode manager by switching the value of \code{gnc\_mode} to $33$ from something else. The conditions upon which the primary GNC operating mode is set to $33$ are provided in the \todo{link main GNC ICD}. Maintaining the primary GNC mode at this value will not continuously trigger the payload due to the second clause. As a result, the primary GNC mode must be toggled back to some value that is not $33$ prior to requesting another solution. \textbf{The primary GNC flight software is assumed to be in charge of requesting a re-solve for a given maneuver.} The reason is that a re-solve commanded internally will inevitably create an algebraic loop. A brief attempt was made to design this into the library, but a decision was made to manage this within the primary GNC mode manager. 
 
 \subsubsection{Control Torque Allocation}\label{sec3:allocation}
 
@@ -194,11 +181,83 @@ The SOAC payload is a software component that will be run on the main flight com
 
 \section{Verification and Validation}\label{sec:v_and_v}
 
+This section outlines the testing campaign that SOAC will pass during design, as well as a test case that can be used to assess correct functionality during a bench test.
+
 This section will detail your testing campaign. The test campaign must be designed to prove beyond doubt that your system meets all mission requirements and all risks are minimized. You can point to different documents where you have a more thorough explanation of the results, but you must at least
 
 Cover what was tested, and how. What specific system responses did you test for? What were the limitations (i.e. what did you not test)? Have you tested every scenario/operating condition that we expect to see in our operations?  What were the pass/fail criteria and why?
 Data that proves that the tests were passed and/or failed. 
 Any other details that you think our reviewers would ask about. (Ask yourself the question: If I were reviewing this system, what are the weaknesses? How would I poke holes in the design, and how would this thing fail? What have I missed?)
+
+
+\clearpage
+\section*{Reference Tables}
+
+\begin{table}[tbh]
+\caption{Description of the SOAC payload's inputs and outputs}
+\label{tab:inputs_outputs}
+\centering
+\begin{tabular}{ccccL{8cm}}
+\multicolumn{5}{l}{\textbf{Inputs}}\\\hline\hline
+\null & \textbf{Name} & \textbf{Size} & \textbf{Type} & \textbf{Description} \\ \hline
+1 & \ttt{gnc\_mode} & \textit{scalar} & \code{int8} & The current GNC system operating mode. \\
+2 & \ttt{quat\_ic}  & $4 \times 1$ & \code{double} & The current estimated attitude of the s/c. \\ 
+3 & \ttt{w\_ic\_radps}  & $3 \times 1$ & \code{double} & The current estimated angular velocity of the s/c.\\
+4 & \ttt{hw\_ic\_Nms} & $3 \times 1$ & \code{double} & The current momentum vector of the reaction wheels. \\
+5 & \ttt{quat\_cmd} & $4 \times 1$ & \code{double} & The desired attitude at the end of the maneuver \\
+6 & \ttt{w\_cmd\_radps} & $3 \times 1$ & \code{double} & The desired angular velocity at the end of the maneuver \\
+7 & \ttt{sun\_inertial\_unit} & $3 \times 1$ & \code{double} & The inertial sun direction at the current time. This is assumed to be constant over the duration of the maneuver. \\
+8 & \ttt{MET\_epoch} & \textit{scalar} & \code{double} & The maneuver epoch time in units of mission elapsed time (MET) provided via ground command prior to maneuver execution. \\
+9 & \ttt{MET\_current} & \textit{scalar} & \code{double} & The current value of MET. \\~\\
+\multicolumn{5}{l}{\textbf{Outputs}}\\\hline\hline
+\null & \textbf{Name} & \textbf{Size} & \textbf{Type} & \textbf{Description} \\ \hline
+1 & \ttt{soac\_telemetry} & $153\times 1$ & double & The entire output from the SOAC iterations. This should all be routed to ground for post-processing. See~Table~\ref{tab:soac_telemetry}.\\
+2 & \ttt{command\_state} & $10\times 1$ & \code{double} & The interpolated state vector to be used as a reference for the feedback control system.\\
+3 & \ttt{command\_torque} & $3\times 1$ & \code{double} & The interpolated control vector to be used as a feedforward actuator command.
+\end{tabular}
+\end{table}
+
+\begin{table}[bht]
+\caption{The components of the \code{soac\_telemetry} struct.}
+\label{tab:soac_telemetry}
+\centering
+\begin{tabular}{ccc}
+\textbf{Name} & \textbf{Size} & \textbf{Type} \\ \hline\hline
+\code{opt\_state} & $100$ & \code{double} \\
+\code{opt\_ctrl\_Nm} & $30$ & \code{double} \\
+\code{final\_time\_s} & $1$ & \code{double} \\
+\code{exitcode} & $11$ & \code{double} \\
+\code{slv\_time\_s} & $10$ & \code{double} \\
+\code{soac\_count} & $1$ & \code{uint32} \\
+\end{tabular}
+\end{table}
+
+\begin{table}[bht]	
+\caption{Possible values and meanings of \code{exitcode}.}
+\label{tab:exitcodes}
+\centering
+\begin{tabular}{cC{11cm}}
+\multicolumn{2}{l}{\textbf{From ECOS: Entries 1-10}}\\\hline\hline
+\textbf{Value} & \textbf{Description} \\ \hline 
+0 & Optimal solution found \\ 
+1 & Certificate of primal infeasibility found \\
+2 & Certificate of dual infeasibility found \\
+10 & Optimal solution found subject to reduced tolerances \\
+11 & Certificate of primal infeasibility found subject to reduced tolerances \\
+12 & Certificate of dual infeasibility found subject to reduced tolerances \\
+-1 & Maximum number of iterations reached \\
+-2 & Numerical problems: unreliable search direction \\
+-3 & Numerical problems: slacks or multipliers outside cone \\
+-4 & Interrupted by signal or CTRL-C \\
+-7 & Unknown problem in solver \\~\\
+\multicolumn{2}{l}{\textbf{Custom: Entry 11}}\\\hline\hline
+\textbf{Value} & \textbf{Description} \\ \hline 
+0 & All iterates found optimal solution and the terminal iterate meets the convergence criteria \\
+-1 & One of the iterates was not a 1 or 10 \\
+3 & Maximum number of iterations reached: virtual control too large \\
+4 & Maximum number of iterations reached: state change too large  
+\end{tabular}
+\end{table}
 
 
 \clearpage
@@ -294,7 +353,7 @@ Since we are solving for the maneuvers final time, we must map the free-final ti
 \der{\bm{x}}{t} = \der{\bm{x}}{\tau}\der{\tau}{t} = f(\bm{x},\bm{u}) \quad \Rightarrow \quad \der{\bm{x}}{\tau} = \der{t}{\tau} f(\bm{x},\bm{u})
 \label{eq:dynamics_normalized}
 \end{equation}
-where $s \definedas \der{t}{\tau}$ is called the \textit{time-scaling factor}. By including $s$ as a solution variable, we can recover the final time for the maneuver using the relation $t_f = s \tau_f$. Since $\tau_f = 1$ by definition, we see that $s = t_f$!
+where $s \definedas \der{t}{\tau}$ is called the \textit{time-scaling factor}. By including $s$ as a solution variable, we can recover the final time for the maneuver using the relation $t_f = s \tau_f$. Since $\tau_f = 1$ by definition, we see that $s = t_f$. I use $s$ to keep the equations looking nicer.
 
 \paragraph{Linearization}
 
