@@ -496,17 +496,17 @@
 \newcommand{\foh}[3]{
 \begin{tikzpicture}[scale=#3,every node/.style={scale=0.8*#3,inner sep=1.5}]
     \tikzmath{
-        \x1=#1; \y1=#2; \lx=3; \ly=1; \dx=0.2; \dy=0.2; \dt=0.75;
-        \t1=\x1+\dt; \t2=\t1+\dt; \t3=\t2+\dt;
+        \Xx=#1; \Yy=#2; \Lx=3; \Ly=1; \DXx=0.2; \DYy=0.2; \DT=0.75;
+        \Tt=\Xx+\DT; \TTt=\Tt+\DT; \TTTt=\TTt+\DT;
     }
 
-    \draw[thick,->] (\x1-\dx,\y1) -- (\x1+\lx,\y1) node[anchor=north] {$t$};
-    \draw[thick,->] (\x1,\y1-\dy) -- (\x1,\y1+\ly) node[anchor=east,pos=0.6] {$\uu$};
-    \draw[thick,red] (\x1,\y1+0.2) -- ++(\dt,0.3) node[pos=0,shape=circle,fill=red] {};
-    \draw[thick,red] (\t1,\y1+0.5) -- ++(\dt,-0.1) node[pos=0,shape=circle,fill=red] {} node[pos=1,shape=circle,fill=red] {};
-    \node[thick,red] at (\t2+0.5*\dt,\y1+0.3) {$\cdots$}; 
-    \draw[thick,red] (\t3,\y1+0.3) -- ++(\dt,0.2) node[pos=0,shape=circle,fill=red] {} node[pos=1,shape=circle,fill=red] {};
-    \node[align=center] at (0.5*\t3+0.5*\dt,\y1+\ly-0.2) {\small FOH};
+    \draw[thick,->] (\Xx-\DXx,\Yy) -- (\Xx+\Lx,\Yy) node[anchor=north] {$t$};
+    \draw[thick,->] (\Xx,\Yy-\DYy) -- (\Xx,\Yy+\Ly) node[anchor=east,pos=0.6] {$\uu$};
+    \draw[thick,red] (\Xx,\Yy+0.2) -- ++(\DT,0.3) node[pos=0,shape=circle,fill=red] {};
+    \draw[thick,red] (\Tt,\Yy+0.5) -- ++(\DT,-0.1) node[pos=0,shape=circle,fill=red] {} node[pos=1,shape=circle,fill=red] {};
+    \node[thick,red] at (\TTt+0.5*\DT,\Yy+0.3) {$\cdots$}; 
+    \draw[thick,red] (\TTTt,\Yy+0.3) -- ++(\DT,0.2) node[pos=0,shape=circle,fill=red] {} node[pos=1,shape=circle,fill=red] {};
+    % \node[align=center] at (0.5*\TTTt+0.5*\DT,\Yy+\Ly-0.2) {\small FOH};
 \end{tikzpicture}
 }
 

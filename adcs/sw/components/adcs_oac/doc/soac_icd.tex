@@ -103,6 +103,7 @@ The constraint boundaries have the following values, each of which are configura
 \item the inertial sun vector remains within a $\theta_{\max}=60\unit{\dg}$ degree cone (half-angle) centered around the sun sensor boresight direction,
 \item the inertial sun vector remains outside of a $\theta_{\min}=60\unit{\dg}$ degree cone (half-angle) centered around the camera boresight direction. 
 \end{enumerate} 
+The torque limit is below what can be produced by the reaction wheels, and was selected to equal the capability of a single wheel. This provides a buffer so that the addition of feedback control will not saturate the wheels, and also means that if one wheel were to fail, the SOAC payload will not ask for a torque that exceeds the reduced capability.
 
 \subsubsection{SOAC Operating Modes}\label{sec3:op_modes}
 There are effectively two operating modes of the SOAC payload: operational and idle. The trigger attached to the \code{gnc\_mode} shown in~\fref{fig:soac_inner} is the arbiter between the two modes. The output of the trigger goes high when the following conditions are met:
@@ -110,7 +111,7 @@ There are effectively two operating modes of the SOAC payload: operational and i
 \item The value of \code{gnc\_mode = 33},
 \item The previous value of \code{gnc\_mode != 33}.
 \end{enumerate}
-The SOAC payload can be commanded to its operational mode by the primary GNC mode manager by switching the value of \code{gnc\_mode} to $33$ from something else. The conditions upon which the primary GNC operating mode is set to $33$ are provided in the \todo{link main GNC ICD}. Maintaining the primary GNC mode at this value will not continuously trigger the payload due to the second clause. As a result, the primary GNC mode must be toggled back to some value that is not $33$ prior to requesting another solution. \textbf{The primary GNC flight software is assumed to be in charge of requesting a re-solve for a given maneuver.} The reason is that a re-solve commanded internally will inevitably create an algebraic loop. A brief attempt was made to design this into the library, but a decision was made to manage this within the primary GNC mode manager. 
+The SOAC payload can be commanded to its operational mode by the primary GNC mode manager by switching the value of \code{gnc\_mode} to $33$ from something else. The conditions upon which the primary GNC operating mode is set to $33$ are provided in the \href{https://drive.google.com/open?id=1wTjmsQdXGk9jmEHy59fZAdBJJ3r1IE4LGFjHT2S5png}{main GNC ICD}. Maintaining the primary GNC mode at this value will not continuously trigger the payload due to the second clause. As a result, the primary GNC mode must be toggled back to some value that is not $33$ prior to requesting another solution. \textbf{The primary GNC flight software is assumed to be in charge of requesting a re-solve for a given maneuver.} The reason is that a re-solve commanded internally will inevitably create an algebraic loop. A brief attempt was made to design this into the library, but a decision was made to manage this within the primary GNC mode manager. 
 
 \subsubsection{Control Torque Allocation}\label{sec3:allocation}
 
@@ -167,7 +168,7 @@ The SOAC payload is a software function that will be run on the main flight comp
 
 \subsection{Command and Data Interface}\label{sec2:cmd_interface}
 
-All inputs listed in~\tabref{tab:inputs_outputs} will come from the main GNC flight software. Refer to \todo{link main GNC ICD}. 
+All inputs listed in~\tabref{tab:inputs_outputs} will come from the main GNC flight software. Refer to \href{https://drive.google.com/open?id=1wTjmsQdXGk9jmEHy59fZAdBJJ3r1IE4LGFjHT2S5png}{main GNC ICD}.
 
 The output \ttt{soac\_solution} must be saved for future downlink to the ground station. This has been included in the COM system's measurement budget, and shall be maintained by CDH immediately once it is made available by SOAC. The two remaining outputs are to be provided as the GNC guidance solution and feed forward to the feedback controller that is used during primary GNC mode $33$. 
 
@@ -319,7 +320,7 @@ The pair $(G,h)$ may be passed to ECOS to represent the quadratic constraint~\eq
 
 \subsection*{Continuous Problem Formulation}
 
-The continuous time optimal control problem to be solved is as follows. \todo{define ME and MI.}
+The continuous time optimal control problem to be solved in~\ref{prob:prob1} and is repeated here.
 \begin{problem}\label{prob:prob1}
 Find the time $\tf^*\in\realpp$ and torque commands $\bm{\tau} : [\ti,\tf^*] \rightarrow \real^3$ such that
 \begin{subequations}
@@ -334,7 +335,7 @@ Find the time $\tf^*\in\realpp$ and torque commands $\bm{\tau} : [\ti,\tf^*] \ri
 &\quad \q^T \MI \q < 2 \label{eq:prob_g}\\
 &\quad \tfmin \leq \tf \leq \tfmax \label{eq:prob_h}\\
 &\quad \q(\ti) = \qic,\quad \wB(\ti)=\wic,\quad \hw(\ti)=\hwic, \\
-&\quad \q(\tf) = \q_f,\,\wB(\tf) = 0.\label{eq:prob_i}
+&\quad \q(\tf) = \q_f,\quad \wB(\tf) = 0.\label{eq:prob_i}
 \end{align}
 \end{subequations}
 \end{problem} 
@@ -358,35 +359,64 @@ where $s \definedas \der{t}{\tau}$ is called the \textit{time-scaling factor}. B
 \paragraph{Linearization}
 
 \todo{Provide the Jacobians.}
+The dynamics are linearized about a reference trajectory so that they are an affine function of the solution variables. Let's assume that we have access to a reference trajectory $\zb(\tau) \definedas \big(\xb(\tau),\,\ub(\tau),\,\sb\big)$ for $\tau\in[0,1]$. The first order Taylor series about $\zb(\tau)$ is then
+\begin{subequations}\label{eq:linearization}
+\begin{align}
+\der{\xx}{\tau} &\approx \sb f(\xb,\ub) + A(\zb(\tau)) \big(\xx(\tau)-\xb(\tau) \big) + B(\zb(\tau)) \big( \uu(\tau) - \ub(\tau) \big) + S(\zb(\tau)) \big( s - \sb \big) \\
+&= A(\zb) \xx + B(\zb) \uu + S(\zb) s + Z(\zb)
+\end{align}
+\end{subequations}
+where,
+\begin{subequations}
+\begin{align}
+A(\zb) &\definedas \der{}{\xx} s f(\xx,\uu) = s \begin{bmatrix}
+A_{11} & A_{12} & \zeros{4}{3} \\
+\zeros{3}{4} & A_{22} & A_{23} \\
+\zeros{3}{4} & \zeros{3}{3} & \zeros{3}{3}
+\end{bmatrix} \\
+B(\zb) &\definedas \der{}{\uu} s f(\xx,\uu) = s \begin{bmatrix}
+\zeros{4}{3} \\ -\eye{3} \\ \eye{3}
+\end{bmatrix} \\
+S(\zb) &\definedas \der{}{s} s f(\xx,\uu) = f(\xb,\ub) \\
+Z(\zb) &\definedas - A(\zb) \xb - B(\zb) \ub 
+\end{align}
+\end{subequations}
+and,
+\begin{equation*}
+A_{11} = \frac{1}{2} \begin{bmatrix}
+0  & -\wB\tran  \\ \wB & \wB^{\times}
+\end{bmatrix}, \quad A_{12} = \frac{1}{2}\begin{bmatrix}
+-\qv\tran \\ \qv^{\times} + \qs \eye{3}
+\end{bmatrix} \inv{J}, A_{22} = \left(\hB^{\times}+\hw^{\times}\right)\inv{J} - \wB^{\times}, \quad A_{23} = - \wB^{\times}.
+\end{equation*}
 
 \paragraph{Discretization}
 
-Without any (active) state constraints, we know that the optimal torque solution for the time-optimal reorientation is bang-bang. As such, we should elect to parameterize our control with either piecewise constant or piecewise linear basis functions. We have chosen the latter, a first order hold (FOH), after some preliminary testing of the two methods against each other. 
-
-% First, we split the maneuver into $N$ evenly spaced temporal intervals. Since we will ultimately linearize the kinematics and dynamics, we want to choose $N$ such that over each interval this linearization remains valid. Given $\q(\ti)$ and $\q(\tf)$, we can compute the angle error between these according to
-% \begin{equation}
-% \varphi_{err} = 2*\cos^{-1} \left( \big[ \q(\tf)^* \otimes \q(\ti) \big]_{\text{s}} \right),
-% \label{eq:err_angle}
-% \end{equation}
-% where the operation $[\cdot]_{\text{s}}$ extracts the scalar part of a quaternion. 
-% % Assuming that a linearization is valid over $\zeta$ degrees, the number of discretization nodes is computed as 
-% % \begin{equation}
-% % N = \lceil \frac{\varphi_{err}}{\zeta} \rceil.
-% % \label{eq:N}
-% % \end{equation}
-
-First, we discretize time into $N$ evenly spaced intervals, where the size of each interval should be such that a linearization of our equations of motion remains roughly valid. For now we proceed with $N\in[5,10]$. 
+I've chosen to parameterize our control with piecewise linear basis functions after some preliminary testing against other methods. To discretize the dynamics (projecting into a finite dimensional space), first discretize time into $N$ evenly spaced intervals. For now we proceed with $N=10$. 
 \begin{equation}
 \ti < t_1 < \ldots < t_{N-1} < \tf
 \end{equation}
 and represent the discretized time points using $k \definedas t_k$. Now, instead of the \textit{continuous times} $t\in(\ti,\tf]$, we have the \textit{discrete times} $k\in\{\ti,\,t_1,\,\ldots,\,t_{N-1},\,\tf\}$.
 
-I'm leaving out a bunch of details for now, but the discretization method reformulates~\eqnref{eq:dynamics_normalized} into the form
+The control signal is parameterized over each time interval as
 \begin{equation}
-\bm{X} = A \bm{X} + B \bm{U} + S s + \bm{R}
+\uu(\tau) = \frac{t_{k+1} - t}{t_{k+1}-t_k} \uu_k + \frac{t-t_k}{t_{k+1}-t_k} \uu_{k+1}, \quad k=1,\ldots,N-1.
+\end{equation}
+This expression linearly interpolates between $\uu_k$ and $\uu_{k+1}$. The continuous time input can now be represented using a finite number of vectors, namely the set $\{\uu_{k}\}_{k=1}^{N}$. This parameterization is depicted in~\fref{fig:ctrl_param}.
+
+\begin{figure}
+\centering
+\caption{Depiction of the control signal parameterization. The red dots are the discrete control vectors $\uu_{k}$ for $k=1,\ldots,N$ proceeding left to right.}
+\label{fig:ctrl_param}
+\foh{0}{0}{2}
+\end{figure}
+
+I'm skipping a bunch of details for now, but the discretization method reformulates~\eqnref{eq:linearization} into the form
+\begin{equation}
+\xx_{k+1} = A_{d,k} \xx_{k} + B_{d,k}^- \uu_k + B_{d,k}^+ \uu_{k+1} + S_{d,k} s + R_{d,k} \quad \Rightarrow \quad \bm{X} = A \bm{X} + B \bm{U} + S s + \bm{R}
 \label{eq:discrete_dynamics}
 \end{equation}
-where $\{\bm{A},\bm{B},\bm{S},\bm{R}\}$ are computed by the function \code{foh.m}. The constraints in~\eqref{eq:prob_d}-\eqref{eq:prob_g} are all ``discretized'' by simply applying them at the discrete temporal nodes only. 
+where $\{\bm{A},\bm{B},\bm{S},\bm{R}\}$ are computed by the function \code{foh.m}. The implication is simply a concatenation using stacked vectors $\bm{X},\,\bm{U}$ and s. The constraints in~\eqref{eq:prob_d}-\eqref{eq:prob_g} are all ``discretized'' by simply applying them at the discrete temporal nodes only. 
 
 \paragraph{Virtual Control}
 
@@ -397,39 +427,40 @@ To guide the convergence process, we introduce a new term to address the issue o
 \end{equation}
 where $\bm{V}$ can be thought of as an unconstrained input that needn't respect the physical dynamics of the problem. We heavily penalize the use of virtual control (so that we only use it when absolutely necessary) by augmenting the cost function~\eqref{eq:prob_cost} with $\wv \| \bm{V} \|_1$.
 
-After these modifications, we now have a convex parameter optimization problem that can be run on-board the spacecraft. 
+After these modifications, we now have a convex parameter optimization problem that can be run on-board the spacecraft using the ECOS solver. 
 
 \begin{problem}\label{prob:prob2}
 Find the final time $s$ and the control $\bm{U}\in\real^{3 \times N}$ such that
 \begin{subequations}\label{eq:prob2}
 \begin{align}
-\min_{s,\bm{U},\bm{X},\bm{V}} &\quad s + \wv \| \bm{V} \|_1 \label{eq:p2_a}\\
+\min_{\gamma,\bm{U},\bm{X},\bm{V}} &\quad \gamma + \wv \| \bm{V} \|_1 \label{eq:p2_a}\\
 \text{subject to:} &\quad \bm{X} = A \bm{X} + B \bm{U} + \bm{S} s + \bm{R} + \bm{V} \label{eq:p2_b}\\
-&\quad \| \Hw \bm{x}_k \|_{\infty} \leq \wmax, \quad k=0,\ldots,N \label{eq:p2_c}\\ 
-&\quad \| \bm{u}_k \|_{\infty} \leq \umax, \quad k=0,\ldots,\{N \text{ or } N-1\} \label{eq:p2_d}\\
-&\quad \bm{x}_k^T \Hq^T \ME \Hq \bm{x}_k < 2, \quad k=0,\ldots,N \label{eq:p2_e}\\
-&\quad \bm{x}_k^T \Hq^T \MI \Hq \bm{x}_k < 2, \quad k=0,\ldots,N \label{eq:p2_f}\\
-&\quad \tfmin \leq s \leq \tfmax \label{eq:p2_g}\\
-&\quad \bm{x}_0 = \big[ \q_0^T \; 0^T \big]^T, \; \bm{x}_N = \big[ \q_f^T \; 0^T \big]^T \label{eq:p2_h}
+&\quad \| H_h \bm{x}_k \|_{\infty} \leq \wmax, \quad k=1,\ldots,N \label{eq:p2_c}\\ 
+&\quad \| \bm{u}_k \|_{\infty} \leq \umax, \quad k=1,\ldots,N \label{eq:p2_d}\\
+&\quad \bm{x}_k\tran \Hq\tran \ME \Hq \bm{x}_k < 2, \quad k=1,\ldots,N \label{eq:p2_e}\\
+&\quad \bm{x}_k\tran \Hq\tran \MI \Hq \bm{x}_k < 2, \quad k=1,\ldots,N \label{eq:p2_f}\\
+&\quad \tfmin \leq s \leq \tfmax \label{eq:p2_g} \\
+&\quad \bm{U}\tran\bm{U} \leq \gamma \label{eq:p2_cost} \\ 
+&\quad \bm{x}_1 = \big[ \qic\tran \; \hBic\tran \; \hwic\tran \big]\tran, \; H_f \xx_N = \big[ \q_f\tran \; \zeros{1}{3} \tran \big]\tran \label{eq:p2_h}
 \end{align}
 \end{subequations}
-where $\bm{X} = \big[ \bm{x}_0^T \; \bm{x}_1^T \; \ldots \; \bm{x}_{N}^T ]^T \in \real^{7 \times N}$ and similarly for $\bm{U}$. Moreover, $\Hq = \big[ \eye{4} \; \zeros{4}{3} \big]$ and $\Hw = \big[ \zeros{3}{4} \; \eye{3} \big]$.
+where $\bm{X} = \big[ \bm{x}_1\tran \; \bm{x}_1\tran \; \ldots \; \bm{x}_{N}\tran ]\tran \in \real^{10N}$ and similarly for $\bm{U}\in\real^{3N}$. Moreover, $\Hq = \big[ \eye{4} \; \zeros{4}{6} \big]$, $H_h = \big[ \zeros{3}{4} \; \inv{J} \; \zeros{3}{3} \big]$ and $H_f = \big[ \eye{7} \; \zeros{7}{3} \big]$.
 \end{problem}
 
-\paragraph{Scaling}
-\todo{add scaling method}
+% \paragraph{Scaling}
+% \todo{add scaling method}
 
 \paragraph{Standard Form of Constraints}
 
-Let us say that our combined \textit{solution vector} is 
+Our combined \textit{solution vector} is 
 \begin{equation*}
 \bm{z} = \begin{bmatrix}
-\bm{X}^T & \bm{U}^T & s & \bm{V}^T & \bm{\eta}_v^T
+\bm{X}^T & \bm{U}^T & \gamma & s & \bm{V}^T & \bm{\eta}_v^T
 \end{bmatrix} \in \real^{n_z}
 \end{equation*}
-where $n_z = N(3N_x + N_u)+1$. We will first map the cost function to standard form for second-order cone problems. The cost function must be linear, and so we will use the epigraph form to rewrite the cost function~\eqref{eq:p2_a} as
+where $n_z = N(3N_x + N_u)+2$. We will first map the cost function to standard form for second-order cone problems. The cost function must be linear, and so we will use the epigraph form to rewrite the cost function~\eqref{eq:p2_a} as
 \begin{equation}
-\bm{c}^T \bm{z}, \quad \bm{c} = \big[ \zeros{1}{N n_x} \ \zeros{1}{N n_u} \ 1 \ \zeros{1}{N n_x} \ w_{\eta} \ones{1}{N n_x} \big]
+\bm{c}^T \bm{z}, \quad \bm{c} = \big[ \zeros{1}{10N} \ \zeros{1}{3N} \ 1 \ \zeros{1}{10N} \ w_{\eta} \ones{10N} \big]
 \label{eq:std_cost}
 \end{equation}
 and add the following linear constraint to Problem~\ref{prob:prob2}
@@ -441,9 +472,9 @@ and add the following linear constraint to Problem~\ref{prob:prob2}
 We can thenwrite the equality constraints~\eqref{eq:p2_b} and~\eqref{eq:p2_h} as
 \begin{equation}
 \begin{bmatrix}
-\big[ \eye{n_x} \ \zeros{n_x}{(N-1)n_x}] & \zeros{n_x}{N n_u} & \zeros{n_x}{1} & \zeros{n_x}{N n_x} & \zeros{n_x}{N n_x} \\
-\bm{A} - \eye{N n_x} & \bm{B} & \bm{S} & \eye{N n_x} & \zeros{N n_x}{N n_x} \\
-\big[ \zeros{n_x}{(N-1)n_x} \ \eye{n_x} \big] & \zeros{n_x}{N n_u} & \zeros{n_x}{1} & \zeros{n_x}{Nn_x} & \zeros{n_x}{N n_x}
+\big[ \eye{10} \ \zeros{10}{10(N-1)}] & \zeros{10}{3N} & \zeros{10}{1} & \zeros{10}{10N} & \zeros{10}{10N} \\
+\bm{A} - \eye{10N} & \bm{B} & \bm{S} & \eye{10N} & \zeros{10N}{10N} \\
+\big[ \zeros{10}{10(N-1)} \ \eye{10} \big] & \zeros{10}{3N} & \zeros{10}{1} & \zeros{10}{10N} & \zeros{10}{10N}
 \end{bmatrix} \bm{z} = \begin{bmatrix}
 \bm{x}_0 \\ -\bm{R} \\ \bm{x}_f
 \end{bmatrix}.
@@ -454,38 +485,108 @@ The linear inequality constraints in~\eqref{eq:p2_c}, \eqref{eq:p2_d}, \eqref{eq
 \begin{bmatrix}
 H_w^T \\ - H_w^T \\ H_u^T \\ - H_u^T \\ H_s^T \\ - H_s^T \\ H_v^T - H_{\eta_v}^T \\ -H_v - H_{\eta_v}^T
 \end{bmatrix} \bm{z} \leq \begin{bmatrix}
-w_{\max} \ones{3N}{1} \\ w_{\max} \ones{3N}{1} \\ u_{\max} \ones{N n_u}{1} \\ u_{\max} \ones{N n_u}{1} \\ t_{f,\max} \\ -t_{f,\min} \\ \zeros{N n_x}{1} \\ \zeros{N n_x}{1}
-\end{bmatrix},
+w_{\max} \ones{3N} \\ w_{\max} \ones{3N} \\ u_{\max} \ones{3N} \\ u_{\max} \ones{3N} \\ t_{f,\max} \\ -t_{f,\min} \\ \zeros{10N}{1} \\ \zeros{10N}{1}
+\end{bmatrix} \quad \iff \quad G_{lin} \zz \leq h_{lin},
 \label{eq:std_ineq_lin}
 \end{equation}
 where,
 \begin{gather*}
 H_u = \begin{bmatrix}
-\zeros{N n_x}{N n_u} \\ \eye{N n_u} \\ \zeros{2 N n_x + 1}{N n_u}
+\zeros{10N}{3N} \\ \eye{3N} \\ \zeros{20N+2}{3N}
 \end{bmatrix}, \quad H_s = \begin{bmatrix}
-\zeros{N(n_x+n_u)}{1} \\ 1 \\ \zeros{2N n_x}{1}
+\zeros{13N}{1} \\ 0 \\ 1 \\ \zeros{20N}{1}
+\end{bmatrix}, \quad H_{\gamma} = \begin{bmatrix}
+\zeros{13N}{1} \\ 1 \\ 0 \\ \zeros{20N}{1}
 \end{bmatrix}, \quad H_v = \begin{bmatrix}
-\zeros{N (n_x+n_u) + 1}{N n_x} \\ \eye{N n_x} \\ \zeros{N n_x}{N n_x} 
+\zeros{13N+2}{10N} \\ \eye{10N} \\ \zeros{10N}{10N} 
 \end{bmatrix}  \\
 H_{\eta_v} = \begin{bmatrix}
-\zeros{N(2n_x+n_u)+1}{N n_x} \\ \eye{N n_x}
-\end{bmatrix}
+\zeros{23N+2}{10N} \\ \eye{10N}
+\end{bmatrix}, \quad
 \bar{H}_w = \begin{bmatrix}
-\big[ \zeros{3}{4} \ \eye{3} \big] & \zeros{3}{n_x} & \cdots & \zeros{3}{n_x} \\
+H_h & \zeros{3}{10} & \cdots & \zeros{3}{10} \\
 \vdots & \ddots & \ddots & \vdots \\
-\zeros{3}{n_x} & \zeros{3}{n_x} & \cdots & \big[ \zeros{3}{4} \ \eye{3} \big]
-\end{bmatrix} \quad H_w = \begin{bmatrix}
-\bar{H}_w \\ \zeros{N (2n_x+n_u)+1}{3N} 
+\zeros{3}{10} & \zeros{3}{10} & \cdots & H_h
+\end{bmatrix} = \eye{N} \otimes H_h, \quad H_w = \begin{bmatrix}
+\bar{H}_w \\ \zeros{23N+2}{3N} 
 \end{bmatrix}
 \end{gather*}
-Without any quadratic constraints, we may now write Problem~\ref{prob:prob2} in standard form as
+
+If there are no attitude exclusion/inclusion zone constraints, then the second-order cone constraint(s) are written as a function of $\bm{z}$ using
+\begin{equation}
+\begin{bmatrix}
+-\frac{1}{\sqrt{2}}H_{\gamma}\tran \\ -H_u\tran \\ \frac{1}{\sqrt{2}} H_{\gamma}\tran
+\end{bmatrix} \zz \leq \begin{bmatrix} 
+\frac{1}{\sqrt{2}} \\ \zeros{3N}{1} \\ \frac{1}{\sqrt{2}}
+\end{bmatrix} \quad \iff \quad G_{quad} \zz \leq h_{quad}
+\label{eq:std_b_quad}
+\end{equation}
+This cone has dimension $32$. 
+
+For each $k=1,\ldots,N$, the attitude inclusion/exclusion constraints can be written using 
+\begin{align*}
+P_{i,k} = \tilde{M}_i H_q H_k  \quad &\text{and} \quad P_{e,k} = \tilde{M}_e H_q H_k \\
+G_{i,k} = \begin{bmatrix}
+\zeros{1}{n_z} \\ - P_{i,k} \\ \zeros{1}{n_z}
+\end{bmatrix} \quad &\text{and} \quad G_{e,k} = \begin{bmatrix}
+\zeros{1}{n_z} \\ -P_{e,k} \\ \zeros{1}{n_z}
+\end{bmatrix} \\
+h_{i,k} = \begin{bmatrix}
+\frac{3}{\sqrt{2}} \\ \zeros{4}{1} \\ -\frac{1}{\sqrt{2}}
+\end{bmatrix} \quad &\text{and} \quad h_{e,k} = h_{i,k}
+\end{align*}
+where,
+\begin{equation*}
+H_{x_k} = \begin{bmatrix}
+\zeros{10}{10} & \cdots & \underbrace{\eye{10}}_{k\text{th block}} & \cdots & \zeros{10}{10} & \zeros{10}{23N+2} \end{bmatrix}
+\end{equation*}
+Each of these cones have dimension 6. The quantities $G_{\cdot,k}$ and $h_{\cdot,k}$ are appended to the bottom of $G_{quad}$ and $h_{quad}$ as they are computed. The problem sizes are summarized in
+
+\begin{table}[htb]
+\centering
+\caption{Dimensions for the SOAC payload optimization problem.}
+\label{tab:soac_dimensions}
+\begin{tabular}{cccl}
+\textbf{Variable} & \textbf{Size} & \textbf{Type} & \textbf{Description} \\ \hline\hline 
+$n$ & $332$ & \code{int32} & number of primal variables \\
+$m$ &  $474$	& \code{int32} & number of generalized inequality constraints, rows of $G$ in~\eqref{eq:gen_inequalities} \\
+$p$ & $117$	& \code{int32} & number of equality constraints, rows of $A$ \\
+$l$ & $322$	& \code{int32} & number of linear inequality constraints, rows of $h_{lin}$ \\
+$ncones$ & 1	& \code{int32} & number of second order cone constraints, rows of $h_{quad}$ \\ 
+$\bm{c}$ & $332$ & \code{double} & cost vector \\
+$G_{jc}$ & $333$	& \code{int32} & generalized inequality matrix \\
+$G_{ir}$ & $834$	& \code{int32} & \\
+$G_{pr}$ & $834$	 & \code{double} & \\
+$h$ & $474$	 & \code{double} & \\
+$q$ & $21$	& \code{int32} & \\
+$A_{jc}$ & $333$	& \code{int32} & \\
+$A_{ir}$ & $1278$	& \code{int32} & \\ 
+$A_{pr}$ & $1278$	& \code{double} & \\
+$b$ & $117$	& \code{double} & 
+\end{tabular}
+\end{table}
+
+The inequality constraints are then passed to ECOS using the data
+\begin{equation}
+G = \begin{bmatrix}
+G_{lin} \\ G_{quad}
+\end{bmatrix}, \quad h = \begin{bmatrix}
+h_{lin} \\ h_{quad}
+\end{bmatrix}, \quad q = \begin{bmatrix}
+32 \\ 6\,\ones{2N}
+\end{bmatrix}.
+\label{eq:gen_inequalities}
+\end{equation}
+Note that $q$ is the ECOS input that provides the second order cone dimensions, and has length $\code{ncones} = 2N+1$.
+
+
 \begin{problem}
 Find the vector $\bm{z}\in\real^{n_z}$ such that
 \begin{subequations}\label{eq:prob2}
 \begin{align}
 \min_{\bm{z}} &\quad \bm{c}^T \bm{z} \tag{\ref{eq:std_cost}}\\
 \text{subject to:} &\quad A \bm{z} = b \tag{\ref{eq:std_equality}} \\
-&\quad G_{lin} \bm{z} \leq h_{lin} \tag{\ref{eq:std_ineq_lin}}
+&\quad G \bm{z} \leq h \tag{\ref{eq:std_ineq}} \\ 
 \end{align}
 \end{subequations}
 \end{problem}
