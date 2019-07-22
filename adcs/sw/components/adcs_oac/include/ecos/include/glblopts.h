@@ -24,7 +24,7 @@
 #define __GLBLOPTS_H__
 
 /* SET PRINT LEVEL ----------------------------------------------------- */
-#define PRINTLEVEL (2)     /* 0: no prints					             */
+#define PRINTLEVEL (0)     /* 0: no prints					             */
 						   /* 1: only final info				         */
                            /* 2: progress print per iteration            */
 						   /* 3: debug level, enables print & dump fcns. */

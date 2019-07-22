@@ -8,14 +8,15 @@ void callecos(int n, int m, int p, int l, int ncones, double *c, int *Gjc, int *
 	idxint exitflag = ECOS_solve(mywork);
 	/* Extract optimal solution */
 	int i;
+    int N=332; // c_size
 	// Save optimal decision vector
-	for(i=0;i<2;i++) {
+	for(i=0;i<N;i++) {
 		y[i] = mywork->x[i];
 	}
 	// Save exitflag
-	y[2] = exitflag;
+	y[N] = exitflag;
 	// Save solution time
-	y[3] = mywork->info->tsetup + mywork->info->tsolve;
+	y[N+1] = mywork->info->tsetup + mywork->info->tsolve;
 	// Clean up memory
 	ECOS_cleanup(mywork, 0);
 }

@@ -1,0 +1,99 @@
+\documentclass{standalone}
+\input{../preamble.tex}
+\input{../my_tikz.tex}
+
+\begin{document}
+
+\begin{tikzpicture}
+\tikzmath{
+	\x1=-5; \y1=4; \stp=1;
+	\y2=\y1-\stp;
+	\y3=\y2-\stp;
+	\y4=\y3-\stp;
+	\y5=\y4-\stp;
+	\y6=\y5-\stp;
+	\y7=\y6-\stp;
+	\y8=\y7-\stp;
+	\y9=\y8-\stp;
+	\xo1=3.75; \yo1=3; \stpo=3;
+	\yo2=\yo1-\stpo;
+	\yo3=\yo2-\stpo;
+}
+
+% draw main blocks
+\node[draw, thick, rectangle, minimum height=10cm, minimum width=8cm] at (0,0) {};
+\node[draw, thick, rectangle, minimum height=4cm, minimum width=2.75cm, text width=2.5cm,align=flush left,name=soac] at (-1.75,0) {\begin{tabular}{l}
+SOAC \\ \begin{tikzpicture}[baseline=-\the\dimexpr\fontdimen22\textfont2\relax]
+  \filldraw[black!100] (0,0) circle (1pt);
+\end{tikzpicture} {\footnotesize defines params} \\
+\begin{tikzpicture}[baseline=-\the\dimexpr\fontdimen22\textfont2\relax]
+  \filldraw[black!100] (0,0) circle (1pt);
+\end{tikzpicture} {\footnotesize parses prob.} \\
+\begin{tikzpicture}[baseline=-\the\dimexpr\fontdimen22\textfont2\relax]
+  \filldraw[black!100] (0,0) circle (1pt);
+\end{tikzpicture} {\footnotesize calls solver} \\
+\begin{tikzpicture}[baseline=-\the\dimexpr\fontdimen22\textfont2\relax]
+  \filldraw[black!100] (0,0) circle (1pt);
+\end{tikzpicture} {\footnotesize iterates up} \\ {\footnotesize to ten times} 
+\end{tabular}};
+\node[draw, thick, rectangle, minimum height=4cm, minimum width=2.75cm,text width=2.5cm,align=flush left,name=interp] at (1.75,0) {\begin{tabular}{l}
+INTERP \\ 
+\begin{tikzpicture}[baseline=-\the\dimexpr\fontdimen22\textfont2\relax]
+  \filldraw[black!100] (0,0) circle (1pt);
+\end{tikzpicture} {\footnotesize provides} \\ {\footnotesize continuous state} \\ {\footnotesize and control}
+\end{tabular}};
+% draw inputs
+\node[input,name=sc_mode] at (\x1,\y1) {};
+\node[input,name=quat_in] at (\x1,\y2) {};
+\node[input,name=w_in] at (\x1,\y3) {};
+\node[input,name=hw_in] at (\x1,\y4) {};
+\node[input,name=quat_cmd] at (\x1,\y5) {};
+\node[input,name=w_cmd] at (\x1,\y6) {};
+\node[input,name=sI] at (\x1,\y7) {};
+\node[input,name=time_epoch] at (\x1,\y8) {};
+\node[input,name=time_cur] at (\x1,\y9) {};
+% draw outputs
+\node[output,name=cmd_torque] at (\xo1,\yo2) {};
+\node[output,name=cmd_state] at (\xo1,\yo3) {};
+\node[output,name=soln] at (\xo1,\yo1) {};
+
+% draw input/outout arrows
+\draw[thick,->] (sc_mode) -- ++(1.25,0) node[pos=0.5,anchor=south east] {\ttt{gnc\_mode}};
+\draw[thick,->] (quat_in) -- ++(1.25,0) node[pos=0.5,anchor=south east] {\ttt{quat\_ic}};
+\draw[thick,->] (w_in) -- ++(1.25,0) node[pos=0.5,anchor=south east] {\ttt{w\_ic\_radps}};
+\draw[thick,->] (hw_in) -- ++(1.25,0) node[pos=0.5,anchor=south east] {\ttt{hw\_ic\_Nms}};
+\draw[thick,->] (quat_cmd) -- ++(1.25,0) node[pos=0.5,anchor=south east] {\ttt{quat\_cmd}};
+\draw[thick,->] (w_cmd) -- ++(1.25,0) node[pos=0.5,anchor=south east] {\ttt{w\_cmd\_radps}};
+\draw[thick,->] (sI) -- ++(1.25,0) node[pos=0.5,anchor=south east] {\ttt{sun\_inertial\_unit}};
+\draw[thick,->] (time_epoch) -- ++(1.25,0) node[pos=0.5,anchor=south east] {\ttt{MET\_epoch}};
+\draw[thick,->] (time_cur) -- ++(1.25,0) node[pos=0.5,anchor=south east] {\ttt{MET\_current}};
+\draw[thick,->] (cmd_torque) -- ++(1.25,0) node[pos=0.5,anchor=south west] {\ttt{command\_torque}};
+\draw[thick,->] (cmd_state) -- ++(1.25,0) node[pos=0.5,anchor=south west] {\ttt{command\_state}};
+\draw[thick,->] (soln) -- ++(1.25,0) node[pos=0.5,anchor=south west] {\ttt{soac\_solution}};
+
+% draw internal guts
+\node[sum_blank,name=tsum] at (\x1+1.75,0.5*\y8+0.5*\y9) {};
+\draw[color=gray,->,thick] ($(time_epoch)+(1.25,0)$) -| (tsum.north) node[pos=0.8,anchor=west] {$-$};
+\draw[color=gray,->,thick] ($(time_cur)+(1.25,0)$) -| (tsum.south);
+\draw[color=gray,->,thick,densely dotted] (tsum.east) -- ($(tsum.east)+(2.5,0)$) -| (interp.south);
+
+% draw output lines
+\draw[color=gray,thick,->,densely dotted] (interp.east) -- ($(interp.east)+(0.25,0)$) |- (cmd_state);
+\draw[color=gray,thick,->,densely dotted] (interp.east) -- ($(interp.east)+(0.5,0)$) |- (cmd_torque);
+\draw[color=gray,thick,->,densely dotted] ($(soac.east)+(0.35,0)$) -- ($(soac.east)+(0.35,1)$) |- (soln);
+\draw[color=gray,thick,->,densely dotted] (soac.east) -- (interp.west);
+
+% draw trigger
+\coordinate (trigger) at (-1.75,\y1);
+\node[draw,color=gray,rectangle,minimum height=0.75cm,minimum width=0.75cm,name=trig] at (trigger) {};
+\draw[-stealth] ($(trigger.west)+(-0.25,-0.2)$) -| ++(0.25,0.25);
+\draw[] ($(trigger.south west)+(0,0)$) |- ++(0.25,0.2);
+\draw[color=gray,thick,densely dotted] ($(sc_mode)+(1.25,0)$) -- (trig.west);
+\draw[color=gray,thick,->,densely dotted] (trig.south) -- (soac.north);
+
+% \draw[help lines] (-5,-5) grid (5,5);
+% \filldraw[red!100] (0,0) circle (2pt);
+
+\end{tikzpicture}
+
+\end{document}

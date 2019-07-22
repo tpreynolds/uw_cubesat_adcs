@@ -1,10 +1,57 @@
+%BUILD_SOAC
+%
 % Convex optimization call is written with the C API for the ECOS solver
 % This file converts this C code to a MEX file for use in Simulink as an 
 % S-function.
-
+%
 % Run this file from the BUILD directory
+%
+% Courtesy D. Malyuta
 
 %% Compilation parameters
+
+% These must match what is in init_soac_params
+switch  soac_params.config
+    case 'b'
+        c_size      = 332;
+        Air_size    = 1278;
+        Ajc_size    = 333;
+        Apr_size    = 1278;
+        b_size      = 117;
+        Gir_size    = 674;
+        Gjc_size    = 333;
+        Gpr_size    = 674;
+        h_size      = 354;
+        q_size      = 1;
+        y_size      = 334;
+    case 'bi'
+        c_size      = 332;
+        Air_size    = 1278;
+        Ajc_size    = 333;
+        Apr_size    = 1278;
+        b_size      = 117;
+        Gir_size    = 754;
+        Gjc_size    = 333;
+        Gpr_size    = 754;
+        h_size      = 414;
+        q_size      = 11;
+        y_size      = 334;       
+    case 'bie'
+        c_size      = 332;
+        Air_size    = 1278;
+        Ajc_size    = 333;
+        Apr_size    = 1278;
+        b_size      = 117;
+        Gir_size    = 834;
+        Gjc_size    = 333;
+        Gpr_size    = 834;
+        h_size      = 474;
+        q_size      = 21;
+        y_size      = 334;
+    otherwise
+        error('BUILD_SOAC: Undefined build configuration')
+end
+
 def = legacy_code('initialize');
 def.SFunctionName = 'sfun_ecos';
 def.IncPaths = {'../include/ecos/include'};

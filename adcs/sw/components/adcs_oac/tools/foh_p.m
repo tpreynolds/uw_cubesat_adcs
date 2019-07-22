@@ -1,4 +1,4 @@
-function [ EH,BE,ES,ZE,R ] = foh( OAC )
+function [ EH,BE,ES,ZE,R ] = foh_p( OAC )
 % ----------------------------------------------------------------------- %
 %FOH   first order hold discretization
 %
@@ -139,7 +139,11 @@ function [f,A,Bp,Bm,Z] = get_f_vals(t,x,u,tspan,OAC)
     end
 
     % compute jacobian matrices
-    [A,B,f] = Q_linearize(t,x,uu,OAC);
+    if (OAC.Nx == 10)
+        [A,B,f] = Q_linearize_p(t,x,uu,OAC);
+    else
+        [A,B,f] = Q_linearize(t,x,uu,OAC);
+    end
     
     Bp  = lam_kp*B;
     Bm  = lam_km*B;

@@ -1,15 +1,16 @@
 % Constrained Attitude Guidance Proof of Concept
 %
 % T. Reynolds -- RAIN Lab
-clear variables; close all;
+% clear variables; close all;
 OAC     = struct;
 opts    = ecosoptimset('verbose',0);
-
+rng(2)
 % Boundary Conditions
-q0  = [ cosd(60/2); sind(60/2); 0; 0 ];
-w0  = [ 0.0; 0.0; 0.0 ];
+n   = [1;1;1]./norm([1;1;1]);
+q0  = [ cosd(60/2); sind(60/2).*n ];
+w0  = 0.01.*randn(3,1);%[ 0.0; 0.0; 0.0 ];
 xi  = [ q0; w0 ];
-qf  = [ 1.0; 0.0; 0.0; 0.0 ];
+qf  = [ cosd(30/2); sind(30/2).*n ];
 wf  = [ 0.0; 0.0; 0.0 ];
 xf  = [ qf; wf ];
 
@@ -34,7 +35,7 @@ OAC.Nu      = 3;
 OAC.inertia = [ 0.0338    -4.884e-05 -7.393e-05;
                -4.884e-05  0.0346     7.124e-06;
                -7.393e-05  7.124e-06  0.0075 ];
-OAC.T_max   = 1e-2; % 10mNm
+OAC.T_max   = 1e-3; % 1mNm
 OAC.w_max   = 0.3;  % rad/s
 OAC.w_v     = 1e2; 
 OAC.method  = 'linear';     % discretization method
@@ -64,7 +65,7 @@ OAC.tf  = s0;
 OAC.t   = linspace(OAC.t0,OAC.tf,OAC.N);
 OAC.tau = linspace(OAC.t0,1,OAC.N);
 [qb,flag] = Q_SLERP(q0,qf,OAC.t);
-for k = 1:OAC.N-1
+for k = 1:OAC.N
     x0(:,k)   = [ qb(:,k); zeros(3,1) ];
     u0(:,k)     = zeros(3,1);
 end
@@ -145,6 +146,8 @@ end
 fprintf('Total Solver time: %g s\n',ecos_time)
 
 % Integrate through ODE
+Jw  = diag([2.9382e-05,2.9382e-05,2.9382e-05]);
+Om0 = 0.10471975511966 * [ 1000;1000;1000 ]; % initial wheel speeds [rad/s]
 T = linspace(0,se,100);
 OAC.tf  = se;
 OAC.t   = linspace(OAC.t0,OAC.tf,OAC.N);
@@ -153,7 +156,8 @@ uopt    = reshape(full(ue),OAC.Nu,OAC.N);
 if( strcmp(OAC.method,'previous') )
    uopt = [ uopt(:,2:end) uopt(:,end) ]; 
 end
-X = rk4(@(t,y)Q_ode(OAC,t,y,uopt,OAC.t),T,full(xe(1:OAC.Nx)));
+x0 = [ full(xe(1:OAC.Nx)); Jw*Om0 ];
+X  = rk4(@(t,y)Q_ode_p(OAC,t,y,uopt,OAC.t),T,x0);
 
 for k = 1:OAC.N
     qk          = X(k,1:4);
@@ -176,7 +180,8 @@ plot([0 se],[-OAC.w_max -OAC.w_max],'r--','LineWidth',1)
 xlabel('Time [s]')
 title('Angular Velocity')
 
-figure(2), hold on, grid on
+figure(2)
+subplot(2,1,1), hold on, grid on
 if( strcmp(OAC.method,'linear') )
     plot(OAC.t,uopt,'LineWidth',1)
 else
@@ -184,11 +189,15 @@ else
 end
 xlabel('Time [s]')
 title('Control Signal')
+subplot(2,1,2), hold on, grid on
+plot(T,X(:,8:10),'LineWidth',1)
+xlabel('Time [s]')
+title('Wheel Momentum')
 
-figure(3), hold on, grid on
-plot(OAC.t,E_val,'LineWidth',1)
-plot([0 OAC.t(end)],[2 2],'r--','LineWidth',1)
-xlabel('Time [s]') 
-title('Exclusion constraint')
+% figure(3), hold on, grid on
+% plot(OAC.t,E_val,'LineWidth',1)
+% plot([0 OAC.t(end)],[2 2],'r--','LineWidth',1)
+% xlabel('Time [s]') 
+% title('Exclusion constraint')
 
 

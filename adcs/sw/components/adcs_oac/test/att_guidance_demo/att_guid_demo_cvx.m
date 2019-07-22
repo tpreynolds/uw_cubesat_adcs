@@ -2,7 +2,7 @@
 %
 % T. Reynolds -- RAIN Lab
 clear variables; close all;
-global my_ECOS
+% global my_ECOS
 
 OAC         = struct;
 OAC.Nx      = 7;
@@ -42,7 +42,7 @@ OAC.t0  = 0;
 OAC.tf  = s0; 
 OAC.t   = linspace(OAC.t0,OAC.tf,OAC.N);
 OAC.tau = linspace(OAC.t0,1,OAC.N);
-[qb,flag] = Q_SLERP(q0,qf,OAC.t);
+[qb,~] = Q_SLERP(q0,qf,OAC.t);
 for k = 1:OAC.N-1
     x0(:,k)   = [ qb(:,k); zeros(3,1) ];
     u0(:,k)     = zeros(3,1);

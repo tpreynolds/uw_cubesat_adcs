@@ -1,4 +1,4 @@
-function fsw_params = init_fsw_params()
+function [fsw_params,soac_params] = init_fsw_params()
 %INIT_FSW_PARAMS
 %
 % Define all parameters to be used by FSW here. This is the first file to
@@ -50,6 +50,7 @@ fsw_params.control.p_dump           = init_momentum_dump(fsw_params);
 fsw_params.control.cmd_processing   = init_cmd_processing(fsw_params);
 fsw_params.control.sun_point        = init_sun_point(fsw_params);
 fsw_params.control.bdot             = init_bdot_controller(fsw_params);
+soac_params                         = init_soac_params(fsw_params);
 % ----------------------------------------------------------------------- %
 
 % ----------------------- Ground Station Prediction --------------------- %

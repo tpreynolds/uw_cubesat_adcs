@@ -20,11 +20,11 @@ load('bus_definitions.mat')
 load('bus_definitions_fsw.mat')
 
 % Load parameters for both flight software and simulation
-fsw_params              = init_fsw_params();
+[fsw_params,soac_params] = init_fsw_params();
 [sim_params,fsw_params] = init_sim_params(fsw_params);
 
 % Load sim and set params
-run_time    = 8000;
+run_time    = 5900;
 mdl         = 'adcs_sim_main';
 load_system(mdl);
 set_param(mdl,'StopTime', num2str(run_time));

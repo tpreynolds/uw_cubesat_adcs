@@ -20,14 +20,14 @@ bus.prod_inertia = [ 0.0000488358; 0.00007392968; 0.00007392968 ];
 bus.solar_panel_unit    = [ 0.0; 1.0; 0.0 ];
 
 % Other parameters
-bus.max_torque              = 5e-3; % [Nm]
+bus.max_torque              = 2.3e-3; % [Nm]
 bus.RW_RPM_thresh.max       = 10e3;
 bus.RW_RPM_thresh.min       = 2e3;
 bus.omega_radps_thresh.max  = 0.12;
 bus.omega_radps_thresh.min  = 0.00436; % 0.25 deg/s 
 bus.bstar                   = 3.2923e-5; % drag term for SGP4 from SWISSCUBE
 bus.dut1                    = 0;         % SGP4 wants a UTC time
-bus.point_tol               = 12;        % [deg]
+bus.point_tol               = 7;        % [deg]
 
 end
 
