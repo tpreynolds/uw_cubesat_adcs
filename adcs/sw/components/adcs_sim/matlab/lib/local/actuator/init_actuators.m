@@ -10,10 +10,10 @@ function actuators = init_actuators( fsw_params )
 % Initial conditions
 actuators.ic.MT_power_OK    = 0;
 actuators.ic.MT_on          = 0;
-actuators.ic.RW_power_W     = zeros(3,1);
+% actuators.ic.RW_power_W     = zeros(3,1);
 actuators.ic.MT_power_mW    = zeros(3,1);
-actuators.ic.RW_RPM         = zeros(3,1);
-actuators.ic.RW_omega_radps = zeros(3,1);
+% actuators.ic.RW_RPM         = zeros(3,1);
+% actuators.ic.RW_omega_radps = zeros(3,1);
 
 % PCT of SyncPulse that belongs to actuation. Assumes first x% of SyncPulse
 actuators.pct_sync_pulse    = 60;

@@ -24,7 +24,7 @@ load('bus_definitions_fsw.mat')
 [sim_params,fsw_params] = init_sim_params(fsw_params);
 
 % Load sim and set params
-run_time    = 5900;
+run_time    = 300;
 mdl         = 'adcs_sim_main';
 load_system(mdl);
 set_param(mdl,'StopTime', num2str(run_time));

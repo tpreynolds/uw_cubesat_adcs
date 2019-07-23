@@ -1,4 +1,4 @@
-# Matlab files
+# Matlab/Simulink files
 *.DS_Store
 *.asv
 *.m~
@@ -6,6 +6,7 @@ slprj/
 *_rtw/
 *.original
 *.r2016a
+*.r2016b
 *.mat
 
 # Python
