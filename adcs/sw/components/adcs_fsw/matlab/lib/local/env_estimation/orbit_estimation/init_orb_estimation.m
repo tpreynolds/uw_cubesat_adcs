@@ -1,4 +1,4 @@
-function orb_estimation = init_orb_estimation( fsw_params,env_estimation )
+function orb_estimation = init_orb_estimation( fsw_params,env_estimation,TLE )
 % ----------------------------------------------------------------------- %
 %INIT_ORB_ESTIMATION
 %
@@ -12,7 +12,7 @@ function orb_estimation = init_orb_estimation( fsw_params,env_estimation )
 orb_estimation.sample_time_s    = env_estimation.sample_time_s;
 
 % SGP4
-orb_estimation.sgp4             = init_sgp4(fsw_params);
+orb_estimation.sgp4             = init_sgp4(fsw_params,TLE);
 
 % Initial conditions not in other structs
 orb_estimation.ic.JD_J2000_utc  = orb_estimation.sgp4.orbit_tle(2) - ...

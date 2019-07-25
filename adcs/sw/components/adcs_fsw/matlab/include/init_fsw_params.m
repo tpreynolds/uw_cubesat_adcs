@@ -1,4 +1,4 @@
-function [fsw_params,soac_params] = init_fsw_params()
+function [fsw_params,soac_params] = init_fsw_params(TLE)
 %INIT_FSW_PARAMS
 %
 % Define all parameters to be used by FSW here. This is the first file to
@@ -24,7 +24,7 @@ fsw_params.constants    = init_fsw_constants();
 % ----------------------------------------------------------------------- %
 
 % ----------------------------- Environment ----------------------------- %
-fsw_params  = init_env_estimation(fsw_params);
+fsw_params  = init_env_estimation(fsw_params,TLE);
 % ----------------------------------------------------------------------- %
 
 % ------------------ Update FSW Conversions with Env Data --------------- %

@@ -13,7 +13,7 @@ sim_params.environment.aero_drag   = init_aero_drag();
 sim_params.environment.gravity     = init_gravity_field();
 sim_params.environment.magnetic    = init_magnetic_field();
 
-sim_params.environment.sgp4        = init_sgp4(fsw_params);
+sim_params.environment.sgp4        = fsw_params.env_estimation.orb_estimation.sgp4;
 sim_params.environment.thruster    = init_thruster(sim_params);
 
 % Update constant struct

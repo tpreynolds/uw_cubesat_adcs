@@ -1,4 +1,4 @@
-function fsw_params = init_env_estimation(fsw_params)
+function fsw_params = init_env_estimation(fsw_params,TLE)
 % ----------------------------------------------------------------------- %
 %INIT_ENV_ESTIMATION
 %
@@ -13,7 +13,7 @@ env_estimation.sample_time_s    = fsw_params.sample_time_s;
 
 % Initialize SGP4 library
 env_estimation.orb_estimation   = ....
-                            init_orb_estimation(fsw_params,env_estimation);
+                        init_orb_estimation(fsw_params,env_estimation,TLE);
 
 % Rate Transition Initial Conditions
 env_estimation.ic.gps_time      = ...

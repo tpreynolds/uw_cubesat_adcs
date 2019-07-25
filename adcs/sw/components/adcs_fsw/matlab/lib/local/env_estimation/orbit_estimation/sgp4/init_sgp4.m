@@ -1,4 +1,4 @@
-function sgp4   = init_sgp4(fsw_params)
+function sgp4   = init_sgp4(fsw_params,TLE)
 % ----------------------------------------------------------------------- %
 %INIT_SGP4   
 % 
@@ -15,16 +15,21 @@ function sgp4   = init_sgp4(fsw_params)
     REVpD2RADpM     = fsw_params.constants.convert.revpday_2_radpmin;
     
     % Define our orbit
-    YMDHMS  = [ 2019; 1; 1; 0; 0; 0 ];
-    INC     = 54.6146;  % inclination
-    RAAN    = 247.4627; % right ascension of ascending node
-    ECC     = 0006703; % keep this w/o decimals and 7 digits
-    AOP     = 130.5360; % arg of perigee
-    MNA     = 325.0288; % mean anomaly
-    MNM     = 15.72125391; % mean motion
-    
-    % Generate TLE (saved as text file in /adcs_sim/matlab/include/TLEs/
-    sgp4.orbit_tle = TLE_gen(YMDHMS, INC, RAAN, ECC, AOP, MNA, MNM);
+    if (contains(TLE,'custom'))
+        YMDHMS  = [ 2019; 1; 1; 0; 0; 0 ];
+        INC     = 54.6146;  % inclination
+        RAAN    = 247.4627; % right ascension of ascending node
+        ECC     = 0006703; % keep this w/o decimals and 7 digits
+        AOP     = 130.5360; % arg of perigee
+        MNA     = 325.0288; % mean anomaly
+        MNM     = 15.72125391; % mean motion
+        
+        % Generate TLE (saved as text file in /adcs_sim/matlab/include/TLEs/
+        orbit_tle = TLE_gen(YMDHMS, INC, RAAN, ECC, AOP, MNA, MNM);
+    else
+        [orbit_tle,~] = get_tle(TLE);
+    end
+    sgp4.orbit_tle = orbit_tle;
 
     % Add individual quantities to SGP4 struct (correct units)
     sgp4.year    = sgp4.orbit_tle(1);

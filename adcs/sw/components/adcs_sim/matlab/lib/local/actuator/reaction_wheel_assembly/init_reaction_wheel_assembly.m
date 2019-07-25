@@ -12,13 +12,13 @@ rwa.num_wheels = 4;
 rwa.sample_time_s    = (1/20);
 
 % Wheel Characteristics
-rwa.max_RPM      = 13500;    % RPM
-rwa.inertia      = 1.788e-06; % kg m^2
-rwa.visc_fric    = 2.6e-6; % WAG
-rwa.torque_cnst  = 2.34e-3;  % Nm/A WAG
-rwa.delay        = 6.81e-3;  % s WAG
-rwa.resistance   = 1;     % Ohms WAG
-rwa.inductance   = 0.071e-3; % Henry WAG
+rwa.max_RPM      = 10000;       % RPM
+rwa.inertia      = 2e-6;   % kg m^2
+rwa.visc_fric    = 1e-6;        % WAG
+rwa.torque_cnst  = 1e-3;     % Nm/A WAG
+rwa.delay        = 0;%6.81e-3;     % s WAG
+rwa.resistance   = 1;           % Ohms WAG
+rwa.inductance   = 1e-6;%0.071e-3;    % Henry WAG
 rwa.inertia_matrix   = rwa.inertia * eye(rwa.num_wheels);
 rwa.inv_inertia_matrix = inv(rwa.inertia_matrix);
 rwa.dc_voltage   = 5; % V
