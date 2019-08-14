@@ -2,40 +2,41 @@
 %
 % T. Reynolds -- RAIN Lab
 
-% problem parameters stored in init_SOACer
-N = 10; % number of discretization nodes
-w_max = 0.1;
-T_max = 2.3e-3;
-Jw    = diag([2.9382e-5,2.9382e-5,2.9382e-5]);
-J     = [ 0.0338    -4.884e-05 -7.393e-05;
-          -4.884e-05  0.0346     7.124e-06;
-          -7.393e-05  7.124e-06  0.0075 ]; % kg m2
-
 rng(2) % for repeatability of random IC
 
-sc_mode = 33;
+% constants
+w_max   = soac_params.w_max;
+T_max   = soac_params.T_max;
+hw_max  = [ 37; 37; 31.3 ] * 1e-3; % Nms
+Jw      = sim_params.actuators.reaction_wheel.inertia_matrix;
+Aw      = sim_params.actuators.reaction_wheel.Aw;
+J       = soac_params.inertia;
+RPM2RADPS = fsw_params.constants.convert.RPM_2_radps;
+sc_mode   = 33;
+GPS_epoch = sim_params.environment.sgp4.gps_time; % epoch and GPS time
 
 % initial conditions
-ax  = [1;1;1]./norm([1;1;1]);
-ang = 60;
+ax       = [1;1;1];
+ax       = ax./norm(ax);
+ang      = 60;
 quat_in  = [ cosd(ang/2); sind(ang/2).*ax ];
-omega_in = zeros(3,1);%0.01.*randn(3,1);
-Om0 = 0.10471975511966 * [ 1000; 1000; 1000 ]; % rad/s
-hw_in = Jw * Om0;
-sim_params.dynamics.ic.quat_init = quat_in;
-sim_params.dynamics.ic.rate_init = omega_in;
-sim_params.actuators.reaction_wheel.ic.rpm = 1000 * ones(3,1);
-fsw_params.control.cmd_processing.ic.momentum = hw_in;
+omega_in = zeros(3,1);
+Om0      = [ 1000; -1000; 1000; -1000 ];    % initial wheel RPM
+hw0      = Aw * Jw * (RPM2RADPS * Om0);     % initial wheel momentum
+hw_in    = horzcat(eye(3),zeros(3,1)) * hw0;
+
+% overwrite internal parameters for the simulation
+sim_params.dynamics.ic.quat_init                = quat_in;
+sim_params.dynamics.ic.rate_init                = omega_in;
+sim_params.actuators.reaction_wheel.ic.rpm      = Om0;
+fsw_params.control.cmd_processing.ic.momentum   = hw0;
 
 % final conditions
-quat_cmd  = [ 1.0; 0.0; 0.0; 0.0 ];
-omega_cmd  = [ 0.0; 0.0; 0.0 ];
+quat_cmd    = [ 1.0; 0.0; 0.0; 0.0 ];
+omega_cmd   = [ 0.0; 0.0; 0.0 ];
 
 % inertial sun vector
 sI_unit  = [ 1.0; 0.0; 0.0 ];
-
-% epoch and GPS time
-GPS_epoch = sim_params.environment.sgp4.gps_time;
 
 % Load sim and set run time
 run_time    = 60;%soac_params.s_max;
