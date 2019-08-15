@@ -6,7 +6,7 @@ set(0,'defaulttextinterpreter','latex','defaultAxesFontSize',12)
 % Monte Carlo parameters
 seed = 4;
 rng(seed)                           % for repeatability of random ICs
-N_mc = 10;                          % number of monte carlo trials
+N_mc = 1000;                          % number of monte carlo trials
 var_ang = 90;                       % variance of Euler angle error at init
 var_w   = [ 1e-3; 1e-3; 1e-2 ];     % variance of angular vel. at init
 var_hw  = [ 50; 50; 50; 50 ];       % variance of wheel RPMs at init
@@ -165,27 +165,27 @@ end
 % update plots
 figure(1)
 subplot(3,2,[1 2]), hold on
-plot([tout(slv_itr) tout(slv_itr)],get(gca,'Ylim'),'k.','LineWidth',1)
+plot([tout(slv_itr) tout(slv_itr)],get(gca,'Ylim'),'k:','LineWidth',1)
 plot([tout(slv_itr)+soac_params.s_max tout(slv_itr)+soac_params.s_max],...
     get(gca,'Ylim'),'k:','LineWidth',1)
 %
 subplot(3,2,[3 4]), hold on, grid on
-plot([tout(slv_itr) tout(slv_itr)],get(gca,'Ylim'),'k.','LineWidth',1)
+plot([tout(slv_itr) tout(slv_itr)],get(gca,'Ylim'),'k:','LineWidth',1)
 plot([tout(slv_itr)+soac_params.s_max tout(slv_itr)+soac_params.s_max],...
     get(gca,'Ylim'),'k:','LineWidth',1)
 %
 subplot(3,2,5), hold on, grid on
-plot([tout(slv_itr) tout(slv_itr)],get(gca,'Ylim'),'k.','LineWidth',1)
+plot([tout(slv_itr) tout(slv_itr)],get(gca,'Ylim'),'k:','LineWidth',1)
 plot([tout(slv_itr)+soac_params.s_max tout(slv_itr)+soac_params.s_max],...
     get(gca,'Ylim'),'k:','LineWidth',1)
 %
 subplot(3,2,6), hold on, grid on
-plot([tout(slv_itr) tout(slv_itr)],get(gca,'Ylim'),'k.','LineWidth',1)
+plot([tout(slv_itr) tout(slv_itr)],get(gca,'Ylim'),'k:','LineWidth',1)
 plot([tout(slv_itr)+soac_params.s_max tout(slv_itr)+soac_params.s_max],...
     get(gca,'Ylim'),'k:','LineWidth',1)
 
 figure(2), hold on
-plot([tout(slv_itr) tout(slv_itr)],get(gca,'Ylim'),'k.','LineWidth',1)
+plot([tout(slv_itr) tout(slv_itr)],get(gca,'Ylim'),'k:','LineWidth',1)
 plot([tout(slv_itr)+soac_params.s_max tout(slv_itr)+soac_params.s_max],...
     get(gca,'Ylim'),'k:','LineWidth',1)
 
@@ -202,7 +202,7 @@ set(gca,'Xlim',[-var_ang-5 var_ang+5])
 xlabel('Initial Euler Angle Error [deg]','FontSize',16)
 ylabel('Number of Trials','FontSize',16)
 subplot(2,1,2), hold on, grid on, box on
-fc_edges = -3:0.5:3;
+fc_edges = 0:0.25:ceil(max(y_data));
 fc_nbins = numel(fc_edges) + 1;
 soac_end_itr = slv_itr + soac_params.s_max / soac_params.sample_time_s;
 y_data       = NaN(size(mc.ic_err));
@@ -210,10 +210,19 @@ for k = 1:N_mc
     y_data(k) = mc.deg_err{k}(soac_end_itr);
 end
 h2           = histogram(y_data,fc_edges);
-h2.BinEdges  = h2.BinEdges + h2.BinWidth/2; % center
+% h2.BinEdges  = h2.BinEdges + h2.BinWidth/2; % center
 h2.FaceAlpha = 0.9;
 h2.EdgeColor = 'k';
-set(gca,'XTick',fc_edges)
-set(gca,'Xlim',[-3.5 3.5])
+hax = gca;
+hax.XAxis.MinorTick = 'on';
+hax.XAxis.MinorTickValues = fc_edges;
+set(gca,'XTick',0:0.5:ceil(max(y_data)))
+set(gca,'Xlim',[0 ceil(max(y_data))])
 xlabel('Final Euler Angle Error [deg]','FontSize',16)
 ylabel('Number of Trials','FontSize',16)
+
+figure(4), hold on, grid on, box on
+plot(mc.ic_err,y_data,'ko','MarkerFaceColor','k','MarkerSize',3)
+xlabel('Initial Angle Error [deg]','FontSize',16)
+ylabel('Final Angle Error [deg]','FontSize',16)
+
