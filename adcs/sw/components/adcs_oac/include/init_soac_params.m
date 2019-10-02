@@ -104,4 +104,16 @@ soac.s_min  = 15;
 soac.s_max  = 25;
 soac.w_v    = 1e2;
 
+% Scalings
+soac.Dq = eye(4);
+soac.Dw = soac.w_max * eye(3);
+soac.Dh = 1e-3 * eye(3);
+soac.Dx = blkdiag(soac.Dq,soac.Dw,soac.Dh);
+soac.iDx = inv(soac.Dx);
+soac.Du = soac.T_max * eye(3);
+soac.Ds = soac.s_max - soac.s_min;
+soac.Dg = 1.0;
+soac.DX = kron(eye(soac.N),soac.Dx);
+soac.DU = kron(eye(soac.N),soac.Du);
+
 end

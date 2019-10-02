@@ -32,7 +32,8 @@ sim_params.actuators.reaction_wheel.ic.rpm      = Om0;
 fsw_params.control.cmd_processing.ic.momentum   = hw0;
 
 % final conditions
-quat_cmd    = [ 1.0; 0.0; 0.0; 0.0 ];
+q_err       = [ cosd(2/2); sind(2/2).*ax ];
+quat_cmd    = quatmultiply(q_err',quat_in')';%[ 1.0; 0.0; 0.0; 0.0 ];
 omega_cmd   = [ 0.0; 0.0; 0.0 ];
 
 % inertial sun vector
@@ -88,5 +89,13 @@ figure, hold on, grid on
 plot(tout,u_opt,'LineWidth',1)
 xlabel('Time [s]')
 title('Feedforward Control Signal')
+
+for k = 1:length(x_opt)
+    qk = x_opt(k,1:4);
+    q_err = quatmultiply(quatconj(qk),quat_cmd')';
+    deg_err(k) = 2*acosd(q_err(1));
+end
+figure, hold on, grid on, box on
+plot(tout,deg_err,'LineWidth',1)
 
 
