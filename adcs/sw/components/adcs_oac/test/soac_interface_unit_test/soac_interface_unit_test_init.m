@@ -16,14 +16,14 @@ sc_mode   = 33;
 GPS_epoch = sim_params.environment.sgp4.gps_time; % epoch and GPS time
 
 % initial conditions
-ax       = [1;1;1];
+ax       = [0.72756;0.027687;0.68549];
 ax       = ax./norm(ax);
-ang      = 60;
-quat_in  = [ cosd(ang/2); sind(ang/2).*ax ];
-omega_in = zeros(3,1);
-Om0      = [ 1000; -1000; 1000; -1000 ];    % initial wheel RPM
+ang      = 38.667;
+quat_in  = [0.92608;0.20851;-0.0048867;-0.31446];%[ cosd(ang/2); sind(ang/2).*ax ];
+omega_in = [0.00012082;0.00014607;0.021011];
+Om0      = [ 905.63; -1062.5; 988.37; -992 ];    % initial wheel RPM
 hw0      = Aw * Jw * (RPM2RADPS * Om0);     % initial wheel momentum
-hw_in    = horzcat(eye(3),zeros(3,1)) * hw0;
+hw_in    = [2.1259e-6;5.8341e-6;-8.6055e-7];%horzcat(eye(3),zeros(3,1)) * hw0;
 
 % overwrite internal parameters for the simulation
 sim_params.dynamics.ic.quat_init                = quat_in;
@@ -33,7 +33,7 @@ fsw_params.control.cmd_processing.ic.momentum   = hw0;
 
 % final conditions
 q_err       = [ cosd(2/2); sind(2/2).*ax ];
-quat_cmd    = quatmultiply(q_err',quat_in')';%[ 1.0; 0.0; 0.0; 0.0 ];
+quat_cmd    = [1.0;0.0;0.0;0.0];%quatmultiply(q_err',quat_in')';%[ 1.0; 0.0; 0.0; 0.0 ];
 omega_cmd   = [ 0.0; 0.0; 0.0 ];
 
 % inertial sun vector
@@ -93,7 +93,7 @@ title('Feedforward Control Signal')
 for k = 1:length(x_opt)
     qk = x_opt(k,1:4);
     q_err = quatmultiply(quatconj(qk),quat_cmd')';
-    deg_err(k) = 2*acosd(q_err(1));
+    deg_err(k) = real(2*acosd(q_err(1)));
 end
 figure, hold on, grid on, box on
 plot(tout,deg_err,'LineWidth',1)

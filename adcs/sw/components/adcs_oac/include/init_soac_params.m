@@ -105,15 +105,27 @@ soac.s_max  = 25;
 soac.w_v    = 1e2;
 
 % Scalings
+% In MC testing, some issues noticed with these scalings. Omitting them
+% until further testing finds the issue.
+% soac.Dq = eye(4);
+% soac.Dw = soac.w_max * eye(3);
+% soac.Dh = 1e-3 * eye(3);
+% soac.Dx = blkdiag(soac.Dq,soac.Dw,soac.Dh);
+% soac.iDx = inv(soac.Dx);
+% soac.Du = soac.T_max * eye(3);
+% soac.Ds = soac.s_max - soac.s_min;
+% soac.Dg = 1.0;
+% soac.DX = kron(eye(soac.N),soac.Dx);
+% soac.DU = kron(eye(soac.N),soac.Du);
+
 soac.Dq = eye(4);
-soac.Dw = soac.w_max * eye(3);
-soac.Dh = 1e-3 * eye(3);
+soac.Dw = eye(3);
+soac.Dh = eye(3);
 soac.Dx = blkdiag(soac.Dq,soac.Dw,soac.Dh);
 soac.iDx = inv(soac.Dx);
-soac.Du = soac.T_max * eye(3);
-soac.Ds = soac.s_max - soac.s_min;
+soac.Du = eye(3);
+soac.Ds = 1.0;
 soac.Dg = 1.0;
 soac.DX = kron(eye(soac.N),soac.Dx);
 soac.DU = kron(eye(soac.N),soac.Du);
-
 end

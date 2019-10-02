@@ -4,9 +4,9 @@
 set(0,'defaulttextinterpreter','latex','defaultAxesFontSize',12)
 
 % Monte Carlo parameters
-seed = 4;
+seed    = 4;
 rng(seed)                           % for repeatability of random ICs
-N_mc = 1000;                          % number of monte carlo trials
+N_mc    = 1000;                          % number of monte carlo trials
 var_ang = 90;                       % variance of Euler angle error at init
 var_w   = [ 1e-3; 1e-3; 1e-2 ];     % variance of angular vel. at init
 var_hw  = [ 50; 50; 50; 50 ];       % variance of wheel RPMs at init
@@ -25,6 +25,10 @@ mc.exitcode = cell(1,N_mc);
 % mc.s_opt = cell(1,N_mc);
 mc.deg_err = cell(1,N_mc);
 mc.ic_err  = zeros(1,N_mc);
+mc.fc_err  = zeros(1,N_mc);
+mc.slv_time = cell(1,N_mc);
+mc.tot_slv_time = zeros(1,N_mc);
+mc.iters = zeros(1,N_mc);
 
 % constants
 w_max   = soac_params.w_max;
@@ -81,6 +85,13 @@ title('Feedforward Control Signals','FontSize',16)
 set(gcf,'Position',[1,51,560,754])
 
 %% loop through test cases
+fprintf('========================================\n')
+fprintf('SOAC MONTE CARLO TEST : %d TRIALS\n\n',mc.info.N_mc)
+% Load sim and set run time
+run_time    = 60;              % must be larger than soac_params.s_max;
+mdl         = 'soac_mc_test';
+load_system(mdl);
+set_param(mdl,'StopTime', num2str(run_time));
 
 for mc_iter = 1:N_mc
 
@@ -100,17 +111,12 @@ for mc_iter = 1:N_mc
     sim_params.actuators.reaction_wheel.ic.rpm      = Om0;
     fsw_params.control.cmd_processing.ic.momentum   = hw0;
 
-    % Load sim and set run time
-    run_time    = 60;               % must be larger than soac_params.s_max;
-    mdl         = 'soac_mc_test';
-    load_system(mdl);
-    set_param(mdl,'StopTime', num2str(run_time));
-
     % run test case
     sim(mdl);
 
     % extract desired results
     slv_itr = find(trigger,1);
+    soac_end_itr = slv_itr + soac_params.s_max / soac_params.sample_time_s;
     xf      = command_state(end,:);
     qf      = xf(1:4);
     qerr    = quatmultiply(quatconj(qf),quat_cmd');
@@ -118,13 +124,17 @@ for mc_iter = 1:N_mc
     hwf     = xf(8:10);
     
     mc.x_ic{mc_iter} = [ quat_in; omega_in; hw_in ];
-    mc.exitcode{mc_iter} = opt_solution.exitcode.Data(slv_itr,:);
-    mc.success(mc_iter) = (opt_solution.exitcode.Data(slv_itr,11)==0);
+    mc.exitcode{mc_iter} = soac_telemetry.exitcode.Data(slv_itr,:);
+    mc.success(mc_iter) = (soac_telemetry.exitcode.Data(slv_itr,17)==0);
+    mc.slv_time{mc_iter} = soac_telemetry.time.Data(slv_itr,:);
+    mc.tot_slv_time(mc_iter) = sum(soac_telemetry.time.Data(slv_itr,:));
     % mc.x_opt{mc_iter} = command_state;
     % mc.u_opt{mc_iter} = command_torque;
-    % mc.s_opt{mc_iter} = opt_solution.s.Data(1);
+    % mc.s_opt{mc_iter} = soac_telemetry.s.Data(1);
     mc.deg_err{mc_iter} = deg_err;
     mc.ic_err(mc_iter)  = ang;
+    mc.fc_err(mc_iter)  = deg_err(soac_end_itr);
+    mc.iters(mc_iter)   = soac_telemetry.exitcode.Data(slv_itr,16);
 
     % update plots
     figure(1)
@@ -142,24 +152,34 @@ for mc_iter = 1:N_mc
 
     figure(2), hold on
     plot(tout,command_torque,'LineWidth',1)
+    
+    fprintf('Trial %04d | exitcode = %02d\n',...
+                    mc_iter,mc.exitcode{mc_iter}(11))
 
 end
 
 %% post process 
 
-fprintf('Number of successful trials: %d / %d\n',sum(mc.success),N_mc)
 N_fail = N_mc - nnz(mc.success);
+mean_slv_time = mean(mc.tot_slv_time);
+
+fprintf('\n========================================\n')
+fprintf('RESULTS\n\n')
+fprintf('Number of successful trials: %04d / %04d\n',sum(mc.success),N_mc)
+fprintf('Number of failed trials:     %04d / %04d\n',N_fail,N_mc)
+fprintf('Mean solver time:            %7.5f s\n',mean_slv_time)
+fprintf('\n========================================\n')
 if (N_fail>0)
-    fprintf('-----------------------------------\n')
     fprintf(' Failed trials:\n')
     fld_itrs = find(~mc.success);
     for k = 1:N_fail
         f_itr = slv_itr + soac_params.s_max / soac_params.sample_time_s;
-        fprintf(' trial: %02u | ic_err = %05.2f deg | exitcode = %02d\n',...
-            fld_itrs(k),mc.ic_err(fld_itrs(k)),mc.exitcode{fld_itrs(k)}(11))
+        fprintf(' trial: %02u | ic_err = %05.2f deg | fc_err = %05.2f deg | exitcode = %02d\n',...
+            fld_itrs(k),mc.ic_err(fld_itrs(k)),...
+            mc.fc_err(fld_iters(k)),mc.exitcode{fld_itrs(k)}(11))
     end
 else
-    fprintf('Success!\n')
+    fprintf(' >> Success! <<\n')
 end
 
 % update plots
@@ -189,12 +209,12 @@ plot([tout(slv_itr) tout(slv_itr)],get(gca,'Ylim'),'k:','LineWidth',1)
 plot([tout(slv_itr)+soac_params.s_max tout(slv_itr)+soac_params.s_max],...
     get(gca,'Ylim'),'k:','LineWidth',1)
 
-figure(3)
+figure(3), clf
 subplot(2,1,1), hold on, grid on, box on
 ic_edges = -var_ang:10:var_ang;
 ic_nbins = numel(ic_edges) + 1;
 h1           = histogram(mc.ic_err,ic_edges);
-h1.BinEdges  = h1.BinEdges + h1.BinWidth/2; % center
+% h1.BinEdges  = h1.BinEdges + h1.BinWidth/2; % center
 h1.FaceAlpha = 0.9;
 h1.EdgeColor = 'k';
 set(gca,'XTick',ic_edges)
@@ -202,13 +222,9 @@ set(gca,'Xlim',[-var_ang-5 var_ang+5])
 xlabel('Initial Euler Angle Error [deg]','FontSize',16)
 ylabel('Number of Trials','FontSize',16)
 subplot(2,1,2), hold on, grid on, box on
+y_data = mc.fc_err;
 fc_edges = 0:0.25:ceil(max(y_data));
 fc_nbins = numel(fc_edges) + 1;
-soac_end_itr = slv_itr + soac_params.s_max / soac_params.sample_time_s;
-y_data       = NaN(size(mc.ic_err));
-for k = 1:N_mc
-    y_data(k) = mc.deg_err{k}(soac_end_itr);
-end
 h2           = histogram(y_data,fc_edges);
 % h2.BinEdges  = h2.BinEdges + h2.BinWidth/2; % center
 h2.FaceAlpha = 0.9;
