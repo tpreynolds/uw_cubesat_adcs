@@ -4,8 +4,6 @@
 \input{preamble.tex}
 \input{my_tikz.tex}
 
-% \addbibresource{PDG.bib}
-
 \title{\textsc{SOAC Interface Control Document \\ {\small \textbf{S}attelite for \textbf{O}ptimal \textbf{C}ontrol and \textbf{I}maging}}}
 
  \author{
@@ -17,15 +15,15 @@
  
 \maketitle
 
-This document is the interface control document for the primary payload of the SOCi mission. The payload is SOCi's Optimal Attitude Controller (SOAC), and uses convex optimization techniques to compute guidance trajectories that steers the spacecraft to a desired orientation while satisfying numerous constraints of interest. Specifically, trajectories are generated that respect angular rate bounds, torque bounds, and attitude inclusion and exclusion zone constraints. 
+This document is the interface control document for the primary payload of the SOCi mission. The payload is SOCi's Optimal Attitude Controller (SOAC) that uses convex optimization techniques to compute guidance trajectories to steer the spacecraft to a desired orientation while satisfying various constraints. Specifically, trajectories are generated that respect angular rate bounds, torque bounds, and attitude inclusion and exclusion zone constraints. The problem is formulated as a nonlinear optimal control problem and solved as a sequence of convex optimization problems using the open source solver ECOS.
 
 This document provides a summary of the system, technical details on how the controller works, the interfaces to other parts of the spacecraft, and the verification and validation procedure used to ensure proper operation. I have stashed all of the data tables at the back to keep the document readable.
 
 \section{Summary of System}\label{sec:summary}
 
-The SOAC payload is a software component within the Guidance, Navigation, and Control (GNC) subsystem and is the primary payload of the mission. The SOAC payload will produce feedforward reaction wheel torque commands and a reference state vector in order to control the orientation of the spacecraft. All reorientations will be performed starting from the spacecraft’s current attitude, and will terminate at a ground-specified attitude. The maneuver begins at a time that is pre-specified and steers the spacecraft to a desired final attitude, both of which are given as inputs; see~\sref{sec2:cmd_interface}.
+The SOAC payload is a software component within the Guidance, Navigation, and Control (GNC) subsystem. The SOAC payload will produce feedforward reaction wheel torque commands and a reference state vector in order to control the orientation of the spacecraft. All reorientations will be performed starting from the spacecraft’s current attitude, and will terminate at a desired attitude. The payload's execution is triggered by the primary GNC software by a change in the operating mode via the signal \ttt{gnc\_mode}. The inputs to the SOAC function are detailed in~\sref{sec2:cmd_interface}.
 
-A block diagram of the SOAC control system is provided in~\fref{fig:soac_loop}. It must be coupled with a feedback controller (shown as $C(s)$) to compensate for small errors that accumulate during the execution of a feedforward maneuver. Note that the ``difference'' junction used to compute the state errors is not a subtraction since quaternions are used; however the same symbol is overloaded for ease of understanding.
+A block diagram of the SOAC control system is provided in~\fref{fig:soac_loop}. It must be coupled with a feedback controller (shown as $C(s)$) to compensate for small errors that accumulate during the execution of a feedforward maneuver. Note that the ``difference'' junction used to compute the state errors is not a subtraction since quaternions are used; however the same symbol is overloaded for simplicity. The feedback controller $C(s)$ is not designed as part of SOAC, and resides in the primary GNC software.
 
 \begin{figure}[bth]
 \centering
@@ -40,9 +38,9 @@ The problem that is solved by the SOAC payload can be summarized as follows. Def
 \begin{equation}
 \bm{x}(t) = \begin{bmatrix}
 \q(t) \\ \hB(t) \\ \hw(t)
-\end{bmatrix}_{10\times 1}, \quad \text{and} \quad \bm{\tau}(t) = \begin{bmatrix}
+\end{bmatrix}_{10\times 1} \quad \text{and} \quad \bm{\tau}(t) = \begin{bmatrix}
 \tau_x(t) \\ \tau_y(t) \\ \tau_z(t)
-\end{bmatrix} \in \real^3,
+\end{bmatrix} \in \real^3
 \label{eq:state_control}
 \end{equation}
 where $\tau_x,\,\tau_y,\,\tau_z$ are the components of the net torque vector about the spacecraft's body axes, $\q\in\real^4$ is the attitude quaternion, $\hB\in\real^3$ is the spacecraft bus angular momentum (in the body frame) and $\hw\in\real^3$ is the net reaction wheel angular momentum about the spacecraft body axes. 
@@ -59,7 +57,7 @@ The equations of motion are assumed to be (supressing the argument of time)
 \label{eq:eqms}
 \end{equation}
 
-The problem statement is given below. See the Appendix for an explanation of the constraints and how they are formulated. The cost function aims to minimize the power consumed by the reaction wheels to perform the maneuver. The $\mathcal{L}_2$ norm of the net torque signal is used to model their power consumption. The details and specific formulae used to achieve the computation of such trajectories are provided in an Appendix to this document, and will soon be replaced by a publication.
+The problem statement is given below. See the Appendix for an explanation of the constraints and how they are formulated. The cost function aims to minimize the power consumed by the reaction wheels to perform the maneuver. The $\mathcal{L}_2$ norm of the net torque signal is used to model their power consumption over the maneuver time. The details and specific formulae used to compute solutions to this problem are provided in an Appendix to this document.
 
 \begin{equation}\tag{Problem 1}\label{prob:prob1}
 \begin{alignedat}{1}
@@ -74,7 +72,7 @@ The problem statement is given below. See the Appendix for an explanation of the
 &\quad \q(\tf) = \q_f,\quad \hB(\tf) = 0.
 \end{alignedat}
 \end{equation}
-Note that the fourth and fifth constraints define the attitude exclusion zone (due to the camera) and the attitude inclusion zone (due to the sun sensor) respectively. Details on how this constraint is formulated can be found in~\cite{Lee2015}. They are each a second-order cone constraint due to their quadratic nature. All other inequality constraints are linear. Hence all inequality constraints are convex, as are the boundary conditions (the final two lines of constraints) and the cost function. The nonlinear dynamics represent the sole non-convexity of the problem.
+Note that the fourth and fifth constraints define the attitude exclusion zone (due to the camera) and the attitude inclusion zone (due to the sun sensor) respectively. Details on how this constraint is formulated can be found in~\cite{Lee2014}. They are each a second-order cone constraint due to their quadratic nature. All other inequality constraints are linear. All inequality constraints are therefore convex, as are the boundary conditions (the final two lines of constraints) and the cost function. The nonlinear dynamics are the only non-convexity in~\pref{prob:prob1}.
 
 \section{System Interfaces}\label{sec:interfaces}
 
@@ -87,11 +85,11 @@ Note that the fourth and fifth constraints define the attitude exclusion zone (d
 \label{fig:soac_inner}
 \end{figure}
 
-A block diagram representation of the overall system is given in~\fref{fig:soac_inner}. The SOAC library takes nine inputs and provides outpus outputs; details of each are provided in Table~\ref{tab:inputs_outputs}. The main function of the library is to use inputs 2-7 to define a point-to-point attitude reorientation problem, and then to solve for a feedforward trajectory (state, control and maneuver time) that will reorient the satellite while respecting each constraint. 
+A block diagram representation of the overall system is given in~\fref{fig:soac_inner}. The SOAC library takes nine inputs and provides two outputs; details of each are provided in Table~\ref{tab:inputs_outputs}. The main function of the library is to use inputs 2-7 to define an instance of~\pref{prob:prob1}, and then solves said problem for a trajectory (state, control and maneuver time) that will reorient the satellite while respecting each constraint. 
 
-The SOLVE function contains the custom-written parser and interface to the ECOS solver. When called upon, it will parse the data (inputs 2-7) into a series of convex optimization problems that approximate the non-convex optimal control problem given in~\ref{prob:prob1}. The solution that is computed then gets passed to the INTERP function so that it may be transformed to a set of reference state and control vectors with the same sampling time as the primary GNC flight software. Since the discretization scheme used in the SOLVE function will necessarily be a much coarser one, this is effectively a discrete-to-continuous transformation. It uses a fixed step-size RK4 integration scheme to do so. 
+The SOLVE function contains the custom-written parser and interface to the ECOS solver. When called upon, it will parse the data (inputs 2-7) into a sequence of convex optimization problems that approximate the non-convex~\pref{prob:prob1}. The (discrete) solution that is computed then gets passed to the INTERP function so that it may be transformed to a continuous time reference state and control vectors using the same sampling time as the primary GNC flight software. Since the discretization scheme used in the SOLVE function will necessarily be a much coarser one, this is effectively a discrete-to-continuous transformation and uses a fixed step-size RK4 integration scheme. 
 
-The components of the \code{soac\_telemetry} struct are given in Table~\ref{tab:soac_telemetry}. The first three are the converged solution from the SOLVE function. The first ten entries in \code{exitcode} are the ECOS solver return values for each of the (maximum) ten iterations. The $11$th is a custom signal to provide additional information about the computed solution. The possible values are given in Table~\ref{tab:exitcodes}. The \code{slv\_time\_s} is the ECOS-reported time taken to solve each iteration's convex optimization problem. This time is \textit{setup and solve} time, and is computed in the \code{matlab\_main.c} function. Finally, the \code{soac\_count} is an integer that indicates how many times (in total) the SOLVE function has been called.
+The components of the \code{soac\_telemetry} struct are given in Table~\ref{tab:soac_telemetry}. The first three are the converged solution from the SOLVE function. The first fifteen entries in \code{exitcode} are the ECOS solver return values for each of the (maximum) fifteen iterations. The $16$th and $17$th are signals that provide additional information about the computed solution. The possible values are given in Table~\ref{tab:exitcodes}. The \code{slv\_time\_s} is the ECOS-reported time taken to solve each iteration's convex optimization problem. This time is \textit{setup and solve} time, and is computed in the \code{matlab\_main.c} function. Finally, the \code{soac\_count} is an integer that indicates how many times (in total) the SOLVE function has been called.
 
 \subsubsection{Constraint Boundary Values}
 
@@ -103,7 +101,7 @@ The constraint boundaries have the following values, each of which are configura
 \item the inertial sun vector remains within a $\theta_{\max}=60\unit{\dg}$ degree cone (half-angle) centered around the sun sensor boresight direction,
 \item the inertial sun vector remains outside of a $\theta_{\min}=60\unit{\dg}$ degree cone (half-angle) centered around the camera boresight direction. 
 \end{enumerate} 
-The torque limit is below what can be produced by the reaction wheels, and was selected to equal the capability of a single wheel. This provides a buffer so that the addition of feedback control will not saturate the wheels, and also means that if one wheel were to fail, the SOAC payload will not ask for a torque that exceeds the reduced capability.
+The torque limit is below what can be produced by the reaction wheels, and was selected to equal the capability of a single wheel. This provides a buffer so that the addition of feedback control will not saturate the wheels, and also means that if a single wheel were to fail, the SOAC payload will not ask for a torque that exceeds the reduced capability with no need to change the code.
 
 \subsubsection{SOAC Operating Modes}\label{sec3:op_modes}
 There are effectively two operating modes of the SOAC payload: operational and idle. The trigger attached to the \code{gnc\_mode} shown in~\fref{fig:soac_inner} is the arbiter between the two modes. The output of the trigger goes high when the following conditions are met:
@@ -111,11 +109,11 @@ There are effectively two operating modes of the SOAC payload: operational and i
 \item The value of \code{gnc\_mode = 33},
 \item The previous value of \code{gnc\_mode != 33}.
 \end{enumerate}
-The SOAC payload can be commanded to its operational mode by the primary GNC mode manager by switching the value of \code{gnc\_mode} to $33$ from something else. The conditions upon which the primary GNC operating mode is set to $33$ are provided in the \href{https://drive.google.com/open?id=1wTjmsQdXGk9jmEHy59fZAdBJJ3r1IE4LGFjHT2S5png}{main GNC ICD}. Maintaining the primary GNC mode at this value will not continuously trigger the payload due to the second clause. As a result, the primary GNC mode must be toggled back to some value that is not $33$ prior to requesting another solution. \textbf{The primary GNC flight software is assumed to be in charge of requesting a re-solve for a given maneuver.} The reason is that a re-solve commanded internally will inevitably create an algebraic loop. A brief attempt was made to design this into the library, but a decision was made to manage this within the primary GNC mode manager. 
+The SOAC payload can be commanded to its operational mode by the primary GNC mode manager by switching the value of \code{gnc\_mode} to $33$ from any other value. The conditions upon which the primary GNC operating mode is set to $33$ are provided in the \href{https://drive.google.com/open?id=1wTjmsQdXGk9jmEHy59fZAdBJJ3r1IE4LGFjHT2S5png}{main GNC ICD}. Maintaining the primary GNC mode at this value will not continuously trigger the payload due to the second clause. As a result, the primary GNC mode must be toggled back to some value that is not $33$ prior to requesting another solution. \textbf{The primary GNC flight software is assumed to be in charge of requesting a re-solve for a given maneuver.} The current design is such that triggering a re-solve internally will create an algebraic loop. A brief attempt was made to design internal re-solves into the library, but a decision was made that it would be simpler to manage this within the primary GNC mode manager. 
 
 \subsubsection{Control Torque Allocation}\label{sec3:allocation}
 
-The equations of motion used in the SOAC system are given in the Appendix. Since we are using a four-wheel system, a note is needed on what assumptions are being made about how the torques computed by SOAC should be allocated to the wheels. The SOAC payload computes the \textbf{net} torque about the spacecraft body axes that should be applied to perform the maneuver, while accounting for the \textbf{net} momentum in the wheels using these same axes. 
+The equations of motion used in the SOAC system are given in~\eqref{eq:eqms}. Since we are using a four-wheel system, a note is needed on what assumptions are being made about how the torques computed by SOAC should be allocated to the wheels. The SOAC payload computes the \textbf{net} torque about the spacecraft body axes that should be applied to perform the maneuver, while accounting for the \textbf{net} momentum in the wheels about the same body axes. 
 
 Let $\bm{H}\in\real^4$ be the vector whose components are the angular momenta stored in each wheel and let $\bm{T}\in\real^4$ be the vector whose components are the torques delivered by each wheel. Assuming that the net angular momentum of the wheels, $\hw$, is related to the momentum of each wheel, $\bm{H}$, according to some map $g : \real^4 \rightarrow \real^3$, we have
 \begin{equation}
@@ -134,7 +132,7 @@ This section sets some ground rules for how the map $g$ is chosen, and offers a 
 \end{bmatrix},
 \label{eq:new_eqms}
 \end{equation}
-for an \textit{eleven-dimensional state} $\bm{x} = \left[ \q\tran \ \hB\tran \ \bm{H}\tran \right]\tran$. These equations of motion come from the conservation of momentum combined with the four-wheel geometry. The equations in~\eqref{eq:new_eqms} \textit{are equivalent to} those in~\eqref{eq:eqms} if and only if
+for an \textit{eleven-dimensional} state $\bm{x} = \left[ \q\tran \ \hB\tran \ \bm{H}\tran \right]\tran$. These equations of motion come from the conservation of momentum combined with the four-wheel geometry. The equations in~\eqref{eq:new_eqms} \textit{are equivalent to} those in~\eqref{eq:eqms} if and only if
 \begin{enumerate}
 \item There exists a map $g^{\dagger} : \real^4 \rightarrow \real^3$ such that $\bm{z} = g\big( g^{\dagger}(\bm{z})\big)$ for any $\bm{z}\in\real^3$. 
 \item $\der{}{t}g(\bm{z}(t)) = g(\dot{\bm{z}}(t))$ for any $\bm{z}(t)\in\real^4$.
@@ -152,24 +150,24 @@ The $3\times 4$ matrix $A_w$ is singular, but following~\cite[\S 7.3.4]{Sidi1997
 \bm{T} = A_w^{\dagger} \bm{\tau} \quad \text{and} \quad \bm{H} = A_w^{\dagger} \hw
 \end{equation}
 where $A_w^{\dagger} = A_w\tran \inv{\left(A_w A_w\tran\right)} \in \real^{4\times 3}$
-is such that $A_w A_w^{\dagger} = \eye{3}$. Thus the mapping $g(T) = A_w$ satisfies the first condition required above (existence of an "inverse" like function). Next, it is clear that the second condition is satisfied because the matrix $A_w$ is constant. So this allocation scheme will ensure that SOAC produces the expected behaviour. This was verified in simulation by mapping an optimal set of controls $\bm{\tau}(t)$ to $\bm{T}(t)$ for $t\in[0,\tf]$ and then integrating the equations of motion~\eqref{eq:new_eqms} using the \code{Q\_ode\_4p} function. The resulting state vector matched exactly the output of SOAC.
+is such that $A_w A_w^{\dagger} = \eye{3}$. Thus the mapping $g(T) = A_w$ satisfies the first condition required above (existence of an ``inverse'' like function). Next, it is clear that the second condition is satisfied because the matrix $A_w$ is constant. This allocation scheme will ensure that SOAC produces the expected behaviour, which has been verified in simulation by mapping an optimal set of controls $\bm{\tau}(t)$ to $\bm{T}(t)$ for $t\in[0,\tf]$ and then integrating the equations of motion~\eqref{eq:new_eqms}. The resulting state vector matched exactly the output of SOAC.
 
 \subsubsection{Building \& Autocoding}\label{sec2:build_autocode}
 
-You need to build the SOAC executable before you can run a unit test or use the SOAC software. To do this, make sure your current MATLAB directory is \textit{ROOT/adcs/sw/components/adcs\_oac/build}, where \textit{ROOT} is whatever directory the repository is stored in. Assuming that you have correctly run \code{mex -setup} at least once on your machine, you can type \code{build\_soac} at the MATLAB command line. This will take a few seconds and you should see lots of output as components get built. There will be one warning about an implicit function declaration but this is safe to ignore. This process will create three files in the \textit{build} folder, and you may now run one of the unit tests and/or use the SOAC library in simulation.   
+You need to build the SOAC executable before you can run a unit test or use the SOAC software. The building/autocoding process that is used for SOAC was developed in~\cite{MalyutaThesis}. First, make sure your current MATLAB directory is \textit{ROOT/adcs/sw/components/adcs\_oac/build}, where \textit{ROOT} is whatever directory the repository is stored in. Assuming that you have correctly run \code{mex -setup} at least once on your machine, you can type \code{build\_soac} at the MATLAB command line. This will take a few seconds and you should see lots of output as components get built. There will be one warning about an implicit function declaration but this is safe to ignore. This process will create three files in the \textit{build} folder, and you may now run one of the unit tests and/or use the SOAC library in simulation.  
 
-\textbf{Note:} The \code{.gitignore} for the repository is set up to ignore the autogenerated mex files that this process creates. You will need to rebuild the files on any new machine that you use, which is good practice anyway.
+\textbf{Note:} The \code{.gitignore} for the repository is set up to ignore the autogenerated mex files that this process creates. You will need to rebuild the files on any new machine that you use.
 
-To autocode the SOAC library, or anything that contains it, you need to link the external solver files located in \textit{ROOT/adcs/sw/components/adcs\_oac/include/ecos/}. This must be done with the full path from your machine's actual root directory. Figure~\ref{fig:autocode} has an example of what the path should look like. The window shown in Figure~\ref{fig:autocode} is found by clicking on
+To autocode the SOAC library, or anything that contains it, you need to link the external solver files located in \textit{ROOT/adcs/sw/components/adcs\_oac/include/ecos/}. This must be done with the full path from your machine's actual root directory. You need to provide Simulink with the include directory, which is \textit{ROOT/adcs/sw/components/adcs\_oac/include/ecos/include} and the source files (\code{*.c}) from the \textit{ROOT/adcs/sw/components/adcs\_oac/include/ecos/src/} folder. Figure~\ref{fig:autocode} has an example of what the path should look like. The window shown in Figure~\ref{fig:autocode} is found by clicking on
 \begin{center}
 \code{Code -> C/C++ Code -> Code Generation Options...}
 \end{center}
 Once these files are linked, you should be able to use the Code Generation Quick Start feature to generate the C code that will be handed to the CDH team.
 
-\begin{figure}[htb]
+\begin{figure}
 \centering
-\subfloat{\includegraphics[width=0.9\textwidth]{figs/autocode_include.png}} \vfil
-\subfloat{\includegraphics[width=0.9\textwidth]{figs/autocode_srcs.png}}
+\subfloat{\includegraphics[width=0.85\textwidth]{figs/autocode_include.png}} \\
+\subfloat{\includegraphics[width=0.85\textwidth]{figs/autocode_srcs.png}}
 \caption{The custom code options found in Simulink's Code Generation Options.}
 \label{fig:autocode}
 \end{figure}
@@ -196,13 +194,79 @@ The SOAC payload is a software component that will be run on the main flight com
 
 \section{Verification and Validation}\label{sec:v_and_v}
 
-This section outlines the testing campaign that SOAC will pass during design, as well as a test case that can be used to assess correct functionality during a bench test. \comment{NOTE: this section is not yet complete.}
+This section outlines the testing campaign that SOAC has so far passed during design, as well as a test case that can be used to assess correct functionality during a bench test. The following tests have been made:
+\begin{enumerate}
+\item A unit test of just the SOLVE function, found in the folder 
+\begin{center}
+\ttt{.../adcs\_oac/test/soac\_unit\_test}
+\end{center}
+\item A unit test of the entire SOAC library, found in the folder
+\begin{center}
+\ttt{.../adcs\_oac/test/soac\_interface\_unit\_test}
+\end{center}
+\item A Monte Carlo test of the entire SOAC library, found in the folder
+\begin{center}
+\ttt{.../adcs\_oac/test/soac\_mc\_test}
+\end{center}
+\end{enumerate}
+Each folder contains a Matlab script and a Simulink library. Running the Matlab script will run the test and plot some results. The other test folders are not unit tests of the SOAC library in its Simulink form and can be ignored at this point (they were mostly used for development). 
 
-% This section will detail your testing campaign. The test campaign must be designed to prove beyond doubt that your system meets all mission requirements and all risks are minimized. You can point to different documents where you have a more thorough explanation of the results, but you must at least
+A 1000 trial Monte Carlo test was run to assess the performance of the SOAC library at the preliminary design stage. The commanded attitude and angular rates were set to $\q_{cmd} = (1,0,0,0)$ and $\bm{\omega}_{\body,cmd}=(0,0,0)$ for each trial. The initial attitude was chosen by selecting a random direction on the unit sphere as an eigenaxis, and a error angle uniformly sampled from the interval $[-90\dg,90\dg]$. The initial quaternion is then
+\begin{equation}
+\theta \sim \mathcal{U}(-90\dg,90\dg), \quad \hat{\bm{n}} = \frac{(x,y,z)}{\|(x,y,z)\|}, \ x,y,z\sim\mathcal{N}(0,1), \quad \q(\ti) = \big(\cos(\tfrac{\theta}{2}),\,\sin(\tfrac{\theta}{2})\hat{\bm{h}} \big)
+\end{equation} 
+The initial attitude rates were chosen from
+\begin{equation}
+\wB(\ti) \sim \mathcal{N}(\zeros{3}{1},\,\Sigma_{\omega}), \quad \Sigma_{\omega} = \diag{10^{-3},10^{-3},10^{-2}}
+\end{equation}
+and the initial reaction wheel spin rates (in units of RPM) were chosen from
+\begin{equation}
+\Omega(\ti) \sim \mathcal{N}(\Omega_0,\,\Sigma_{\Omega}), \quad \Omega_0 = \begin{bmatrix}
+1000 \\ -1000 \\ 1000 \\ -1000
+\end{bmatrix}, \quad \Sigma_{\Omega} = 50\eye{4}
+\end{equation}
+which was then mapped to $\hw(\ti)$ to serve as the initial condition. 
 
-% Cover what was tested, and how. What specific system responses did you test for? What were the limitations (i.e. what did you not test)? Have you tested every scenario/operating condition that we expect to see in our operations?  What were the pass/fail criteria and why?
-% Data that proves that the tests were passed and/or failed. 
-% Any other details that you think our reviewers would ask about. (Ask yourself the question: If I were reviewing this system, what are the weaknesses? How would I poke holes in the design, and how would this thing fail? What have I missed?)
+The result of a single trial was assessed first by the value of the \code{exitcode} from SOAC. If the $16$th entry was zero, the trial was deemed a success; any other value was deemed a failure, see Table~\ref{tab:exitcodes}. Next, the resulting feedforward control/state were integrated through the spacecraft's nonlinear equations of motion using the dynamics that are being used to design the primary GNC flight software. A notional feedback controller was added to provide a sense of the closed-loop capabilities. The total degree error \textit{at the end of the maneuver} (i.e., the optimal time $s^* = \tf^*$) between $\q(\tf^*)$ and $\q_{cmd}$ was computed using $\q_{err} = \q(\tf^*)^* \otimes\ q_{cmd}$ and
+\begin{equation}
+\theta_{err} = 2 \arccos \big( q_{err,0} \big).
+\end{equation} 
+This measures the attitude error at the end of the maneuver \textit{only}, and does not provide information as to how well the path was tracked for times $t\in[\ti,\tf^*]$. Small values of $\theta_{err}$ are necessary but not sufficient to indicate satisfactory performance. If $\theta_{err}$ is small and there is no constraint violation for any time $t\in[\ti,\tf^*]$, then the maneuver is satisfactory at the preliminary design stage. 
+
+Key metrics from the 1000 trials are given in Table~\ref{tab:mc_results}, and are visualized in Figures~\ref{fig:mc_results_errs} and~\ref{fig:mc_results_state}. No constraint violations were observed during closed loop simulations, and all trials achieved a final degree error of less than $3.5\dg$, the required control error bound per \href{https://docs.google.com/document/d/1SgZlPZIc5EONQ8ZSHsm3SXJ8XMwuNXoFASMoSIeQAhw/edit#heading=h.ybip8qn9pig1}{GNC Requirement 4.2.10}.
+
+\begin{table}
+\centering
+\caption{Monte Carlo results on 2014 MacBook Pro with a 2.2 GHz Intel Core i7 processor and 16GB RAM. Note that this is \textbf{not} flight hardware, so the timing values are not representative of OBC performance.}
+\label{tab:mc_results}
+\begin{tabular}{lc}
+\textbf{Metric} & \textbf{Value} \\ \hline\hline
+Total trials & 1000 \\
+Successful trials & 1000 \\
+Failed trials & 0 \\
+Maximum degree error & $2.22\dg$\\ 
+Median degree error & $0.4672\dg$ \\ 
+Maximum solver time & $65.2~\unit{ms}$ \\
+Median solver time & $19.3~\unit{ms}$\\
+Maximum number of iterations & $13$\\
+Median number of iterations & $4$
+\end{tabular}
+\end{table}
+
+\begin{figure}
+\centering
+\subfloat[Initial and final angle distributions]{\includegraphics[width=0.75\textwidth]{figs/100219_dispersion_1000}}\\
+\subfloat[Final versus initial angle errors]{\includegraphics[width=0.75\textwidth]{figs/100219_mc_ic_fc_dispersion_1000}}
+\caption{Closed loop results from 1000 randomized unit tests of SOAC. All final errors are within the required $3.5\dg$ control error bound.}
+\label{fig:mc_results_errs}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.75\textwidth]{figs/100219_mc_state_1000}
+\caption{Closed loop results from 1000 randomized unit tests of SOAC. Dashed red lines indicate constraint boundaries.}
+\label{fig:mc_results_state}
+\end{figure}
 
 
 \clearpage
@@ -241,8 +305,8 @@ This section outlines the testing campaign that SOAC will pass during design, as
 \code{opt\_state} & $100$ & \code{double} \\
 \code{opt\_ctrl\_Nm} & $30$ & \code{double} \\
 \code{final\_time\_s} & $1$ & \code{double} \\
-\code{exitcode} & $11$ & \code{double} \\
-\code{slv\_time\_s} & $10$ & \code{double} \\
+\code{exitcode} & $17$ & \code{double} \\
+\code{slv\_time\_s} & $15$ & \code{double} \\
 \code{soac\_count} & $1$ & \code{uint32} \\
 \end{tabular}
 \end{table}
@@ -252,7 +316,7 @@ This section outlines the testing campaign that SOAC will pass during design, as
 \label{tab:exitcodes}
 \centering
 \begin{tabular}{cL{11cm}}
-\multicolumn{2}{l}{\textbf{From ECOS: Entries 1-10}}\\\hline\hline
+\multicolumn{2}{l}{\textbf{From ECOS: Entries 1-15}}\\\hline\hline
 \textbf{Value} & \textbf{Description} \\ \hline 
 0 & Optimal solution found \\ 
 1 & Certificate of primal infeasibility found \\
@@ -265,7 +329,10 @@ This section outlines the testing campaign that SOAC will pass during design, as
 -3 & Numerical problems: slacks or multipliers outside cone \\
 -4 & Interrupted by signal or CTRL-C \\
 -7 & Unknown problem in solver \\~\\
-\multicolumn{2}{l}{\textbf{Custom: Entry 11}}\\\hline\hline
+\multicolumn{2}{l}{\textbf{Custom: Entry 16}}\\\hline\hline
+\textbf{Value} & \textbf{Description} \\ \hline 
+1-15 & Number of global iterations taken \\~\\
+\multicolumn{2}{l}{\textbf{Custom: Entry 17}}\\\hline\hline
 \textbf{Value} & \textbf{Description} \\ \hline 
 0 & All iterates found optimal solution and the terminal iterate meets the convergence criteria \\
 -1 & One of the iterates did not return a 0 or 10 \\
@@ -423,29 +490,29 @@ This expression linearly interpolates between $\uu_k$ and $\uu_{k+1}$. The conti
 \foh{0}{0}{2}
 \end{figure}
 
-I'm skipping a bunch of details for now, but the discretization method reformulates~\eqnref{eq:linearization} into the form
+I'm skipping a bunch of details, which can all be found in~\cite{SzmukReynolds2018,Reynolds2019b}, but the discretization method reformulates~\eqnref{eq:linearization} into the form
 \begin{equation}
 \xx_{k+1} = A_{d,k} \xx_{k} + B_{d,k}^- \uu_k + B_{d,k}^+ \uu_{k+1} + S_{d,k} s + R_{d,k} \quad \Rightarrow \quad \bm{X} = A \bm{X} + B \bm{U} + S s + \bm{R}
 \label{eq:discrete_dynamics}
 \end{equation}
-where $\{\bm{A},\bm{B},\bm{S},\bm{R}\}$ are computed by the function \code{foh.m}. The implication is simply a concatenation using stacked vectors $\bm{X},\,\bm{U}$ and s. The constraints in~\eqref{eq:prob_d}-\eqref{eq:prob_g} are all ``discretized'' by simply applying them at the discrete temporal nodes only. 
+where the matrices $\{A,B,S,R\}$ are computed by the function \code{foh.m} in the code. The equation to the right of the implication is simply a concatenation using stacked vectors $\bm{X},\,\bm{U}$ and s. The constraints in~\eqref{eq:prob_d}-\eqref{eq:prob_g} are all ``discretized'' by simply applying them at the discrete temporal nodes only. 
 
 \paragraph{Virtual Control}
 
-To guide the convergence process, we introduce a new term to address the issue of \textit{artificial infeasibility}. This stems from the fact that the linearization may produce an infeasible interation if there does not exists some admissible control that satisfies~\eqref{eq:discrete_dynamics}. We augment the dynamics with a virtual control term that allows us to synthetically retain feasibility according to
+To guide the convergence process, we introduce a new term to address the issue of \textit{artificial infeasibility}. This stems from the fact that the linearization may produce an infeasible iteration if there does not exists some admissible control that satisfies~\eqref{eq:discrete_dynamics}. We augment the dynamics with a virtual control term that allows us to synthetically retain feasibility according to
 \begin{equation}
 \bm{X} = A \bm{X} + B \bm{U} + \bm{S} s + \bm{R} + \bm{V}
 \label{eq:VC_discrete_dynamics}
 \end{equation}
-where $\bm{V}$ can be thought of as an unconstrained input that needn't respect the physical dynamics of the problem. We heavily penalize the use of virtual control (so that we only use it when absolutely necessary) by augmenting the cost function~\eqref{eq:prob_cost} with $\wv \| \bm{V} \|_1$.
+where $\bm{V}$ can be thought of as an unconstrained input that needn't respect the physical dynamics of the problem. We heavily penalize the use of virtual control (so that we only use it when absolutely necessary) by augmenting the cost function~\eqref{eq:prob_cost} with $\wv \| \bm{V} \|_1$. If $\bm{V}=0$, then satisfaction of~\eqref{eq:VC_discrete_dynamics} implies satisfaction of~\eqref{eq:discrete_dynamics}.
 
-After these modifications, we now have a convex parameter optimization problem that can be run on-board the spacecraft using the ECOS solver. 
+After these modifications, we have a convex parameter optimization problem that can be solved iteratively on-board the spacecraft. 
 
 \begin{problem}\label{prob:prob2}
 Find the final time $s$ and the control $\bm{U}\in\real^{3 \times N}$ such that
 \begin{subequations}\label{eq:prob2}
 \begin{align}
-\min_{\gamma,\bm{U},\bm{X},\bm{V}} &\quad \gamma + \wv \| \bm{V} \|_1 \label{eq:p2_a}\\
+\min_{s,\gamma,\bm{U},\bm{X},\bm{V}} &\quad \gamma + \wv \| \bm{V} \|_1 \label{eq:p2_a}\\
 \text{subject to:} &\quad \bm{X} = A \bm{X} + B \bm{U} + \bm{S} s + \bm{R} + \bm{V} \label{eq:p2_b}\\
 &\quad \| H_h \bm{x}_k \|_{\infty} \leq \wmax, \quad k=1,\ldots,N \label{eq:p2_c}\\ 
 &\quad \| \bm{u}_k \|_{\infty} \leq \umax, \quad k=1,\ldots,N \label{eq:p2_d}\\
@@ -458,21 +525,22 @@ Find the final time $s$ and the control $\bm{U}\in\real^{3 \times N}$ such that
 \end{subequations}
 where $\bm{X} = \big[ \bm{x}_1\tran \; \bm{x}_1\tran \; \ldots \; \bm{x}_{N}\tran ]\tran \in \real^{10N}$ and similarly for $\bm{U}\in\real^{3N}$. Moreover, $\Hq = \big[ \eye{4} \; \zeros{4}{6} \big]$, $H_h = \big[ \zeros{3}{4} \; \inv{J} \; \zeros{3}{3} \big]$ and $H_f = \big[ \eye{7} \; \zeros{7}{3} \big]$.
 \end{problem}
+The solutions to~\pref{prob:prob2} are used to re-discretize the nonlinear dynamics, producing a new set of matrices $\{A,B,S,R\}$, which are then used to re-solve~\pref{prob:prob2}.
 
-% \paragraph{Scaling}
-% \todo{add scaling method}
+\paragraph{Scaling}
+The solution variables can be scaled for better numerical stability by using the diagonal matrices $D_x,\,D_u,\,D_s$ that are defined in the \code{init\_soac\_params.m} file. These are defined so that, for example, $\xx_k = D_x \hat{\xx}_{k}$, and the solver is asked to solve for $\hat{\xx}_k$ instead. The entries in $D_x$ can be chosen so that the expected range of $\hat{\xx}_k$ is roughly $[-1,1]$, providing better numerical conditioning. Sufficient performance has been observed without any scaling (i.e., setting all of these matrices to the identity). For the preliminary design, each matrix has been set to the identity matrix. \textit{If no scaling is required to successfully pass performance testing, these operations should be removed from the library as they would be useless algebraic operations that needlessly increase solution time.} 
 
 \paragraph{Standard Form of Constraints}
 
 Our combined \textit{solution vector} is 
 \begin{equation*}
 \bm{z} = \begin{bmatrix}
-\bm{X}^T & \bm{U}^T & \gamma & s & \bm{V}^T & \bm{\eta}_v^T
+\bm{X}\tran & \bm{U}\tran & \gamma & s & \bm{V}\tran & \bm{\eta}_v\tran
 \end{bmatrix} \in \real^{n_z}
 \end{equation*}
 where $n_z = N(3N_x + N_u)+2$. We will first map the cost function to standard form for second-order cone problems. The cost function must be linear, and so we will use the epigraph form to rewrite the cost function~\eqref{eq:p2_a} as
 \begin{equation}
-\bm{c}^T \bm{z}, \quad \bm{c} = \big[ \zeros{1}{10N} \ \zeros{1}{3N} \ 1 \ \zeros{1}{10N} \ w_{\eta} \ones{10N} \big]
+\bm{c}\tran \bm{z}, \qquad \bm{c} = \big[ \zeros{1}{10N} \ \zeros{1}{3N} \ 1 \ 0 \ \zeros{1}{10N} \ w_{\eta} \ones{10N} \big]
 \label{eq:std_cost}
 \end{equation}
 and add the following linear constraint to Problem~\ref{prob:prob2}
@@ -481,15 +549,15 @@ and add the following linear constraint to Problem~\ref{prob:prob2}
 \label{eq:p2_epi}
 \end{equation}
 
-We can thenwrite the equality constraints~\eqref{eq:p2_b} and~\eqref{eq:p2_h} as
+We can then write the equality constraints~\eqref{eq:p2_b} and~\eqref{eq:p2_h} in the form $A \bm{z} = \bm{b}$ using
 \begin{equation}
 \begin{bmatrix}
-\big[ \eye{10} \ \zeros{10}{10(N-1)}] & \zeros{10}{3N} & \zeros{10}{1} & \zeros{10}{10N} & \zeros{10}{10N} \\
-\bm{A} - \eye{10N} & \bm{B} & \bm{S} & \eye{10N} & \zeros{10N}{10N} \\
-\big[ \zeros{10}{10(N-1)} \ \eye{10} \big] & \zeros{10}{3N} & \zeros{10}{1} & \zeros{10}{10N} & \zeros{10}{10N}
+\big[ \eye{10} \ \zeros{10}{10(N-1)}] & \zeros{10}{3N} & \zeros{10}{1} & \zeros{10}{1} & \zeros{10}{10N} & \zeros{10}{10N} \\
+\bm{A} - \eye{10N} & \bm{B} & \zeros{10N}{1} & \bm{S} & \eye{10N} & \zeros{10N}{10N} \\
+\big[ \zeros{10}{10(N-1)} \ \eye{10} \big] & \zeros{10}{3N} & \zeros{10}{1} & \zeros{10}{1} & \zeros{10}{10N} & \zeros{10}{10N}
 \end{bmatrix} \bm{z} = \begin{bmatrix}
 \bm{x}_0 \\ -\bm{R} \\ \bm{x}_f
-\end{bmatrix}.
+\end{bmatrix}
 \label{eq:std_equality}
 \end{equation}
 The linear inequality constraints in~\eqref{eq:p2_c}, \eqref{eq:p2_d}, \eqref{eq:p2_g} and \eqref{eq:p2_epi} are expressed as
@@ -498,29 +566,27 @@ The linear inequality constraints in~\eqref{eq:p2_c}, \eqref{eq:p2_d}, \eqref{eq
 H_w^T \\ - H_w^T \\ H_u^T \\ - H_u^T \\ H_s^T \\ - H_s^T \\ H_v^T - H_{\eta_v}^T \\ -H_v - H_{\eta_v}^T
 \end{bmatrix} \bm{z} \leq \begin{bmatrix}
 w_{\max} \ones{3N} \\ w_{\max} \ones{3N} \\ u_{\max} \ones{3N} \\ u_{\max} \ones{3N} \\ t_{f,\max} \\ -t_{f,\min} \\ \zeros{10N}{1} \\ \zeros{10N}{1}
-\end{bmatrix} \quad \iff \quad G_{lin} \zz \leq h_{lin},
+\end{bmatrix} \quad \iff \quad G_{lin} \zz \leq \bm{h}_{lin},
 \label{eq:std_ineq_lin}
 \end{equation}
 where,
 \begin{gather*}
 H_u = \begin{bmatrix}
-\zeros{10N}{3N} \\ \eye{3N} \\ \zeros{20N+2}{3N}
+\zeros{10N}{3N} \\ \eye{3N} \\ \zeros{(20N+2)}{3N}
 \end{bmatrix}, \quad H_s = \begin{bmatrix}
 \zeros{13N}{1} \\ 0 \\ 1 \\ \zeros{20N}{1}
 \end{bmatrix}, \quad H_{\gamma} = \begin{bmatrix}
 \zeros{13N}{1} \\ 1 \\ 0 \\ \zeros{20N}{1}
 \end{bmatrix}, \quad H_v = \begin{bmatrix}
-\zeros{13N+2}{10N} \\ \eye{10N} \\ \zeros{10N}{10N} 
+\zeros{(13N+2)}{10N} \\ \eye{10N} \\ \zeros{10N}{10N} 
 \end{bmatrix}  \\
 H_{\eta_v} = \begin{bmatrix}
-\zeros{23N+2}{10N} \\ \eye{10N}
+\zeros{(23N+2)}{10N} \\ \eye{10N}
 \end{bmatrix}, \quad
-\bar{H}_w = \begin{bmatrix}
-H_h & \zeros{3}{10} & \cdots & \zeros{3}{10} \\
-\vdots & \ddots & \ddots & \vdots \\
-\zeros{3}{10} & \zeros{3}{10} & \cdots & H_h
-\end{bmatrix} = \eye{N} \otimes H_h, \quad H_w = \begin{bmatrix}
-\bar{H}_w \\ \zeros{23N+2}{3N} 
+\bar{H}_w = \eye{N} \otimes \begin{bmatrix}
+\zeros{3}{4} & J^{-1} & \zeros{3}{3}
+\end{bmatrix}, \quad H_w = \begin{bmatrix}
+\bar{H}_w \\ \zeros{(23N+2)}{3N} 
 \end{bmatrix}
 \end{gather*}
 
@@ -530,7 +596,7 @@ If there are no attitude exclusion/inclusion zone constraints, then the second-o
 -\frac{1}{\sqrt{2}}H_{\gamma}\tran \\ -H_u\tran \\ \frac{1}{\sqrt{2}} H_{\gamma}\tran
 \end{bmatrix} \zz \leq \begin{bmatrix} 
 \frac{1}{\sqrt{2}} \\ \zeros{3N}{1} \\ \frac{1}{\sqrt{2}}
-\end{bmatrix} \quad \iff \quad G_{quad} \zz \leq h_{quad}
+\end{bmatrix} \quad \iff \quad G_{quad} \zz \leq \bm{h}_{quad}
 \label{eq:std_b_quad}
 \end{equation}
 This cone has dimension $32$. 
@@ -543,38 +609,38 @@ G_{i,k} = \begin{bmatrix}
 \end{bmatrix} \quad &\text{and} \quad G_{e,k} = \begin{bmatrix}
 \zeros{1}{n_z} \\ -P_{e,k} \\ \zeros{1}{n_z}
 \end{bmatrix} \\
-h_{i,k} = \begin{bmatrix}
+\bm{h}_{i,k} = \begin{bmatrix}
 \frac{3}{\sqrt{2}} \\ \zeros{4}{1} \\ -\frac{1}{\sqrt{2}}
-\end{bmatrix} \quad &\text{and} \quad h_{e,k} = h_{i,k}
+\end{bmatrix} \quad &\text{and} \quad \bm{h}_{e,k} = \bm{h}_{i,k}
 \end{align*}
 where,
 \begin{equation*}
 H_{x_k} = \begin{bmatrix}
-\zeros{10}{10} & \cdots & \underbrace{\eye{10}}_{k\text{th block}} & \cdots & \zeros{10}{10} & \zeros{10}{23N+2} \end{bmatrix}
+\zeros{10}{10} & \cdots & \underbrace{\eye{10}}_{k\text{th block}} & \cdots & \zeros{10}{10} & \zeros{10}{(23N+2)} \end{bmatrix}
 \end{equation*}
-Each of these cones have dimension 6. The quantities $G_{\cdot,k}$ and $h_{\cdot,k}$ are appended to the bottom of $G_{quad}$ and $h_{quad}$ as they are computed. The problem sizes are summarized in
+Each of these cones have dimension 6. The quantities $G_{\cdot,k}$ and $h=\bm{h}_{\cdot,k}$ are appended to the bottom of $G_{quad}$ and $\bm{h}_{quad}$ as they are computed. The problem sizes are summarized in Table~\ref{tab:soac_dimensions}.
 
-\begin{table}[htb]
+\begin{table}[tb!]
 \centering
-\caption{Dimensions for the SOAC payload optimization problem.}
+\caption{Maximum dimensions for the SOAC payload optimization problem. The function \code{convert\_to\_CCS} inside the SOLVE function maps a general matrix $M$ to the compressed column storage matrices $\{M_{jc},M_{ir},M_{pr}\}$ -- see~\cite{MalyutaThesis}.}
 \label{tab:soac_dimensions}
-\begin{tabular}{cccl}
-\textbf{Variable} & \textbf{Size} & \textbf{Type} & \textbf{Description} \\ \hline\hline 
-$n$ & $332$ & \code{int32} & number of primal variables \\
-$m$ &  $474$	& \code{int32} & number of generalized inequality constraints, rows of $G$ in~\eqref{eq:gen_inequalities} \\
-$p$ & $117$	& \code{int32} & number of equality constraints, rows of $A$ \\
-$l$ & $322$	& \code{int32} & number of linear inequality constraints, rows of $h_{lin}$ \\
-$ncones$ & 1	& \code{int32} & number of second order cone constraints, rows of $h_{quad}$ \\ 
-$\bm{c}$ & $332$ & \code{double} & cost vector \\
-$G_{jc}$ & $333$	& \code{int32} & generalized inequality constraint matrix (part of CCS format) \\
-$G_{ir}$ & $834$	& \code{int32} & generalized inequality constraint matrix (part of CCS format)\\
-$G_{pr}$ & $834$	 & \code{double} & generalized inequality constraint matrix (part of CCS format)\\
-$h$ & $474$	 & \code{double} & generalized inequality constraint vector \\
-$q$ & $21$	& \code{int32} &  number of second order cones \\
-$A_{jc}$ & $333$	& \code{int32} & equality constraint matrix (part of CCS format) \\
-$A_{ir}$ & $1278$	& \code{int32} & equality constraint matrix (part of CCS format)\\ 
-$A_{pr}$ & $1278$	& \code{double} & equality constraint matrix (part of CCS format)\\
-$b$ & $117$	& \code{double} & equality constraint vector
+\begin{tabular}{ccccl}
+\textbf{Variable} & \textbf{Size} & \textbf{Type} & \textbf{Value} & \textbf{Description} \\ \hline\hline 
+$n$ & $1$ & \code{int32} & $332$ & number of primal variables \\
+$m$ & $1$ & \code{int32} & $474$ & number of generalized inequality constraints, rows of $G$ in~\eqref{eq:gen_inequalities} \\
+$p$ & $1$ & \code{int32} & $117$ & number of equality constraints, rows of $A$ \\
+$l$ & $1$ & \code{int32} & $322$ & number of linear inequality constraints, rows of $h_{lin}$ \\
+$ncones$ & $1$ & \code{int32} & $21$ & number of second order cone constraints, rows of $h_{quad}$ \\ 
+$\bm{c}$ & $332$ & \code{double} & see~\eqref{eq:std_cost} & cost vector \\
+$G_{jc}$ & $333$ & \code{int32}  & \null & generalized inequality constraint matrix (part of CCS format) \\
+$G_{ir}$ & $834$ & \code{int32}  & \null & generalized inequality constraint matrix (part of CCS format)\\
+$G_{pr}$ & $834$ & \code{double} & \null & generalized inequality constraint matrix (part of CCS format)\\
+$\bm{h}$ & $474$	& \code{double} & see~\eqref{eq:gen_inequalities} & generalized inequality constraint vector \\
+$q$ & $21$ & \code{int32} & \null & dimensions of each second order cone. Size m \\
+$A_{jc}$ & $333$ & \code{int32} & \null & equality constraint matrix (part of CCS format) \\
+$A_{ir}$ & $1278$ & \code{int32} & \null & equality constraint matrix (part of CCS format)\\ 
+$A_{pr}$ & $1278$ & \code{double} & \null & equality constraint matrix (part of CCS format)\\
+$\bm{b}$ & $117$	& \code{double} & see~\eqref{eq:std_equality} & equality constraint vector
 \end{tabular}
 \end{table}
 
@@ -582,30 +648,31 @@ The inequality constraints are then passed to ECOS using the data
 \begin{equation}
 G = \begin{bmatrix}
 G_{lin} \\ G_{quad}
-\end{bmatrix}, \quad h = \begin{bmatrix}
-h_{lin} \\ h_{quad}
-\end{bmatrix} \quad \Rightarrow \quad G \bm{z} \leq h, \quad \text{and} \quad q = \begin{bmatrix}
+\end{bmatrix}, \quad \bm{h} = \begin{bmatrix}
+\bm{h}_{lin} \\ \bm{h}_{quad}
+\end{bmatrix} \quad \Rightarrow \quad G \bm{z} \leq \bm{h}, \quad \text{and} \quad q = \begin{bmatrix}
 32 \\ 6\,\ones{2N}
 \end{bmatrix}.
 \label{eq:gen_inequalities}
 \end{equation}
-Note that $q$ is the ECOS input that provides the second order cone dimensions, and has length $\code{ncones} = 2N+1$.
-
+Note that $q$ is the ECOS input that provides the second order cone dimensions, and has length $\code{ncones} = 2N+1$. The standard form of~\pref{prob:prob2} is then simply
 
 \begin{problem}
 Find the vector $\bm{z}\in\real^{n_z}$ such that
 \begin{subequations}\label{eq:prob2}
 \begin{align}
 \min_{\bm{z}} &\quad \bm{c}^T \bm{z} \tag{\ref{eq:std_cost}}\\
-\text{subject to:} &\quad A \bm{z} = b \tag{\ref{eq:std_equality}} \\
-&\quad G \bm{z} \leq h \tag{\ref{eq:gen_inequalities}}
+\text{subject to:} &\quad A \bm{z} = \bm{b} \tag{\ref{eq:std_equality}} \\
+&\quad G \bm{z} \preceq_{\mathcal{K}} \bm{h} \tag{\ref{eq:gen_inequalities}}
 \end{align}
 \end{subequations}
 \end{problem}
+where the generalized inequality is either a linear cone as in~\eqref{eq:lcone_set} or a second order cone as in~\eqref{eq:soc_set}. Which one applies to which entries of $G$ and $\bm{h}$ is controlled by the value of $l$ and $ncones$. Always the first $l$ rows of $G$ are linear cones, and the next $sum(q)$ rows are second order cones of dimension $q(k)$.
 
 % \subsubsection{Compressed Column Storage}
 
 % \todo{add a section that discusses compressed column storage (ref. Danylo's thesis).}
-
+\bibliographystyle{plain}
+\bibliography{soacbib}
 
 \end{document}
