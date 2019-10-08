@@ -16,11 +16,12 @@ Jw    = diag([2.9382e-5,2.9382e-5,2.9382e-5]);
 % initial conditions
 n   = [1;1;1]./norm([1;1;1]);
 q0  = [ cosd(60/2); sind(60/2).*n ];
-w0 = [ 0.0; 0.0; 0.0 ];
+w0  = [ 0.0; 0.0; 0.0 ];
 hw0 = Jw * 0.10471975511966 * [ 1000; 1000; 1000 ]; % rad/s
 
 % final conditions
-qf  = [ 1.0; 0.0; 0.0; 0.0 ];
+qd  = [ cosd(1/2); sind(1/2).*n ];
+qf  = quatmultiply(qd',q0')';%[ 1.0; 0.0; 0.0; 0.0 ];
 wf  = [ 0.0; 0.0; 0.0 ];
 
 % inertial sun vector

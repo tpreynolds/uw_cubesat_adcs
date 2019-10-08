@@ -21,26 +21,32 @@
 }
 
 % draw main blocks
-\node[draw, thick, rectangle, minimum height=10cm, minimum width=8cm,align=flush right,text depth=9cm,text width=7cm] at (0,0) {SOAC};
-\node[draw, thick, rectangle, minimum height=4cm, minimum width=2.75cm, text width=2.5cm,align=flush left,name=soac] at (-1.75,0) {\begin{tabular}{l}
-SOLVE \\ \begin{tikzpicture}[baseline=-\the\dimexpr\fontdimen22\textfont2\relax]
-  \filldraw[black!100] (0,0) circle (1pt);
-\end{tikzpicture} {\footnotesize defines params} \\
+\node[draw, thick, rectangle, minimum height=10cm, minimum width=8cm,align=flush right,text depth=9cm,text width=7cm, fill=uwgold!20!white] at (0,0) {\bf SOAR};
+\node[draw, thick, rectangle, minimum height=4cm, minimum width=2.75cm, text width=2.5cm,align=flush left,name=soar] at (-1.75,0) {};
+\node[text width=2.5cm,anchor=north] at (soar.north) {SOLVE};
+\node[text width=2.5cm,align=flush left] at (soar) {\begin{tabular}{l}
 \begin{tikzpicture}[baseline=-\the\dimexpr\fontdimen22\textfont2\relax]
   \filldraw[black!100] (0,0) circle (1pt);
-\end{tikzpicture} {\footnotesize parses prob.} \\
+\end{tikzpicture} {\footnotesize initialize} \\
+\begin{tikzpicture}[baseline=-\the\dimexpr\fontdimen22\textfont2\relax]
+  \filldraw[black!100] (0,0) circle (1pt);
+\end{tikzpicture} {\footnotesize parses} \\
 \begin{tikzpicture}[baseline=-\the\dimexpr\fontdimen22\textfont2\relax]
   \filldraw[black!100] (0,0) circle (1pt);
 \end{tikzpicture} {\footnotesize calls solver} \\
 \begin{tikzpicture}[baseline=-\the\dimexpr\fontdimen22\textfont2\relax]
   \filldraw[black!100] (0,0) circle (1pt);
-\end{tikzpicture} {\footnotesize iterates up} \\ {\footnotesize to ten times} 
-\end{tabular}};
-\node[draw, thick, rectangle, minimum height=4cm, minimum width=2.75cm,text width=2.5cm,align=flush left,name=interp] at (1.75,0) {\begin{tabular}{l}
-INTERP \\ 
+\end{tikzpicture} {\footnotesize iterates} \\
 \begin{tikzpicture}[baseline=-\the\dimexpr\fontdimen22\textfont2\relax]
   \filldraw[black!100] (0,0) circle (1pt);
-\end{tikzpicture} {\footnotesize provides} \\ {\footnotesize continuous state} \\ {\footnotesize and control}
+\end{tikzpicture} {\footnotesize provides telem.} 
+\end{tabular}};
+\node[draw, thick, rectangle, minimum height=4cm, minimum width=2.75cm,text width=2.5cm,align=flush left,name=interp] at (1.75,0) {};
+\node[text width=2.5cm,anchor=north] at (interp.north) {INTERP};
+\node[text width=2.5cm,align=flush left] at (interp)  {\begin{tabular}{l}
+\begin{tikzpicture}[baseline=-\the\dimexpr\fontdimen22\textfont2\relax]
+  \filldraw[black!100] (0,0) circle (1pt);
+\end{tikzpicture} {\footnotesize discrete to} \\ {\footnotesize continuous map}
 \end{tabular}};
 % draw inputs
 \node[input,name=sc_mode] at (\x1,\y1) {};
@@ -69,7 +75,7 @@ INTERP \\
 \draw[thick,->] (time_cur) -- ++(1.25,0) node[pos=0.5,anchor=south east] {\ttt{MET\_current}};
 \draw[thick,->] (cmd_torque) -- ++(1.25,0) node[pos=0.5,anchor=south west] {\ttt{command\_torque}};
 \draw[thick,->] (cmd_state) -- ++(1.25,0) node[pos=0.5,anchor=south west] {\ttt{command\_state}};
-\draw[thick,->] (soln) -- ++(1.25,0) node[pos=0.5,anchor=south west] {\ttt{soac\_telemetry}};
+\draw[thick,->] (soln) -- ++(1.25,0) node[pos=0.5,anchor=south west] {\ttt{soar\_telemetry}};
 
 % draw internal guts
 \node[sum_blank,name=tsum] at (\x1+1.75,0.5*\y8+0.5*\y9) {};
@@ -80,8 +86,8 @@ INTERP \\
 % draw output lines
 \draw[color=gray,thick,->,densely dotted] (interp.east) -- ($(interp.east)+(0.25,0)$) |- (cmd_state);
 \draw[color=gray,thick,->,densely dotted] (interp.east) -- ($(interp.east)+(0.5,0)$) |- (cmd_torque);
-\draw[color=gray,thick,->,densely dotted] ($(soac.east)+(0.35,0)$) -- ($(soac.east)+(0.35,1)$) |- (soln);
-\draw[color=gray,thick,->,densely dotted] (soac.east) -- (interp.west);
+\draw[color=gray,thick,->,densely dotted] ($(soar.east)+(0.35,0)$) -- ($(soar.east)+(0.35,1)$) |- (soln);
+\draw[color=gray,thick,->,densely dotted] (soar.east) -- (interp.west);
 
 % draw trigger
 \coordinate (trigger) at (-1.75,\y1);
@@ -89,9 +95,9 @@ INTERP \\
 \draw[-stealth] ($(trigger.west)+(-0.25,-0.2)$) -| ++(0.25,0.25);
 \draw[] ($(trigger.south west)+(0,0)$) |- ++(0.25,0.2);
 \draw[color=gray,thick,densely dotted] ($(sc_mode)+(1.25,0)$) -- (trig.west);
-\draw[color=gray,thick,->,densely dotted] (trig.south) -- (soac.north);
+\draw[color=gray,thick,->,densely dotted] (trig.south) -- (soar.north);
 
-% \draw[help lines] (-5,-5) grid (5,5);
+% \draw[help lines] (-10,-10) grid (10,10);
 % \filldraw[red!100] (0,0) circle (2pt);
 
 \end{tikzpicture}

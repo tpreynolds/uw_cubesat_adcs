@@ -1,0 +1,36 @@
+\begin{thebibliography}{1}
+
+\bibitem{Lee2014}
+Unsik Lee and Mehran Mesbahi.
+\newblock {Feedback Control for Spacecraft Reorientation Under Attitude
+  Constraints via Convex Potentials}.
+\newblock {\em Transactions on Aerospace and Electronic Systems},
+  50(4):2578--2592, 2014.
+
+\bibitem{MalyutaThesis}
+Danylo Malyuta.
+\newblock {\em {An Optimal Endurance Power Limiter for an Electric Race Car
+  Developed for the AMZ Racing Team Semester Project}}.
+\newblock {M.S.}, Swiss Federal Institute of Technology (ETH) Zurich, 2016.
+
+\bibitem{Reynolds2019b}
+Taylor~P. Reynolds, Michael Szmuk, Danylo Malyuta, Mehran Mesbahi, Beh{\c{c}}et
+  A{\c{c}}{\i}kme\c{s}e, and John~M. Carson~III.
+\newblock {Dual Quaternion Based 6-DoF Powered Descent Guidance with
+  State-Triggered Constraints}.
+\newblock {\em arXiv e-prints}, 2019.
+\newblock arXiv:1904.09248.
+
+\bibitem{Sidi1997}
+Marcel~J. Sidi.
+\newblock {\em {Spacecraft Dynamics and Control}}.
+\newblock Cambridge University Press, 1997.
+
+\bibitem{SzmukReynolds2018}
+Michael Szmuk, Taylor~P. Reynolds, and Beh{\c{c}}et A{\c{c}}{\i}kme{\c{s}}e.
+\newblock {Successive Convexification for Real-Time 6-DoF Powered Descent
+  Guidance with State-Triggered Constraints}.
+\newblock {\em arXiv e-prints}, 2018.
+\newblock arXiv:1811.10803.
+
+\end{thebibliography}

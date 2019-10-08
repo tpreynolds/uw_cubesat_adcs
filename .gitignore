@@ -9,6 +9,7 @@ slprj/
 *.r2016b
 *.mat
 *.slxc
+*.fig
 
 # Python
 *.pyc
