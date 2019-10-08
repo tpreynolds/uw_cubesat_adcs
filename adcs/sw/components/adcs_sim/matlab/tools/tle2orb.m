@@ -1,5 +1,16 @@
 function orbit_els = tle2orb(orbit_tle)
-
+%TLE2ORB
+%
+% orb_els = tle2orb(orbit_tle) provides a set of classical orbital elements
+% in the following format:
+%   orb_els(1) = semi major axis [km]
+%   orb_els(2) = eccentricity [-]
+%   orb_els(3) = inclination [deg]
+%   orb_els(4) = right ascension of ascending node [deg]
+%   orb_els(5) = argument of perigee [deg]
+%   orb_els(6) = eccentric anomaly [deg]
+%
+% T. Reynolds -- RAIN Lab
 mu  = 398600.4418; %  Standard gravitational parameter for the earth
    
 INC     = orbit_tle(4);      % Inclination [deg]           

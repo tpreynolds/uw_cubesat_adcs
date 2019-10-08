@@ -20,7 +20,7 @@ load('bus_definitions.mat')
 load('bus_definitions_fsw.mat')
 
 % Load parameters for both flight software and simulation
-TLE = 'equisat_TLE.txt';
+TLE = 'ISS_TLE.txt';
 [fsw_params,soac_params] = init_fsw_params(TLE);
 [sim_params,fsw_params]  = init_sim_params(fsw_params);
 

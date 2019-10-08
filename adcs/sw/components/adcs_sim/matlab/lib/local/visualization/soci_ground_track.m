@@ -57,11 +57,13 @@ c         = tand(theta);
 passes    = 0;
 passing   = false;
 kk        = 1;
-dT        = 1;            
-kk_tot    = 1800/dT;
+dT        = 1;    
+dR        = 30;
+kk_tot    = 200/dT;
 psc       = cell(kk_tot,1);
 lens      = NaN(100,1);
 ECEF_T    = lla2ecef([lat_T,lon_T,alt_T])';
+LLDATA    = NaN(2,MET_end/(30*dT));
 
 % initial conditions [DO NOT CHANGE]
 orbit_tle       = fsw_params.env_estimation.orb_estimation.sgp4.orbit_tle;
@@ -79,7 +81,7 @@ if (PLOT)
     hold on
     pc = plot(1,1,'Visible','off');  
     plot(lon_T,lat_T,'c*','MarkerSize',3,'MarkerFaceColor','c')
-    hold off
+%     hold off
     set(fig,'Units','Normalized','Position',[0.46736,0.42667,0.53264,0.51111]);
     set(gca,'XTick',-180:30:180);
     set(gca,'YTick',-90:15:90);
@@ -117,16 +119,22 @@ while(true)
     
     % plot point
     if (PLOT)
-        kk_ = mod(kk,kk_tot)+1;
-        if (kk>kk_tot)
-            delete(psc{kk_});
+        if (mod(MET,dR)==0)
+            kk_ = mod(kk,kk_tot)+1;
+            if (kk>kk_tot)
+                delete(psc{kk_});
+            end
+            figure(fig)
+            delete(pc);
+            psc{kk_} = plot(lla(2),lla(1),'ro','MarkerSize',3,'MarkerFaceColor','r');
+    %         pc = plot(ll_circle(:,2),ll_circle(:,1),'r');
+            kk = kk + 1;
         end
-        figure(fig), hold on
-        delete(pc);
-        psc{kk_} = plot(lla(2),lla(1),'ro','MarkerSize',3,'MarkerFaceColor','r');
-        pc = plot(ll_circle(:,2),ll_circle(:,1),'r');
-        hold off
-        kk = kk + 1;
+    else
+        if (mod(MET,dR)==0)
+            LLDATA(:,kk) = [ lla(2); lla(1) ];
+            kk = kk + 1;
+        end
     end
     
     if (DEBUG)
@@ -182,6 +190,25 @@ std_len = std(rmmissing(lens));
 fprintf('==================================================\n');
 fprintf('TOTAL passes: %d, TIME overhead: %2.2f +/- %2.2fs \n\n',...
             passes,mu_len,std_len);
+        
+% Plot ground track afterwards if not done during sim
+if (~PLOT)
+    fig = figure;
+    ax  = axes('Parent',fig);
+    axis([-180 180 -90 90]);
+    Earth_im = imread('Flat_earth.jpg');
+    imagesc([-180 180],[-90 90],flipud(Earth_im));
+    set(gca,'YDir','normal');
+    hold on
+    pc = plot(1,1,'Visible','off');  
+    plot(lon_T,lat_T,'c*','MarkerSize',3,'MarkerFaceColor','c')
+    plot(LLDATA(1,:),LLDATA(2,:),'ro','MarkerSize',3,'MarkerFaceColor','r')
+    set(fig,'Units','Normalized','Position',[0.46736,0.42667,0.53264,0.51111]);
+    set(gca,'XTick',-180:30:180);
+    set(gca,'YTick',-90:15:90);
+    set(gca,'XGrid','on','YGrid','on','GridAlpha',0.2);
+    
+end
 %% HELPER FUNCTIONS
 
 function [ll_circle] = get_ground_circle(lla,Re,c)
