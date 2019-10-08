@@ -4,7 +4,7 @@
 \input{preamble.tex}
 \input{my_tikz.tex}
 
-\title{\textsc{SOAC Interface Control Document \\ {\small \textbf{S}attelite for \textbf{O}ptimal \textbf{C}ontrol and \textbf{I}maging}}}
+\title{\textsc{SOAR Interface Control Document \\ {\small \textbf{S}attelite for \textbf{O}ptimal \textbf{C}ontrol and \textbf{I}maging}}}
 
  \author{
   Taylor P. Reynolds%
@@ -15,26 +15,26 @@
  
 \maketitle
 
-This document is the interface control document for the primary payload of the SOCi mission. The payload is SOCi's Optimal Attitude Controller (SOAC) that uses convex optimization techniques to compute guidance trajectories to steer the spacecraft to a desired orientation while satisfying various constraints. Specifically, trajectories are generated that respect angular rate bounds, torque bounds, and attitude inclusion and exclusion zone constraints. The problem is formulated as a nonlinear optimal control problem and solved as a sequence of convex optimization problems using the open source solver ECOS.
+This document is the interface control document for the primary payload of the SOCi mission. The payload is SOCi's Optimal Attitude Reorientation (SOAR) that uses convex optimization techniques to compute guidance trajectories to steer the spacecraft to a desired orientation while satisfying various constraints. Specifically, trajectories are generated that respect angular rate bounds, torque bounds, and attitude inclusion and exclusion zone constraints. The problem is formulated as a nonlinear optimal control problem and solved as a sequence of convex optimization problems using the open source solver ECOS.
 
 This document provides a summary of the system, technical details on how the controller works, the interfaces to other parts of the spacecraft, and the verification and validation procedure used to ensure proper operation. I have stashed all of the data tables at the back to keep the document readable.
 
 \section{Summary of System}\label{sec:summary}
 
-The SOAC payload is a software component within the Guidance, Navigation, and Control (GNC) subsystem. The SOAC payload will produce feedforward reaction wheel torque commands and a reference state vector in order to control the orientation of the spacecraft. All reorientations will be performed starting from the spacecraft’s current attitude, and will terminate at a desired attitude. The payload's execution is triggered by the primary GNC software by a change in the operating mode via the signal \ttt{gnc\_mode}. The inputs to the SOAC function are detailed in~\sref{sec2:cmd_interface}.
+The SOAR payload is a software component within the Guidance, Navigation, and Control (GNC) subsystem. The SOAR payload will produce feedforward reaction wheel torque commands and a reference state vector in order to control the orientation of the spacecraft. All reorientations will be performed starting from the spacecraft’s current attitude, and will terminate at a desired attitude. The payload's execution is triggered by the primary GNC software by a change in the operating mode via the signal \ttt{gnc\_mode}. The inputs to the SOAR function are detailed in~\sref{sec2:cmd_interface}.
 
-A block diagram of the SOAC control system is provided in~\fref{fig:soac_loop}. It must be coupled with a feedback controller (shown as $C(s)$) to compensate for small errors that accumulate during the execution of a feedforward maneuver. Note that the ``difference'' junction used to compute the state errors is not a subtraction since quaternions are used; however the same symbol is overloaded for simplicity. The feedback controller $C(s)$ is not designed as part of SOAC, and resides in the primary GNC software.
+A block diagram of the SOAR control system is provided in~\fref{fig:SOAR_loop}. It must be coupled with a feedback controller (shown as $C(s)$) to compensate for small errors that accumulate during the execution of a feedforward maneuver. Note that the ``difference'' junction used to compute the state errors is not a subtraction since quaternions are used; however the same symbol is overloaded for simplicity. The feedback controller $C(s)$ is not designed as part of SOAR, and resides in the primary GNC software.
 
 \begin{figure}[bth]
 \centering
-\input{figs/tikz_soac_loop.tex}
-\caption{Abstract control loop for the SOAC payload. The controller represented by $C(s)$ is not designed as part of the payload.}
-\label{fig:soac_loop}
+\input{figs/tikz_SOAR_loop.tex}
+\caption{Abstract control loop for the SOAR payload. The controller represented by $C(s)$ is not designed as part of the payload.}
+\label{fig:SOAR_loop}
 \end{figure}
 
 \subsection{Problem Statement}
 
-The problem that is solved by the SOAC payload can be summarized as follows. Define the state and control vectors to be
+The problem that is solved by the SOAR payload can be summarized as follows. Define the state and control vectors to be
 \begin{equation}
 \bm{x}(t) = \begin{bmatrix}
 \q(t) \\ \hB(t) \\ \hw(t)
@@ -80,16 +80,16 @@ Note that the fourth and fifth constraints define the attitude exclusion zone (d
 
 \begin{figure}[tbh]
 \centering
-\input{figs/tikz_soac_inner.tex}
-\caption{A representation of the input/output structure of the SOAC payload and its two primary functional components. The input \code{gnc\_mode} triggers the execution of the \textit{SOLVE} block which pulls in all unconnected inputs.}
-\label{fig:soac_inner}
+\input{figs/tikz_SOAR_inner.tex}
+\caption{A representation of the input/output structure of the SOAR payload and its two primary functional components. The input \code{gnc\_mode} triggers the execution of the \textit{SOLVE} block which pulls in all unconnected inputs.}
+\label{fig:SOAR_inner}
 \end{figure}
 
-A block diagram representation of the overall system is given in~\fref{fig:soac_inner}. The SOAC library takes nine inputs and provides two outputs; details of each are provided in Table~\ref{tab:inputs_outputs}. The main function of the library is to use inputs 2-7 to define an instance of~\pref{prob:prob1}, and then solves said problem for a trajectory (state, control and maneuver time) that will reorient the satellite while respecting each constraint. 
+A block diagram representation of the overall system is given in~\fref{fig:SOAR_inner}. The SOAR library takes nine inputs and provides two outputs; details of each are provided in Table~\ref{tab:inputs_outputs}. The main function of the library is to use inputs 2-7 to define an instance of~\pref{prob:prob1}, and then solves said problem for a trajectory (state, control and maneuver time) that will reorient the satellite while respecting each constraint. 
 
 The SOLVE function contains the custom-written parser and interface to the ECOS solver. When called upon, it will parse the data (inputs 2-7) into a sequence of convex optimization problems that approximate the non-convex~\pref{prob:prob1}. The (discrete) solution that is computed then gets passed to the INTERP function so that it may be transformed to a continuous time reference state and control vectors using the same sampling time as the primary GNC flight software. Since the discretization scheme used in the SOLVE function will necessarily be a much coarser one, this is effectively a discrete-to-continuous transformation and uses a fixed step-size RK4 integration scheme. 
 
-The components of the \code{soac\_telemetry} struct are given in Table~\ref{tab:soac_telemetry}. The first three are the converged solution from the SOLVE function. The first fifteen entries in \code{exitcode} are the ECOS solver return values for each of the (maximum) fifteen iterations. The $16$th and $17$th are signals that provide additional information about the computed solution. The possible values are given in Table~\ref{tab:exitcodes}. The \code{slv\_time\_s} is the ECOS-reported time taken to solve each iteration's convex optimization problem. This time is \textit{setup and solve} time, and is computed in the \code{matlab\_main.c} function. Finally, the \code{soac\_count} is an integer that indicates how many times (in total) the SOLVE function has been called.
+The components of the \code{soar\_telemetry} struct are given in Table~\ref{tab:SOAR_telemetry}. The first three are the converged solution from the SOLVE function. The first fifteen entries in \code{exitcode} are the ECOS solver return values for each of the (maximum) fifteen iterations. The $16$th and $17$th are signals that provide additional information about the computed solution. The possible values are given in Table~\ref{tab:exitcodes}. The \code{slv\_time\_s} is the ECOS-reported time taken to solve each iteration's convex optimization problem. This time is \textit{setup and solve} time, and is computed in the \code{matlab\_main.c} function. Finally, the \code{soar\_count} is an integer that indicates how many times (in total) the SOLVE function has been called.
 
 \subsubsection{Constraint Boundary Values}
 
@@ -101,19 +101,19 @@ The constraint boundaries have the following values, each of which are configura
 \item the inertial sun vector remains within a $\theta_{\max}=60\unit{\dg}$ degree cone (half-angle) centered around the sun sensor boresight direction,
 \item the inertial sun vector remains outside of a $\theta_{\min}=60\unit{\dg}$ degree cone (half-angle) centered around the camera boresight direction. 
 \end{enumerate} 
-The torque limit is below what can be produced by the reaction wheels, and was selected to equal the capability of a single wheel. This provides a buffer so that the addition of feedback control will not saturate the wheels, and also means that if a single wheel were to fail, the SOAC payload will not ask for a torque that exceeds the reduced capability with no need to change the code.
+The torque limit is below what can be produced by the reaction wheels, and was selected to equal the capability of a single wheel. This provides a buffer so that the addition of feedback control will not saturate the wheels, and also means that if a single wheel were to fail, the SOAR payload will not ask for a torque that exceeds the reduced capability with no need to change the code.
 
-\subsubsection{SOAC Operating Modes}\label{sec3:op_modes}
-There are effectively two operating modes of the SOAC payload: operational and idle. The trigger attached to the \code{gnc\_mode} shown in~\fref{fig:soac_inner} is the arbiter between the two modes. The output of the trigger goes high when the following conditions are met:
+\subsubsection{SOAR Operating Modes}\label{sec3:op_modes}
+There are effectively two operating modes of the SOAR payload: operational and idle. The trigger attached to the \code{gnc\_mode} shown in~\fref{fig:SOAR_inner} is the arbiter between the two modes. The output of the trigger goes high when the following conditions are met:
 \begin{enumerate}
 \item The value of \code{gnc\_mode = 33},
 \item The previous value of \code{gnc\_mode != 33}.
 \end{enumerate}
-The SOAC payload can be commanded to its operational mode by the primary GNC mode manager by switching the value of \code{gnc\_mode} to $33$ from any other value. The conditions upon which the primary GNC operating mode is set to $33$ are provided in the \href{https://drive.google.com/open?id=1wTjmsQdXGk9jmEHy59fZAdBJJ3r1IE4LGFjHT2S5png}{main GNC ICD}. Maintaining the primary GNC mode at this value will not continuously trigger the payload due to the second clause. As a result, the primary GNC mode must be toggled back to some value that is not $33$ prior to requesting another solution. \textbf{The primary GNC flight software is assumed to be in charge of requesting a re-solve for a given maneuver.} The current design is such that triggering a re-solve internally will create an algebraic loop. A brief attempt was made to design internal re-solves into the library, but a decision was made that it would be simpler to manage this within the primary GNC mode manager. 
+The SOAR payload can be commanded to its operational mode by the primary GNC mode manager by switching the value of \code{gnc\_mode} to $33$ from any other value. The conditions upon which the primary GNC operating mode is set to $33$ are provided in the \href{https://drive.google.com/open?id=1wTjmsQdXGk9jmEHy59fZAdBJJ3r1IE4LGFjHT2S5png}{main GNC ICD}. Maintaining the primary GNC mode at this value will not continuously trigger the payload due to the second clause. As a result, the primary GNC mode must be toggled back to some value that is not $33$ prior to requesting another solution. \textbf{The primary GNC flight software is assumed to be in charge of requesting a re-solve for a given maneuver.} The current design is such that triggering a re-solve internally will create an algebraic loop. A brief attempt was made to design internal re-solves into the library, but a decision was made that it would be simpler to manage this within the primary GNC mode manager. 
 
 \subsubsection{Control Torque Allocation}\label{sec3:allocation}
 
-The equations of motion used in the SOAC system are given in~\eqref{eq:eqms}. Since we are using a four-wheel system, a note is needed on what assumptions are being made about how the torques computed by SOAC should be allocated to the wheels. The SOAC payload computes the \textbf{net} torque about the spacecraft body axes that should be applied to perform the maneuver, while accounting for the \textbf{net} momentum in the wheels about the same body axes. 
+The equations of motion used in the SOAR system are given in~\eqref{eq:eqms}. Since we are using a four-wheel system, a note is needed on what assumptions are being made about how the torques computed by SOAR should be allocated to the wheels. The SOAR payload computes the \textbf{net} torque about the spacecraft body axes that should be applied to perform the maneuver, while accounting for the \textbf{net} momentum in the wheels about the same body axes. 
 
 Let $\bm{H}\in\real^4$ be the vector whose components are the angular momenta stored in each wheel and let $\bm{T}\in\real^4$ be the vector whose components are the torques delivered by each wheel. Assuming that the net angular momentum of the wheels, $\hw$, is related to the momentum of each wheel, $\bm{H}$, according to some map $g : \real^4 \rightarrow \real^3$, we have
 \begin{equation}
@@ -137,7 +137,7 @@ for an \textit{eleven-dimensional} state $\bm{x} = \left[ \q\tran \ \hB\tran \ \
 \item There exists a map $g^{\dagger} : \real^4 \rightarrow \real^3$ such that $\bm{z} = g\big( g^{\dagger}(\bm{z})\big)$ for any $\bm{z}\in\real^3$. 
 \item $\der{}{t}g(\bm{z}(t)) = g(\dot{\bm{z}}(t))$ for any $\bm{z}(t)\in\real^4$.
 \end{enumerate}
-Together these conditions should ensure that no matter what allocation scheme is used downstream of the SOAC payload, the intended behaviour will be recovered. 
+Together these conditions should ensure that no matter what allocation scheme is used downstream of the SOAR payload, the intended behaviour will be recovered. 
 
 \paragraph{An Example Allocation Method:} Suppose that the net momentum is related to the momentum in each wheel by
 \begin{equation}
@@ -150,15 +150,15 @@ The $3\times 4$ matrix $A_w$ is singular, but following~\cite[\S 7.3.4]{Sidi1997
 \bm{T} = A_w^{\dagger} \bm{\tau} \quad \text{and} \quad \bm{H} = A_w^{\dagger} \hw
 \end{equation}
 where $A_w^{\dagger} = A_w\tran \inv{\left(A_w A_w\tran\right)} \in \real^{4\times 3}$
-is such that $A_w A_w^{\dagger} = \eye{3}$. Thus the mapping $g(T) = A_w$ satisfies the first condition required above (existence of an ``inverse'' like function). Next, it is clear that the second condition is satisfied because the matrix $A_w$ is constant. This allocation scheme will ensure that SOAC produces the expected behaviour, which has been verified in simulation by mapping an optimal set of controls $\bm{\tau}(t)$ to $\bm{T}(t)$ for $t\in[0,\tf]$ and then integrating the equations of motion~\eqref{eq:new_eqms}. The resulting state vector matched exactly the output of SOAC.
+is such that $A_w A_w^{\dagger} = \eye{3}$. Thus the mapping $g(T) = A_w$ satisfies the first condition required above (existence of an ``inverse'' like function). Next, it is clear that the second condition is satisfied because the matrix $A_w$ is constant. This allocation scheme will ensure that SOAR produces the expected behaviour, which has been verified in simulation by mapping an optimal set of controls $\bm{\tau}(t)$ to $\bm{T}(t)$ for $t\in[0,\tf]$ and then integrating the equations of motion~\eqref{eq:new_eqms}. The resulting state vector matched exactly the output of SOAR.
 
 \subsubsection{Building \& Autocoding}\label{sec2:build_autocode}
 
-You need to build the SOAC executable before you can run a unit test or use the SOAC software. The building/autocoding process that is used for SOAC was developed in~\cite{MalyutaThesis}. First, make sure your current MATLAB directory is \textit{ROOT/adcs/sw/components/adcs\_oac/build}, where \textit{ROOT} is whatever directory the repository is stored in. Assuming that you have correctly run \code{mex -setup} at least once on your machine, you can type \code{build\_soac} at the MATLAB command line. This will take a few seconds and you should see lots of output as components get built. There will be one warning about an implicit function declaration but this is safe to ignore. This process will create three files in the \textit{build} folder, and you may now run one of the unit tests and/or use the SOAC library in simulation.  
+You need to build the SOAR executable before you can run a unit test or use the SOAR software. The building/autocoding process that is used for SOAR was developed in~\cite{MalyutaThesis}. First, make sure your current MATLAB directory is \textit{ROOT/adcs/sw/components/adcs\_oac/build}, where \textit{ROOT} is whatever directory the repository is stored in. Assuming that you have correctly run \code{mex -setup} at least once on your machine, you can type \code{build\_soar} at the MATLAB command line. This will take a few seconds and you should see lots of output as components get built. There will be one warning about an implicit function declaration but this is safe to ignore. This process will create three files in the \textit{build} folder, and you may now run one of the unit tests and/or use the SOAR library in simulation.  
 
 \textbf{Note:} The \code{.gitignore} for the repository is set up to ignore the autogenerated mex files that this process creates. You will need to rebuild the files on any new machine that you use.
 
-To autocode the SOAC library, or anything that contains it, you need to link the external solver files located in \textit{ROOT/adcs/sw/components/adcs\_oac/include/ecos/}. This must be done with the full path from your machine's actual root directory. You need to provide Simulink with the include directory, which is \textit{ROOT/adcs/sw/components/adcs\_oac/include/ecos/include} and the source files (\code{*.c}) from the \textit{ROOT/adcs/sw/components/adcs\_oac/include/ecos/src/} folder. Figure~\ref{fig:autocode} has an example of what the path should look like. The window shown in Figure~\ref{fig:autocode} is found by clicking on
+To autocode the SOAR library, or anything that contains it, you need to link the external solver files located in \textit{ROOT/adcs/sw/components/adcs\_oac/include/ecos/}. This must be done with the full path from your machine's actual root directory. You need to provide Simulink with the include directory, which is \textit{ROOT/adcs/sw/components/adcs\_oac/include/ecos/include} and the source files (\code{*.c}) from the \textit{ROOT/adcs/sw/components/adcs\_oac/include/ecos/src/} folder. Figure~\ref{fig:autocode} has an example of what the path should look like. The window shown in Figure~\ref{fig:autocode} is found by clicking on
 \begin{center}
 \code{Code -> C/C++ Code -> Code Generation Options...}
 \end{center}
@@ -176,42 +176,42 @@ Once these files are linked, you should be able to use the Code Generation Quick
 
 \subsection{Mechanical Interface}\label{sec2:mech_interface}
 
-The SOAC payload is a software function that will be run on the main flight computer. There is no separate mechanical interface.
+The SOAR payload is a software function that will be run on the main flight computer. There is no separate mechanical interface.
 
 \subsection{Electrical Interface}\label{sec2:elec_interface}
 
-The SOAC payload is a software function that will be run on the main flight computer. There is no separate electrical interface.
+The SOAR payload is a software function that will be run on the main flight computer. There is no separate electrical interface.
 
 \subsection{Command and Data Interface}\label{sec2:cmd_interface}
 
 All inputs listed in~\tabref{tab:inputs_outputs} will come from the main GNC flight software. Refer to \href{https://drive.google.com/open?id=1wTjmsQdXGk9jmEHy59fZAdBJJ3r1IE4LGFjHT2S5png}{main GNC ICD}.
 
-The output \ttt{soac\_solution} must be saved for future downlink to the ground station. This has been included in the COM system's measurement budget, and shall be maintained by CDH immediately once it is made available by SOAC. The two remaining outputs are to be provided as the GNC guidance solution and feed forward to the feedback controller that is used during primary GNC mode $33$. 
+The output \ttt{SOAR\_solution} must be saved for future downlink to the ground station. This has been included in the COM system's measurement budget, and shall be maintained by CDH immediately once it is made available by SOAR. The two remaining outputs are to be provided as the GNC guidance solution and feed forward to the feedback controller that is used during primary GNC mode $33$. 
 
 \subsection{Thermal Interface}\label{sec2:thermal_interface}
 
-The SOAC payload is a software component that will be run on the main flight computer. There is no separate thermal interface. However, running the SOAC payload may cause an marked increase in the flight computer's computational load, and therefore it may produce more heat than nominal operating conditions. By calling SOAC only once (instead of repeatedly, see~\sref{sec3:op_modes}) it is hoped that SOAC will not create a large difference in thermal properties than what is expected for the main flight computer.
+The SOAR payload is a software component that will be run on the main flight computer. There is no separate thermal interface. However, running the SOAR payload may cause an marked increase in the flight computer's computational load, and therefore it may produce more heat than nominal operating conditions. By calling SOAR only once (instead of repeatedly, see~\sref{sec3:op_modes}) it is hoped that SOAR will not create a large difference in thermal properties than what is expected for the main flight computer.
 
 \section{Verification and Validation}\label{sec:v_and_v}
 
-This section outlines the testing campaign that SOAC has so far passed during design, as well as a test case that can be used to assess correct functionality during a bench test. The following tests have been made:
+This section outlines the testing campaign that SOAR has so far passed during design, as well as a test case that can be used to assess correct functionality during a bench test. The following tests have been made:
 \begin{enumerate}
 \item A unit test of just the SOLVE function, found in the folder 
 \begin{center}
-\ttt{.../adcs\_oac/test/soac\_unit\_test}
+\ttt{.../adcs\_oac/test/soar\_unit\_test}
 \end{center}
-\item A unit test of the entire SOAC library, found in the folder
+\item A unit test of the entire SOAR library, found in the folder
 \begin{center}
-\ttt{.../adcs\_oac/test/soac\_interface\_unit\_test}
+\ttt{.../adcs\_oac/test/soar\_interface\_unit\_test}
 \end{center}
-\item A Monte Carlo test of the entire SOAC library, found in the folder
+\item A Monte Carlo test of the entire SOAR library, found in the folder
 \begin{center}
-\ttt{.../adcs\_oac/test/soac\_mc\_test}
+\ttt{.../adcs\_oac/test/soar\_mc\_test}
 \end{center}
 \end{enumerate}
-Each folder contains a Matlab script and a Simulink library. Running the Matlab script will run the test and plot some results. The other test folders are not unit tests of the SOAC library in its Simulink form and can be ignored at this point (they were mostly used for development). 
+Each folder contains a Matlab script and a Simulink library. Running the Matlab script will run the test and plot some results. The other test folders are not unit tests of the SOAR library in its Simulink form and can be ignored at this point (they were mostly used for development). 
 
-A 1000 trial Monte Carlo test was run to assess the performance of the SOAC library at the preliminary design stage. The commanded attitude and angular rates were set to $\q_{cmd} = (1,0,0,0)$ and $\bm{\omega}_{\body,cmd}=(0,0,0)$ for each trial. The initial attitude was chosen by selecting a random direction on the unit sphere as an eigenaxis, and a error angle uniformly sampled from the interval $[-90\dg,90\dg]$. The initial quaternion is then
+A 1000 trial Monte Carlo test was run to assess the performance of the SOAR library at the preliminary design stage. The commanded attitude and angular rates were set to $\q_{cmd} = (1,0,0,0)$ and $\bm{\omega}_{\body,cmd}=(0,0,0)$ for each trial. The initial attitude was chosen by selecting a random direction on the unit sphere as an eigenaxis, and a error angle uniformly sampled from the interval $[-90\dg,90\dg]$. The initial quaternion is then
 \begin{equation}
 \theta \sim \mathcal{U}(-90\dg,90\dg), \quad \hat{\bm{n}} = \frac{(x,y,z)}{\|(x,y,z)\|}, \ x,y,z\sim\mathcal{N}(0,1), \quad \q(\ti) = \big(\cos(\tfrac{\theta}{2}),\,\sin(\tfrac{\theta}{2})\hat{\bm{h}} \big)
 \end{equation} 
@@ -227,7 +227,7 @@ and the initial reaction wheel spin rates (in units of RPM) were chosen from
 \end{equation}
 which was then mapped to $\hw(\ti)$ to serve as the initial condition. 
 
-The result of a single trial was assessed first by the value of the \code{exitcode} from SOAC. If the $16$th entry was zero, the trial was deemed a success; any other value was deemed a failure, see Table~\ref{tab:exitcodes}. Next, the resulting feedforward control/state were integrated through the spacecraft's nonlinear equations of motion using the dynamics that are being used to design the primary GNC flight software. A notional feedback controller was added to provide a sense of the closed-loop capabilities. The total degree error \textit{at the end of the maneuver} (i.e., the optimal time $s^* = \tf^*$) between $\q(\tf^*)$ and $\q_{cmd}$ was computed using $\q_{err} = \q(\tf^*)^* \otimes\ q_{cmd}$ and
+The result of a single trial was assessed first by the value of the \code{exitcode} from SOAR. If the $16$th entry was zero, the trial was deemed a success; any other value was deemed a failure, see Table~\ref{tab:exitcodes}. Next, the resulting feedforward control/state were integrated through the spacecraft's nonlinear equations of motion using the dynamics that are being used to design the primary GNC flight software. A notional feedback controller was added to provide a sense of the closed-loop capabilities. The total degree error \textit{at the end of the maneuver} (i.e., the optimal time $s^* = \tf^*$) between $\q(\tf^*)$ and $\q_{cmd}$ was computed using $\q_{err} = \q(\tf^*)^* \otimes\ q_{cmd}$ and
 \begin{equation}
 \theta_{err} = 2 \arccos \big( q_{err,0} \big).
 \end{equation} 
@@ -257,14 +257,14 @@ Median number of iterations & $4$
 \centering
 \subfloat[Initial and final angle distributions]{\includegraphics[width=0.75\textwidth]{figs/100219_dispersion_1000}}\\
 \subfloat[Final versus initial angle errors]{\includegraphics[width=0.75\textwidth]{figs/100219_mc_ic_fc_dispersion_1000}}
-\caption{Closed loop results from 1000 randomized unit tests of SOAC. All final errors are within the required $3.5\dg$ control error bound.}
+\caption{Closed loop results from 1000 randomized unit tests of SOAR. All final errors are within the required $3.5\dg$ control error bound.}
 \label{fig:mc_results_errs}
 \end{figure}
 
 \begin{figure}
 \centering
 \includegraphics[width=0.75\textwidth]{figs/100219_mc_state_1000}
-\caption{Closed loop results from 1000 randomized unit tests of SOAC. Dashed red lines indicate constraint boundaries.}
+\caption{Closed loop results from 1000 randomized unit tests of SOAR. Dashed red lines indicate constraint boundaries.}
 \label{fig:mc_results_state}
 \end{figure}
 
@@ -273,7 +273,7 @@ Median number of iterations & $4$
 \section*{Reference Tables}
 
 \begin{table}[tbh]
-\caption{Description of the SOAC payload's inputs and outputs}
+\caption{Description of the SOAR payload's inputs and outputs}
 \label{tab:inputs_outputs}
 \centering
 \begin{tabular}{ccccL{8cm}}
@@ -290,15 +290,15 @@ Median number of iterations & $4$
 9 & \ttt{MET\_current} & \textit{scalar} & \code{double} & The current value of MET. \\~\\
 \multicolumn{5}{l}{\textbf{Outputs}}\\\hline\hline
 \null & \textbf{Name} & \textbf{Size} & \textbf{Type} & \textbf{Description} \\ \hline
-1 & \ttt{soac\_telemetry} & $153\times 1$ & double & The entire output from the SOAC iterations. This should all be routed to ground for post-processing. See~Table~\ref{tab:soac_telemetry}.\\
+1 & \ttt{soar\_telemetry} & $153\times 1$ & double & The entire output from the SOAR iterations. This should all be routed to ground for post-processing. See~Table~\ref{tab:SOAR_telemetry}.\\
 2 & \ttt{command\_state} & $10\times 1$ & \code{double} & The interpolated state vector to be used as a reference for the feedback control system.\\
 3 & \ttt{command\_torque} & $3\times 1$ & \code{double} & The interpolated control vector to be used as a feedforward actuator command.
 \end{tabular}
 \end{table}
 
 \begin{table}[bht]
-\caption{The components of the \code{soac\_telemetry} struct.}
-\label{tab:soac_telemetry}
+\caption{The components of the \code{soar\_telemetry} struct.}
+\label{tab:SOAR_telemetry}
 \centering
 \begin{tabular}{ccc}
 \textbf{Name} & \textbf{Size} & \textbf{Type} \\ \hline\hline
@@ -307,7 +307,7 @@ Median number of iterations & $4$
 \code{final\_time\_s} & $1$ & \code{double} \\
 \code{exitcode} & $17$ & \code{double} \\
 \code{slv\_time\_s} & $15$ & \code{double} \\
-\code{soac\_count} & $1$ & \code{uint32} \\
+\code{soar\_count} & $1$ & \code{uint32} \\
 \end{tabular}
 \end{table}
 
@@ -422,7 +422,7 @@ Find the time $\tf^*\in\realpp$ and torque commands $\bm{\tau} : [\ti,\tf^*] \ri
 \end{problem} 
 
 \subsection*{Transcription to Second-Order Cone Program}
-This section details the steps necessary to obtain a convex second-order cone approximation of~\ref{prob:prob1} that is solved repeatedly, until convergence, within the SOLVE block of~\fref{fig:soac_inner}.
+This section details the steps necessary to obtain a convex second-order cone approximation of~\ref{prob:prob1} that is solved repeatedly, until convergence, within the SOLVE block of~\fref{fig:SOAR_inner}.
 
 \paragraph{Time Normalization}
 We define our \textit{state} to be $\bm{x} = \big[ \q \; \wB \big]^T \in \real^7$ and our \textit{control} to be $\bm{u} = \uB \in \real^3$. The dynamics in~\eqref{eq:prob_b} and~\eqref{eq:prob_c} can then be expressed in general using
@@ -528,7 +528,7 @@ where $\bm{X} = \big[ \bm{x}_1\tran \; \bm{x}_1\tran \; \ldots \; \bm{x}_{N}\tra
 The solutions to~\pref{prob:prob2} are used to re-discretize the nonlinear dynamics, producing a new set of matrices $\{A,B,S,R\}$, which are then used to re-solve~\pref{prob:prob2}.
 
 \paragraph{Scaling}
-The solution variables can be scaled for better numerical stability by using the diagonal matrices $D_x,\,D_u,\,D_s$ that are defined in the \code{init\_soac\_params.m} file. These are defined so that, for example, $\xx_k = D_x \hat{\xx}_{k}$, and the solver is asked to solve for $\hat{\xx}_k$ instead. The entries in $D_x$ can be chosen so that the expected range of $\hat{\xx}_k$ is roughly $[-1,1]$, providing better numerical conditioning. Sufficient performance has been observed without any scaling (i.e., setting all of these matrices to the identity). For the preliminary design, each matrix has been set to the identity matrix. \textit{If no scaling is required to successfully pass performance testing, these operations should be removed from the library as they would be useless algebraic operations that needlessly increase solution time.} 
+The solution variables can be scaled for better numerical stability by using the diagonal matrices $D_x,\,D_u,\,D_s$ that are defined in the \code{init\_SOAR\_params.m} file. These are defined so that, for example, $\xx_k = D_x \hat{\xx}_{k}$, and the solver is asked to solve for $\hat{\xx}_k$ instead. The entries in $D_x$ can be chosen so that the expected range of $\hat{\xx}_k$ is roughly $[-1,1]$, providing better numerical conditioning. Sufficient performance has been observed without any scaling (i.e., setting all of these matrices to the identity). For the preliminary design, each matrix has been set to the identity matrix. \textit{If no scaling is required to successfully pass performance testing, these operations should be removed from the library as they would be useless algebraic operations that needlessly increase solution time.} 
 
 \paragraph{Standard Form of Constraints}
 
@@ -618,12 +618,12 @@ where,
 H_{x_k} = \begin{bmatrix}
 \zeros{10}{10} & \cdots & \underbrace{\eye{10}}_{k\text{th block}} & \cdots & \zeros{10}{10} & \zeros{10}{(23N+2)} \end{bmatrix}
 \end{equation*}
-Each of these cones have dimension 6. The quantities $G_{\cdot,k}$ and $h=\bm{h}_{\cdot,k}$ are appended to the bottom of $G_{quad}$ and $\bm{h}_{quad}$ as they are computed. The problem sizes are summarized in Table~\ref{tab:soac_dimensions}.
+Each of these cones have dimension 6. The quantities $G_{\cdot,k}$ and $h=\bm{h}_{\cdot,k}$ are appended to the bottom of $G_{quad}$ and $\bm{h}_{quad}$ as they are computed. The problem sizes are summarized in Table~\ref{tab:SOAR_dimensions}.
 
 \begin{table}[tb!]
 \centering
-\caption{Maximum dimensions for the SOAC payload optimization problem. The function \code{convert\_to\_CCS} inside the SOLVE function maps a general matrix $M$ to the compressed column storage matrices $\{M_{jc},M_{ir},M_{pr}\}$ -- see~\cite{MalyutaThesis}.}
-\label{tab:soac_dimensions}
+\caption{Maximum dimensions for the SOAR payload optimization problem. The function \code{convert\_to\_CCS} inside the SOLVE function maps a general matrix $M$ to the compressed column storage matrices $\{M_{jc},M_{ir},M_{pr}\}$ -- see~\cite{MalyutaThesis}.}
+\label{tab:SOAR_dimensions}
 \begin{tabular}{ccccl}
 \textbf{Variable} & \textbf{Size} & \textbf{Type} & \textbf{Value} & \textbf{Description} \\ \hline\hline 
 $n$ & $1$ & \code{int32} & $332$ & number of primal variables \\
@@ -648,7 +648,7 @@ The inequality constraints are then passed to ECOS using the data
 \begin{equation}
 G = \begin{bmatrix}
 G_{lin} \\ G_{quad}
-\end{bmatrix}, \quad \bm{h} = \begin{bmatrix}
+\end{bmatrix}, \quad \bm{h} \preceq_{\mathcal{K}} \begin{bmatrix}
 \bm{h}_{lin} \\ \bm{h}_{quad}
 \end{bmatrix} \quad \Rightarrow \quad G \bm{z} \leq \bm{h}, \quad \text{and} \quad q = \begin{bmatrix}
 32 \\ 6\,\ones{2N}
@@ -673,6 +673,6 @@ where the generalized inequality is either a linear cone as in~\eqref{eq:lcone_s
 
 % \todo{add a section that discusses compressed column storage (ref. Danylo's thesis).}
 \bibliographystyle{plain}
-\bibliography{soacbib}
+\bibliography{soarbib}
 
 \end{document}
