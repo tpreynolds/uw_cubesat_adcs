@@ -33,9 +33,9 @@ close all; clc;
 
 % simulation options
 MET     = 0.0;       % initial MET in [s]
-MET_end = 3*86400.0;       % end MET in [s]
+MET_end = 7*86400.0;       % end MET in [s]
 theta   = 56;           % camera FoV half angle
-elev    = 15;           % elevation above ground station where s/c is visible
+elev    = 10;           % elevation above ground station where s/c is visible
 DEBUG   = false;        % prints extra information per iterate when true
 PLOT    = false;         % generates a plot of ground track when true
 lat_T   = 47.655548;    % ground station latitude
@@ -185,8 +185,11 @@ while(true)
         break;
     end
 end
-mu_len  = mean(rmmissing(lens));
-std_len = std(rmmissing(lens));
+lens    = rmmissing(lens);
+max_len = max(lens);
+min_len = min(lens);
+mu_len  = mean(lens);
+std_len = std(lens);
 fprintf('==================================================\n');
 fprintf('TOTAL passes: %d, TIME overhead: %2.2f +/- %2.2fs \n\n',...
             passes,mu_len,std_len);
@@ -207,7 +210,13 @@ if (~PLOT)
     set(gca,'XTick',-180:30:180);
     set(gca,'YTick',-90:15:90);
     set(gca,'XGrid','on','YGrid','on','GridAlpha',0.2);
-    
+end
+edges = linspace(min_len,max_len,10);
+quants_len = quantile(lens,[0.25,0.5,0.75]);
+figure, hold on, grid on, box on
+histogram(lens,edges)
+for k = 1:numel(quants_len)
+    plot([quants_len(k) quants_len(k)],get(gca,'Ylim'),'r--','LineWidth',1)
 end
 %% HELPER FUNCTIONS
 

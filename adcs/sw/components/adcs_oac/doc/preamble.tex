@@ -4,7 +4,7 @@
 \usepackage{graphicx}
 % \usepackage{epstopdf}
 \usepackage{geometry}
-\geometry{a4paper, total={6in, 8in}}
+\geometry{a4paper,vmargin={0.75in,1in},hmargin={1in,1in}}
 \usepackage{array}
 \newcommand{\PreserveBackslash}[1]{\let\temp=\\#1\let\\=\temp}
 \newcolumntype{C}[1]{>{\PreserveBackslash\centering}p{#1}}
@@ -42,7 +42,7 @@
     urlcolor=blue,
 }
 \usepackage{float}
-\usepackage{adjustbox}
+\usepackage[export]{adjustbox}
 \usepackage{subfig}
 \usepackage{mathtools}
 % \usepackage{units}
@@ -71,6 +71,12 @@
   \addtocounter{footnote}{-1}%
   \endgroup
 }
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{SOAR Interface Control Document}
+\rhead{\thepage}
+\cfoot{\includegraphics[scale=0.25,valign=c]{sections/media/aactLogo.png}}
 
 %%%% COMMANDS %%%%
 

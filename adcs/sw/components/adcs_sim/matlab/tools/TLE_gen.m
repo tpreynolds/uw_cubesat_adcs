@@ -1,4 +1,4 @@
-function [orbit_tle,JD_UTC_epoch] = TLE_gen(YMDHMS, INC, RAAN, ECC, AOP, MNA, MNM, varargin)
+function [orbit_tle] = TLE_gen(YMDHMS, INC, RAAN, ECC, AOP, MNA, MNM, varargin)
 %TLE_GEN
 %
 % Script that generates a formatted TLE.
@@ -62,7 +62,8 @@ JD_begin_of_year    = 367*fullyear - floor((7/4)*(fullyear + floor(10/12))) + ..
 JD_UTC_epoch_J2000  = day_dec + JD_begin_of_year - 2451545;
 
 % Reformat the eccentricity1
-nz  = 7 - floor(log10(ECC)) - 1;
+nz  = 7 + floor(log10(ECC));
+ECC = ECC * 10^7;
 switch nz
     case 0
         sECC = num2str(ECC,'%7.0f');
@@ -83,9 +84,11 @@ switch nz
 end
 
 % Output a text file with this TLE
-fID = fopen('ourTLE.txt','w');
-fprintf(fID,'1 00000U 18001Z   %02.0f%012.8f %s  00000-0 %+5.0f%2.0f 0  0017\n',year,day_dec,sMNM_dot,B_star,B_star_ex);
-fprintf(fID,'2 00000  %7.4f %08.4f %s %08.4f %08.4f %10.8f563537',INC,RAAN,sECC,AOP,MNA,MNM);
+fID = fopen('include/TLEs/ourTLE.txt','w');
+fprintf(fID,'1 00000U 18001Z   %02.0f%012.8f %s  00000-0 %+5.0f%2.0f 0  0017\n',...
+            year,day_dec,sMNM_dot,B_star*10^5,B_star_ex);
+fprintf(fID,'2 00000  %7.4f %08.4f %s %08.4f %08.4f %10.8f563537',...
+            INC,RAAN,sECC,AOP,MNA,MNM);
 fclose(fID);
 
 % Output a TLE in the format used for sim
